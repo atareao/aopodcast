@@ -2,13 +2,14 @@ use regex::Regex;
 use reqwest;
 use serde::{Serialize, Deserialize};
 
+use super::{metadata::Metadata, mp3metadata::Mp3Metadata};
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item{
     identifier: String,
     mediatype: String,
-    collection: String,
-    subject: String,
-    date: String,
+    collection: Vec<String>,
+    subject: Vec<String>,
     description: String,
     filename: String,
     mtime: String,
@@ -23,9 +24,34 @@ pub struct Item{
     comment: String,
     slug: String,
     post_filename: String,
+    date: String,
 }
 
 impl Item {
+    pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
+        Self{
+            identifier: metadata.identifier,
+            mediatype: metadata.mediatype,
+            collection: metadata.collection,
+            subject: metadata.subject,
+            description: metadata.description,
+            filename: mp3metadata.filename,
+            mtime: mp3metadata.mtime,
+            size: mp3metadata.size,
+            length: mp3metadata.length,
+            title: mp3metadata.title,
+            creator: mp3metadata.creator,
+            album: mp3metadata.album,
+            track: mp3metadata.track,
+            artist: mp3metadata.artist,
+            genre: mp3metadata.genre,
+            comment: mp3metadata.comment,
+            slug: "".to_string(),
+            post_filename: "".to_string(),
+            date: "".to_string(),
+        }
+
+    }
 
     fn get(tag: &str, xml: &str) -> Vec<String>{
         let mut result = Vec::new();
