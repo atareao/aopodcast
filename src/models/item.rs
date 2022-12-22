@@ -1,5 +1,7 @@
+use std::fmt::Display;
+
 use regex::Regex;
-use reqwest;
+use std::fmt;
 use serde::{Serialize, Deserialize};
 
 use super::{metadata::Metadata, mp3metadata::Mp3Metadata};
@@ -27,25 +29,54 @@ pub struct Item{
     date: String,
 }
 
+impl Display for Item {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Identifier: {}\n
+                   Mediatype: {}\n
+                   Collection: {}\n
+                   Subject: {}\n
+                   Description: {}\n
+                   Filename: {}\n
+                   Mtime: {}\n
+                   Size: {}\n
+                   Length: {}\n
+                   Title: {}\n
+                   Creator: {}\n
+                   Album: {}\n
+                   Track: {}\n
+                   Artist: {}\n
+                   Genre: {}\n
+                   Comment: {}\n
+                   Slug: {}\n
+                   Post_filename: {}\n
+                   Date: {}\n",
+            self.identifier, self.mediatype, self.collection.concat(),
+            self.subject.concat(), self.description, self.filename, self.mtime,
+            self.size, self.length, self.title, self.creator, self.album,
+            self.track, self.artist, self.genre, self.comment, self.slug,
+            self.post_filename, self.date)
+    }
+}
+
 impl Item {
     pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
         Self{
-            identifier: metadata.identifier,
-            mediatype: metadata.mediatype,
-            collection: metadata.collection,
-            subject: metadata.subject,
-            description: metadata.description,
-            filename: mp3metadata.filename,
-            mtime: mp3metadata.mtime,
-            size: mp3metadata.size,
-            length: mp3metadata.length,
-            title: mp3metadata.title,
-            creator: mp3metadata.creator,
-            album: mp3metadata.album,
-            track: mp3metadata.track,
-            artist: mp3metadata.artist,
-            genre: mp3metadata.genre,
-            comment: mp3metadata.comment,
+            identifier: metadata.identifier.to_string(),
+            mediatype: metadata.mediatype.to_string(),
+            collection: metadata.collection.clone(),
+            subject: metadata.subject.clone(),
+            description: metadata.description.to_string(),
+            filename: mp3metadata.filename.to_string(),
+            mtime: mp3metadata.mtime.to_string(),
+            size: mp3metadata.size.to_string(),
+            length: mp3metadata.length.to_string(),
+            title: mp3metadata.title.to_string(),
+            creator: mp3metadata.creator.to_string(),
+            album: mp3metadata.album.to_string(),
+            track: mp3metadata.track.to_string(),
+            artist: mp3metadata.artist.to_string(),
+            genre: mp3metadata.genre.to_string(),
+            comment: mp3metadata.comment.to_string(),
             slug: "".to_string(),
             post_filename: "".to_string(),
             date: "".to_string(),

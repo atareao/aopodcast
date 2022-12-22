@@ -1,8 +1,6 @@
 use serde::Deserialize;
-use regex::Regex;
+use crate::models::{metadata::Metadata, mp3metadata::Mp3Metadata};
 use super::item::Item;
-use html_escape::decode_html_entities;
-use html2md;
 
 const BASE_URL: &'static str = "https://archive.org";
 
@@ -53,11 +51,15 @@ impl ArchiveOrgClient{
                         println!("Response");
                         println!("{:?}", response.items);
                         for item in response.items{
-                            let metadata = Self::get_metadata(&item.identifier).await;
-                            let mp3_metadata = Self::get_mp3_metadata(&item.identifier).await;
-                            println!("{:?}", metadata);
-                            items.push(Item::from_metadata(&metadata, &mp3_metadata))
-
+                            let metadata_result = Self::get_metadata(&item.identifier).await;
+                            let mp3_metadata_result = Self::get_mp3_metadata(&item.identifier).await;
+                            if metadata_result.is_some() && mp3_metadata_result.is_some(){
+                                let metadata = Metadata::new(&metadata_result.unwrap());
+                                let mp3_metadata = Mp3Metadata::new(&mp3_metadata_result.unwrap());
+                                let item = Item::from_metadata(&metadata, &mp3_metadata);
+                                println!("Item: {}", &item);
+                                items.push(item);
+                            }
                         }
                     },
                     Err(e) => {
