@@ -17,7 +17,6 @@ pub struct Mp3Metadata{
 
 impl Mp3Metadata {
     pub fn new(content: &str) -> Mp3Metadata{
-        println!("{}", content);
         let pattern_init = Regex::new(r#"^\s+<file name=".*\.mp3" source="original">"#).unwrap();
         let pattern_end = Regex::new(r#"^\s+</file>"#).unwrap();
         let mut mp3 = false;
@@ -33,7 +32,6 @@ impl Mp3Metadata {
                 break;
             }
         }
-        println!("{:?}", mp3_metadata);
         let text = mp3_metadata.concat();
         let mtime = Self::get("mtime", &text).get(0).unwrap().to_string();
         let size = Self::get("size", &text).get(0).unwrap().to_string();

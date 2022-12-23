@@ -1,3 +1,4 @@
+use log::{info, warn, error};
 use serde::Deserialize;
 use crate::models::{metadata::Metadata, mp3metadata::Mp3Metadata};
 use super::item::Item;
@@ -37,7 +38,7 @@ impl ArchiveOrgClient{
         ];
         let call_url = format!("{}/services/search/v1/scrape", BASE_URL);
         let url = reqwest::Url::parse_with_params(&call_url, params).unwrap();
-        println!("url: {}", url);
+        info!("url: {}", url);
         let client = reqwest::Client::new();
         let response = client
             .get(url)
@@ -48,8 +49,6 @@ impl ArchiveOrgClient{
             reqwest::StatusCode::OK => {
                 match response.json::<Response>().await {
                     Ok(response) => {
-                        println!("Response");
-                        println!("{:?}", response.items);
                         for item in response.items{
                             let metadata_result = Self::get_metadata(&item.identifier).await;
                             let mp3_metadata_result = Self::get_mp3_metadata(&item.identifier).await;
@@ -57,18 +56,17 @@ impl ArchiveOrgClient{
                                 let metadata = Metadata::new(&metadata_result.unwrap());
                                 let mp3_metadata = Mp3Metadata::new(&mp3_metadata_result.unwrap());
                                 let item = Item::from_metadata(&metadata, &mp3_metadata);
-                                println!("Item: {}", &item);
                                 items.push(item);
                             }
                         }
                     },
                     Err(e) => {
-                        println!("Error: {:?}", e);
+                        error!("Error: {:?}", e);
                     },
                 }
             }
             _ => {
-                println!("Callinggg caca");
+                warn!("Nothing found?");
             }
         }
         return items
@@ -77,7 +75,7 @@ impl ArchiveOrgClient{
     async fn get_mp3_metadata(identifier: &str) -> Option<String>{
         let url = format!("{}/download/{identifier}/{identifier}_files.xml",
             BASE_URL, identifier=identifier);
-        println!("url: {}", url);
+        info!("url: {}", url);
         let client = reqwest::Client::new();
         let response = client
             .get(url)
@@ -100,7 +98,7 @@ impl ArchiveOrgClient{
     async fn get_metadata(identifier: &str) -> Option<String>{
         let url = format!("{}/download/{identifier}/{identifier}_meta.xml",
             BASE_URL, identifier=identifier);
-        println!("url: {}", url);
+        info!("url: {}", url);
         let client = reqwest::Client::new();
         let response = client
             .get(url)
@@ -124,6 +122,9 @@ impl ArchiveOrgClient{
 #[tokio::test]
 async fn test(){
     let aoclient = ArchiveOrgClient::new("Papa Friki");
-    let items = aoclient.get_items("2022-10-01");
-    assert!(items.await.len() > 0)
+    let items = aoclient.get_items("2022-12-01").await;
+    if items.len() > 0{
+        println!("{}", items.get(0).unwrap());
+    }
+    assert!(items.len() > 0)
 }

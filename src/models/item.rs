@@ -102,12 +102,10 @@ impl Item {
 #[tokio::test]
 async fn test1(){
     let creator = "Papa Friki";
-    let since = "2022-09-01";
+    let since = "2022-12-01";
     let query = format!("creator:({creator}) AND date:[{since} TO 9999-12-31]", creator=creator, since=since);
     let params = [("q", query), ("fields", "identifier".to_string()), ("sorts", "date".to_string())];
     let url = reqwest::Url::parse_with_params("https://archive.org/services/search/v1/scrape", params).unwrap();
     let response = reqwest::get(url).await.unwrap();
     assert_eq!(response.status(), 200)
 }
-
-

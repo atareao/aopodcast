@@ -20,6 +20,10 @@ tera = "1.17"
 # Yaml
 serde_yaml = "0.9"
 
+# log
+log = "0.4"
+env_logger = "0.10"
+
 # Utility
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
