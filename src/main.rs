@@ -3,6 +3,10 @@ mod models;
 use models::config::Configuration;
 use simplelog::{SimpleLogger, Config, LevelFilter};
 use log::info;
+use crate::models::archive::{
+    Items,
+    ArchiveOrgClient,
+};
 
 #[tokio::main]
 async fn main(){
@@ -18,4 +22,14 @@ async fn main(){
     };
     let _ = SimpleLogger::init(level_filter, Config::default());
     info!("Configuration: {}", configuration);
+    let mut items = Items::read_saved_items().await;
+    let since = if items.len() == 0{
+        "1971-01-01"
+    }else{
+        "2022-12-12"
+    };
+    let aoc = ArchiveOrgClient::new(configuration.get_creator());
+    let new_items = aoc.get_items(&since).await;
+    items.add(&new_items);
+    items.save_items().await;
 }
