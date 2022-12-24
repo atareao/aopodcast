@@ -33,16 +33,16 @@ impl Mp3Metadata {
             }
         }
         let text = mp3_metadata.concat();
-        let mtime = Self::get("mtime", &text).get(0).unwrap().to_string();
-        let size = Self::get("size", &text).get(0).unwrap().to_string();
-        let length = Self::get("length", &text).get(0).unwrap().to_string();
-        let title = Self::get("title", &text).get(0).unwrap().to_string();
-        let creator = Self::get("creator", &text).get(0).unwrap().to_string();
-        let album = Self::get("album", &text).get(0).unwrap().to_string();
-        let track = Self::get("track", &text).get(0).unwrap().to_string();
-        let artist = Self::get("artist", &text).get(0).unwrap().to_string();
-        let genre = Self::get("genre", &text).get(0).unwrap().to_string();
-        let comment = Self::get("comment", &text).get(0).unwrap().to_string();
+        let mtime = Self::get_value("mtime", &text);
+        let size = Self::get_value("size", &text);
+        let length = Self::get_value("length", &text);
+        let title = Self::get_value("title", &text);
+        let creator = Self::get_value("creator", &text);
+        let album = Self::get_value("album", &text);
+        let track = Self::get_value("track", &text);
+        let artist = Self::get_value("artist", &text);
+        let genre = Self::get_value("genre", &text);
+        let comment = Self::get_value("comment", &text);
         let pattern = r#"<file name="([^"]*)" source="original">"#;
         let re = Regex::new(pattern).unwrap();
         let caps = re.captures(&text).unwrap();
@@ -71,5 +71,17 @@ impl Mp3Metadata {
             result.push(cap.get(1).unwrap().as_str().to_string());
         }
         result
+    }
+    fn get_value(tag: &str, xml: &str) -> String{
+        let value = Self::get(tag, xml);
+        if value.len() > 0{
+            match value.get(0) {
+                Some(value) => value.to_string(),
+                None => "".to_string()
+            }
+        }else{
+            "".to_string()
+        }
+
     }
 }
