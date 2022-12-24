@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 
 use super::{metadata::Metadata, mp3metadata::Mp3Metadata};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Item{
     identifier: String,
     mediatype: String,
@@ -82,6 +82,10 @@ impl Item {
             date: "".to_string(),
         }
 
+    }
+
+    pub fn get_identifier(&self) -> &str{
+        &self.identifier
     }
 
     fn get(tag: &str, xml: &str) -> Vec<String>{
