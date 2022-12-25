@@ -6,14 +6,16 @@ use std::{process, fmt::{self, Display}};
 pub struct Configuration{
     log_level: String,
     creator: String,
+    data: String,
     public: String,
 }
 
 impl Display for Configuration{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "log_level: {},\ncreator: {}\npublic: {}",
+        write!(f, "log_level: {},\ncreator: {}\ndata: {}\npublic: {}",
             self.get_log_level(),
             self.get_creator(),
+            self.get_data(),
             self.get_public(),
         )
     }
@@ -25,6 +27,10 @@ impl Configuration {
     }
     pub fn get_creator(&self) -> &str{
         &self.creator
+    }
+
+    pub fn get_data(&self) -> &str{
+        &self.data
     }
 
     pub fn get_public(&self) -> &str{
