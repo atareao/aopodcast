@@ -83,6 +83,9 @@ impl Item {
         }
 
     }
+    pub fn get_mtime(&self) -> &str{
+        &self.mtime
+    }
 
     pub fn get_identifier(&self) -> &str{
         &self.identifier
