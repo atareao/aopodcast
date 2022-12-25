@@ -3,26 +3,27 @@ creator: Papa Friki
 data: /data/rust/aopodcast/data/data.json
 public: /data/rust/aopodcast/public
 site:
-  author: Papa Friki
-  name:
-  description:
-  baseurl:
-  avatar:
+  author: Papá Friki
+  name: Papá Friki
+  description: Batallitas del día a día de un Papá Friki
+  baseurl: http://papafriki.gitlab.io/podcast/
+  avatar: https://assets.gitlab-static.net/uploads/-/system/project/avatar/5685462/avatar.png
   google_analytics:
 footer_links:
   dribble:
-  email:
+  email: papafrikipodcast@gmail.com
   facebook:
   flickr:
-  gitlab:
+  gitlab: papafrikipodcast
   instagram:
   linkedin:
-  pinteres:
-  twitter:
+  pinterest:
+  rss: http://feeds.feedburner.com/papafriki
+  twitter: papa_friki
   stackoverflow:
   youtube:
   googleplus:
   telegram:
-  archiveorg:
+  archiveorg: papafriki
   mastodon:
   android:
