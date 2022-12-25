@@ -2,3 +2,27 @@ log_level: info
 creator: Papa Friki
 data: /data/rust/aopodcast/data/data.json
 public: /data/rust/aopodcast/public
+site:
+  author: Papa Friki
+  name:
+  description:
+  baseurl:
+  avatar:
+  google_analytics:
+footer_links:
+  dribble:
+  email:
+  facebook:
+  flickr:
+  gitlab:
+  instagram:
+  linkedin:
+  pinteres:
+  twitter:
+  stackoverflow:
+  youtube:
+  googleplus:
+  telegram:
+  archiveorg:
+  mastodon:
+  android:
