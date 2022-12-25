@@ -1,7 +1,9 @@
+{% extends "default.html" %}
+{% block content %}
 <article class="post">
   <h1>{{ page.title }}</h1>
   <div class="entry">
-    {{ content }}
+    {{ page.content | safe }}
   </div>
 
   <div class="date">
@@ -10,3 +12,4 @@
 
   {% include "disqus.html" %}
 </article>
+{% endblock content %}
