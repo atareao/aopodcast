@@ -23,7 +23,7 @@ async fn main(){
         _ => LevelFilter::Off,
     };
     let _ = SimpleLogger::init(level_filter, Config::default());
-    info!("Configuration: {}", configuration);
+    info!("Configuration: {:?}", configuration);
     let new_items = read_and_save(&configuration).await;
 }
 
