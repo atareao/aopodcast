@@ -73,8 +73,9 @@ fn generate_html(configuration: &Configuration, new_items: &Vec<Item>){
     context.insert("site", configuration.get_site());
     context.insert("footer_links", configuration.get_footer_links());
     for item in new_items.as_slice(){
-        context.insert("item", item);
-        match tera.render("page.html", &context){
+        context.insert("page", &item.get_page());
+        println!("content: {}", item.get_page().content);
+        match tera.render("post.html", &context){
             Ok(value) => info!("{}", value),
             Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
         }

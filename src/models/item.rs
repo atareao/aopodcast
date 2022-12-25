@@ -4,8 +4,9 @@ use chrono::{DateTime, Utc, NaiveDateTime};
 use regex::Regex;
 use std::fmt;
 use serde::{Serialize, Deserialize};
+use comrak::{markdown_to_html, ComrakOptions};
 
-use super::{metadata::Metadata, mp3metadata::Mp3Metadata};
+use super::{metadata::Metadata, mp3metadata::Mp3Metadata, site::Page};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Item{
@@ -60,6 +61,15 @@ impl Display for Item {
 }
 
 impl Item {
+    pub fn get_page(&self) -> Page{
+        let content = markdown_to_html(&self.description, &ComrakOptions::default());
+        Page{
+            excerpt: self.comment.clone(),
+            title: self.title.clone(),
+            content,
+            date: self.mtime.parse::<u64>().unwrap(),
+        }
+    }
     pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
         Self{
             identifier: metadata.identifier.to_string(),
