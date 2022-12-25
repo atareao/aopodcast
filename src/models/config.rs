@@ -2,12 +2,19 @@ use serde::{Serialize, Deserialize};
 use tokio::fs::read_to_string;
 use std::{process, fmt::{self, Display}};
 
+use super::site::{
+    Site,
+    FooterLinks,
+};
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Configuration{
     log_level: String,
     creator: String,
     data: String,
     public: String,
+    site: Site,
+    footer_links: FooterLinks
 }
 
 impl Display for Configuration{
@@ -22,6 +29,12 @@ impl Display for Configuration{
 }
 
 impl Configuration {
+    pub fn get_footer_links(&self) -> &FooterLinks {
+        &self.footer_links
+    }
+    pub fn get_site(&self) -> &Site {
+        &self.site
+    }
     pub fn get_log_level(&self) -> &str{
         &self.log_level
     }
