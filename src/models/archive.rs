@@ -1,8 +1,7 @@
 use log::{info, warn, error};
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use crate::models::{metadata::Metadata, mp3metadata::Mp3Metadata};
 use super::item::Item;
-use std::env;
 
 const BASE_URL: &'static str = "https://archive.org";
 
@@ -19,64 +18,6 @@ pub struct ArchiveOrgClient{
 #[derive(Debug, Deserialize)]
 struct Response{
     items: Vec<BaseItem>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Items{
-    items: Vec<Item>,
-}
-
-impl Items{
-    pub fn new(items: Vec<Item>) -> Items{
-        Self{items,}
-    }
-    pub fn len(&self) -> usize{
-        self.items.len()
-    }
-    pub async fn read_saved_items() -> Items{
-        let mut path = env::current_exe().unwrap();
-        path.pop();
-        path.push("data");
-        path.push("podcasts.json");
-        match tokio::fs::metadata(&path).await{
-            Ok(metadata) =>{
-                if metadata.is_file(){
-                    let data = tokio::fs::read_to_string(&path).await.unwrap();
-                    serde_json::from_str::<Items>(&data).unwrap()
-                }else{
-                    Items::new(Vec::new())
-                }
-            },
-            Err(_) => Items::new(Vec::new())
-        }
-    }
-
-    pub async fn save_items(&self) -> Result<(), std::io::Error>{
-        let mut path = env::current_exe().unwrap();
-        path.pop();
-        path.push("data");
-        path.push("podcasts.json");
-        tokio::fs::write(
-            path,
-            serde_json::to_string_pretty(&self).unwrap(),
-        ).await
-    }
-    pub fn exists(&self, other: &Item) -> bool{
-        for item in self.items.as_slice(){
-            if item.get_identifier() == other.get_identifier(){
-                return true;
-            }
-        }
-        false
-    }
-    pub fn add(&mut self, items: &Vec<Item>){
-        for item in items{
-            if !self.exists(item){
-                self.items.push(item.clone())
-            }
-        }
-    }
-
 }
 
 impl ArchiveOrgClient{
@@ -115,9 +56,10 @@ impl ArchiveOrgClient{
                             let mp3_metadata_result = Self::get_mp3_metadata(&item.identifier).await;
                             if metadata_result.is_some() && mp3_metadata_result.is_some(){
                                 let metadata = Metadata::new(&metadata_result.unwrap());
-                                let mp3_metadata = Mp3Metadata::new(&mp3_metadata_result.unwrap());
-                                let item = Item::from_metadata(&metadata, &mp3_metadata);
-                                items.push(item);
+                                if let Some(mp3_metadata) = Mp3Metadata::new(&mp3_metadata_result.unwrap()){
+                                    let item = Item::from_metadata(&metadata, &mp3_metadata);
+                                    items.push(item);
+                                }
                             }
                         }
                     },
