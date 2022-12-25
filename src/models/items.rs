@@ -50,7 +50,9 @@ impl Items{
     pub fn add(&mut self, items: &Vec<Item>){
         for item in items{
             if !self.exists(item){
-                self.items.push(item.clone())
+                self.items.push(item.clone());
+            }else{
+                info!("Exists {}", item.get_identifier());
             }
         }
     }
@@ -63,5 +65,9 @@ impl Items{
             }
         }
         last
+    }
+
+    pub fn count(&self) -> usize{
+        self.items.len()
     }
 }
