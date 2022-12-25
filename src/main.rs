@@ -2,8 +2,9 @@ mod models;
 
 use models::config::Configuration;
 use simplelog::{SimpleLogger, Config, LevelFilter};
-use log::info;
+use log::{info, error};
 use crate::models::{
+    item::Item,
     items::Items,
     archive::ArchiveOrgClient,
 };
@@ -22,6 +23,10 @@ async fn main(){
     };
     let _ = SimpleLogger::init(level_filter, Config::default());
     info!("Configuration: {}", configuration);
+    let new_items = read_and_save(&configuration).await;
+}
+
+async fn read_and_save(configuration: &Configuration) -> Vec<Item>{
     let mut items = Items::read_saved_items(configuration.get_data()).await;
 
     info!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
@@ -43,7 +48,12 @@ async fn main(){
     }
     if to_add.len() > 0 {
         items.add(&to_add);
-        items.save_items(configuration.get_data()).await;
+        match items.save_items(configuration.get_data()).await{
+            Ok(_) => info!("Saved"),
+            Err(e) => error!("Some error happened, {}", e),
+        }
     }
     info!("Added {} items", to_add.len());
+    to_add
+
 }

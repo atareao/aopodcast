@@ -1,4 +1,4 @@
 log_level: info
 creator: Papa Friki
 data: /data/rust/aopodcast/data/data.json
-public: public
+public: /data/rust/aopodcast/public
