@@ -1,3 +1,4 @@
+use log::info;
 use regex::Regex;
 
 #[derive(Debug)]
@@ -16,7 +17,7 @@ pub struct Mp3Metadata{
 }
 
 impl Mp3Metadata {
-    pub fn new(content: &str) -> Mp3Metadata{
+    pub fn new(content: &str) -> Option<Mp3Metadata>{
         let pattern_init = Regex::new(r#"^\s+<file name=".*\.mp3" source="original">"#).unwrap();
         let pattern_end = Regex::new(r#"^\s+</file>"#).unwrap();
         let mut mp3 = false;
@@ -33,6 +34,10 @@ impl Mp3Metadata {
             }
         }
         let text = mp3_metadata.concat();
+        if text.is_empty(){
+            return None;
+        }
+        info!("Text: {}", &text);
         let mtime = Self::get_value("mtime", &text);
         let size = Self::get_value("size", &text);
         let length = Self::get_value("length", &text);
@@ -47,7 +52,7 @@ impl Mp3Metadata {
         let re = Regex::new(pattern).unwrap();
         let caps = re.captures(&text).unwrap();
         let filename = caps.get(1).unwrap().as_str().to_string();
-        Mp3Metadata{
+        Some(Mp3Metadata{
             filename,
             mtime,
             size,
@@ -59,7 +64,7 @@ impl Mp3Metadata {
             artist,
             genre,
             comment,
-        }
+        })
     }
 
     fn get(tag: &str, xml: &str) -> Vec<String>{
