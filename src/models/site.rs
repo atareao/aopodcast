@@ -8,6 +8,10 @@ pub struct Site{
     pub baseurl: String,
     pub avatar: String,
     pub google_analytics: String,
+    pub disqus: String,
+    pub category: String,
+    pub subcategory: String,
+    pub explicit: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -35,5 +39,7 @@ pub struct FooterLinks{
 pub struct Page{
     pub excerpt: String,
     pub title: String,
+    pub content: String,
+    pub date: u64,
 }
 

@@ -1,4 +1,4 @@
-log_level: info
+log_level: debug
 creator: Papa Friki
 data: /data/rust/aopodcast/data/data.json
 public: /data/rust/aopodcast/public
@@ -6,9 +6,13 @@ site:
   author: Papá Friki
   name: Papá Friki
   description: Batallitas del día a día de un Papá Friki
-  baseurl: http://papafriki.gitlab.io/podcast/
+  baseurl: /podcast
   avatar: https://assets.gitlab-static.net/uploads/-/system/project/avatar/5685462/avatar.png
   google_analytics:
+  disqus: papfriki
+  category: Technology
+  subcategory: Podcasting
+  explicit: true
 footer_links:
   dribble:
   email: papafrikipodcast@gmail.com
