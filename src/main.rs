@@ -24,17 +24,26 @@ async fn main(){
     info!("Configuration: {}", configuration);
     let mut items = Items::read_saved_items(configuration.get_data()).await;
 
-    info!("{}", items.get_last());
+    info!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
+    info!("{}", items.get_last().get_date());
     let since = if items.len() == 0{
-        //"1971-01-01"
-        "2022-12-22"
+        "1971-01-01".to_string()
     }else{
-        "2022-12-22"
+        items.get_last().get_date().format("%Y-%m-%d").to_string()
     };
+    info!("{}", since);
     let aoc = ArchiveOrgClient::new(configuration.get_creator());
-    let new_items = aoc.get_items(&since).await;
-    info!("{:?}", &new_items);
-    items.add(&new_items);
-    info!("{:?}", &items);
-    items.save_items(configuration.get_data()).await;
+    let read_items = aoc.get_items(&since).await;
+    let mut to_add = Vec::new();
+    for item in read_items{
+        if !items.exists(&item){
+            info!("To add {}", &item.get_identifier());
+            to_add.push(item);
+        }
+    }
+    if to_add.len() > 0 {
+        items.add(&to_add);
+        items.save_items(configuration.get_data()).await;
+    }
+    info!("Added {} items", to_add.len());
 }
