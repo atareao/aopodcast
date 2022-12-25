@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use chrono::{DateTime, Utc, NaiveDateTime};
 use regex::Regex;
 use std::fmt;
 use serde::{Serialize, Deserialize};
@@ -89,6 +90,12 @@ impl Item {
 
     pub fn get_identifier(&self) -> &str{
         &self.identifier
+    }
+
+    pub fn get_date(&self) -> DateTime<Utc>{
+        let timestamp = self.get_mtime().parse::<i64>().unwrap();
+        let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+        DateTime::<Utc>::from_utc(naive_date_time, Utc)
     }
 
     fn get(tag: &str, xml: &str) -> Vec<String>{
