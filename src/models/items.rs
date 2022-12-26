@@ -57,6 +57,10 @@ impl Items{
         }
     }
 
+    pub fn get_items(&self) -> &Vec<Item>{
+        &self.items
+    }
+
     pub fn get_last(&self) -> &Item{
         let mut last = self.items.get(0).unwrap();
         for item in self.items.as_slice(){
