@@ -7,6 +7,7 @@ use tera::{Context, Tera};
 use crate::models::{
     item::Item,
     items::Items,
+    site::Page,
     archive::ArchiveOrgClient,
 };
 
@@ -47,18 +48,39 @@ async fn read_and_save(configuration: &Configuration) -> Vec<Item>{
             to_add.push(item);
         }
     }
+    generate_index(&configuration, items.get_items());
     if to_add.len() > 0 {
         items.add(&to_add);
         match items.save_items(configuration.get_data()).await{
             Ok(_) => {
                 info!("Saved");
-                generate_html(&configuration, &to_add)
+                generate_html(&configuration, &to_add);
+                generate_index(&configuration, items.get_items());
             },
             Err(e) => error!("Some error happened, {}", e),
         }
     }
     info!("Added {} items", to_add.len());
     to_add
+}
+
+fn generate_index(configuration: &Configuration, items: &Vec<Item>){
+    let tera = match Tera::new("templates/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let mut context = Context::new();
+    context.insert("site", configuration.get_site());
+    context.insert("footer_links", configuration.get_footer_links());
+    let posts: Vec<Page> = items.iter().map(|item| item.get_page()).collect();
+    context.insert("posts", &posts);
+    match tera.render("index.html", &context){
+        Ok(value) => info!("{}", value),
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
 }
 
 fn generate_html(configuration: &Configuration, new_items: &Vec<Item>){

@@ -1,6 +1,7 @@
 use std::fmt::Display;
 
 use chrono::{DateTime, Utc, NaiveDateTime};
+use log::info;
 use regex::Regex;
 use std::fmt;
 use serde::{Serialize, Deserialize};
@@ -63,7 +64,14 @@ impl Display for Item {
 impl Item {
     pub fn get_page(&self) -> Page{
         let content = markdown_to_html(&self.description, &ComrakOptions::default());
+        
+        let re = Regex::new(r"[^a-z\-]").unwrap();
+        let url = re.replace_all(&self.title.to_lowercase(), "-").to_string();
+        let re = Regex::new(r"\-{2,}").unwrap();
+        let url = re.replace_all(&url, "-").to_string();
+        info!("Url: {}", url);
         Page{
+            url,
             excerpt: self.comment.clone(),
             title: self.title.clone(),
             content,
