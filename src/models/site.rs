@@ -37,7 +37,7 @@ pub struct FooterLinks{
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Page{
-    pub url: String,
+    pub slug: String,
     pub excerpt: String,
     pub title: String,
     pub content: String,

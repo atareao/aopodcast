@@ -1,7 +1,6 @@
 use std::fmt::Display;
 
 use chrono::{DateTime, Utc, NaiveDateTime};
-use log::info;
 use regex::Regex;
 use std::fmt;
 use serde::{Serialize, Deserialize};
@@ -64,18 +63,13 @@ impl Display for Item {
 impl Item {
     pub fn get_page(&self) -> Page{
         let content = markdown_to_html(&self.description, &ComrakOptions::default());
-        
-        let re = Regex::new(r"[^a-z\-]").unwrap();
-        let url = re.replace_all(&self.title.to_lowercase(), "-").to_string();
-        let re = Regex::new(r"\-{2,}").unwrap();
-        let url = re.replace_all(&url, "-").to_string();
-        info!("Url: {}", url);
+        let date = self.get_mtime().parse::<u64>().unwrap();
         Page{
-            url,
+            slug: self.slug.clone(),
             excerpt: self.comment.clone(),
             title: self.title.clone(),
             content,
-            date: self.mtime.parse::<u64>().unwrap(),
+            date,
         }
     }
     pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
@@ -96,9 +90,9 @@ impl Item {
             artist: mp3metadata.artist.to_string(),
             genre: mp3metadata.genre.to_string(),
             comment: mp3metadata.comment.to_string(),
-            slug: "".to_string(),
+            slug: get_slug(&mp3metadata.title),
             post_filename: "".to_string(),
-            date: "".to_string(),
+            date: get_date(&mp3metadata.mtime),
         }
 
     }
@@ -115,20 +109,32 @@ impl Item {
         let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
         DateTime::<Utc>::from_utc(naive_date_time, Utc)
     }
+}
 
-    fn get(tag: &str, xml: &str) -> Vec<String>{
-        let mut result = Vec::new();
-        let pattern = format!("<{tag}>([^<]*)</{tag}>", tag=tag);
-        let re = Regex::new(&pattern).unwrap();
+fn get_date(mtime: &str) -> String{
+    let timestamp = mtime.parse::<i64>().unwrap();
+    let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
+    let date = DateTime::<Utc>::from_utc(naive_date_time, Utc);
+    date.format("%Y-%m-%d").to_string()
+}
 
-        for cap in re.captures_iter(xml){
-            for item in cap.iter(){
-                result.push(item.unwrap().as_str().to_string());
-            }
-        }
-
-        result
-    }
+fn get_slug(title: &str) -> String{
+    let title: String = title
+        .to_lowercase().
+        chars()
+        .map(|c| match c {
+            'a'..='z'|'0'..='9' => c,
+            'á'|'ä'|'à'|'â'     => 'a',
+            'é'|'ë'|'è'|'ê'     => 'e',
+            'í'|'ï'|'ì'|'î'     => 'i',
+            'ó'|'ö'|'ò'|'ô'     => 'o',
+            'ú'|'ü'|'ù'|'û'     => 'u',
+            'ñ'                 => 'n',
+            _                   => '-'
+        })
+        .collect();
+    let re = Regex::new(r"\-{2,}").unwrap();
+    re.replace_all(&title, "-").to_string()
 }
 
 #[tokio::test]
