@@ -1,6 +1,6 @@
 image:
   name: atareao/aopodcast:latest
-  entrypoint: ["/bin/sh"]
+  entrypoint: [""]
 
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
