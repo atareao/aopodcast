@@ -36,7 +36,7 @@ pages:
   only:
     - schedules
   before_script:
-    - apk add --update --no-cache make git bash
+    #- apk add --update --no-cache make git bash
     - git fetch
     - git checkout $BRANCH_NAME
     - cd $CI_PROJECT_DIR
