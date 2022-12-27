@@ -1,4 +1,4 @@
-image: atareao/aopodcast:latest
+image: gitlab/gitlab-runner:latest
 
 
 variables:
