@@ -14,11 +14,11 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
 <atom:link href="{{ site.url | safe}}/feed/podcast" rel="self" type="application/rss+xml" />
 <link>{{ site.url | safe}}</link>
 <description>{{ site.description }}</description>
-<lastBuildDate>{{ site.time | date: "%a, %d %b %Y %H:%M:%S %z" }}</lastBuildDate>
+<lastBuildDate>{{ now() | date(format="%a, %d %b %Y %H:%M:%S %z") }}</lastBuildDate>
 <language>es-es</language>
 <sy:updatePeriod>hourly</sy:updatePeriod>
 <sy:updateFrequency>1</sy:updateFrequency>
-<generator>http://jekyllrb.com</generator>
+<generator>https://atareao.es</generator>
 <itunes:summary>{{ site.description }}</itunes:summary>
 <itunes:author>{{ site.author }}</itunes:author>
 <itunes:explicit>{{ site.explicit }}</itunes:explicit>
@@ -27,8 +27,8 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
 <itunes:name>{{ site.author }}</itunes:name>
 <itunes:email>{{ footer_links.email }}</itunes:email>
 </itunes:owner>
-<managingEditor>{{ site.podcast_email }} ({{ site.podcast_owner }})</managingEditor>
-<itunes:subtitle>{{ site.podcast_subtitle }}</itunes:subtitle>
+<managingEditor>{{ footer_links.email }} ({{ site.author }})</managingEditor>
+<itunes:subtitle>{{ site.description }}</itunes:subtitle>
 <image>
 <title>{{ site.title }}</title>
 <url>{{ site.url | safe }}{{ site.avatar }}</url>
@@ -40,15 +40,15 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
 {% for podcast in podcasts %}
   <item>
     <title>{{ podcast.title }}</title>
-    <link>{{ site.url | safe }}{{ podcast.slug }}</link>
-    <comments>{{ site.url | safe }}{{ podcast.slug }}#comments</comments>
-    <pubDate>{{ podcast.date | date: "%a, %d %b %Y %T %z" }}</pubDate>
+    <link>{{ site.url | safe }}/{{ podcast.slug }}/</link>
+    <comments>{{ site.url | safe }}/{{ podcast.slug }}/#comments</comments>
+    <pubDate>{{ podcast.date | date(format="%a, %d %b %Y %T %z") }}</pubDate>
     <dc:creator><![CDATA[{{ site.author | safe }}]]></dc:creator>
     <category><![CDATA[{{ site.category | safe }}]]></category>
 {% endfor %}
     <guid isPermaLink="{% if ep.podcast_guid %}false{% else %}true{% endif %}">{{ site.url }}{% if ep.podcast_guid %}/{{ ep.podcast_guid }}{% else %}{{ ep.url }}{% endif %}</guid>
     <description>
-        <![CDATA[{{ podcast.excerpt | trucate(length=50) | expand_urls: site.url | cdata_escape }}]]>
+        <![CDATA[{{ podcast.excerpt | trucate(length=50) | safe}}]]>
     </description>
     <content:encoded>
         <![CDATA[{{ podcast.content | safe }}]]>
@@ -57,7 +57,7 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
     <itunes:subtitle><![CDATA[{{ podcast.excerpt | safe }}]]></itunes:subtitle>
     <itunes:summary><![CDATA[{{ podcast.content | safe }}]]></itunes:summary>
     <itunes:author>{{ site.author }}</itunes:author>
-    <itunes:image href="{{ site.url }}{{ site.podcast_album_art }}" />
+    <itunes:image href="{{ site.url }}{{ site.avatar }}" />
     <itunes:explicit>{{ site.explicit }}</itunes:explicit>
     <itunes:duration>{{ podcast.length }}</itunes:duration>
   </item>

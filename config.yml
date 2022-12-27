@@ -6,29 +6,18 @@ style_css: assets/style.css
 site:
   author: Papá Friki
   name: Papá Friki
+  title: Batallitas del día a día de un Papá Friki
   description: Batallitas del día a día de un Papá Friki
   baseurl:
+  url: https://atareao.gitlab.io
   avatar: https://assets.gitlab-static.net/uploads/-/system/project/avatar/5685462/avatar.png
-  google_analytics:
-  disqus: papfriki
   category: Technology
   subcategory: Podcasting
   explicit: true
-footer_links:
-  dribble:
   email: papafrikipodcast@gmail.com
-  facebook:
-  flickr:
   gitlab: papafrikipodcast
-  instagram:
-  linkedin:
-  pinterest:
   rss: http://feeds.feedburner.com/papafriki
   twitter: papa_friki
-  stackoverflow:
-  youtube:
-  googleplus:
-  telegram:
   archiveorg: papafriki
-  mastodon:
-  android:
+  google_analytics:
+  disqus: papafriki
