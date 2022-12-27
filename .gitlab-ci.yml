@@ -1,4 +1,4 @@
-image: docker
+image: docker:dind
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
   BRANCH_NAME: "main"                       # Name of the branch to modify
