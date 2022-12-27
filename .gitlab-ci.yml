@@ -12,6 +12,8 @@ variables:
 
 
 .modify: &modify |
+  aopodcast
+  /app/aopodcast
   docker run -v "${PWD}/config.yml:/app/config.yml" \
              -v "${PWD}/data:/app/data" \
              -v "${PWD}/templates:/app/templates" \
