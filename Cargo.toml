@@ -15,7 +15,7 @@ tokio = { version = "1.22", features = ["full", "time"] }
 reqwest = { version = "0.11", features = ["json", "rustls-tls"]}
 
 # Templates
-tera = "1.17"
+tera = { version = "1.17", features = ["builtins"] }
 
 # Yaml
 serde_yaml = "0.9"
