@@ -5,6 +5,7 @@ use regex::Regex;
 use std::fmt;
 use serde::{Serialize, Deserialize};
 use comrak::{markdown_to_html, ComrakOptions};
+use log::info;
 
 use super::{metadata::Metadata, mp3metadata::Mp3Metadata, site::Page};
 
@@ -64,8 +65,13 @@ impl Item {
     pub fn get_page(&self) -> Page{
         let content = markdown_to_html(&self.description, &ComrakOptions::default());
         let date = self.get_mtime().parse::<u64>().unwrap();
+        let slug = if self.slug.is_empty(){
+            get_slug(&self.title)
+        }else{
+            self.slug.clone()
+        };
         Page{
-            slug: self.slug.clone(),
+            slug,
             excerpt: self.comment.clone(),
             title: self.title.clone(),
             content,
@@ -119,6 +125,7 @@ fn get_date(mtime: &str) -> String{
 }
 
 fn get_slug(title: &str) -> String{
+    info!("Slug from: '{}'", title);
     let title: String = title
         .to_lowercase().
         chars()
@@ -133,8 +140,23 @@ fn get_slug(title: &str) -> String{
             _                   => '-'
         })
         .collect();
+    info!("Slug step 1: '{}'", title);
     let re = Regex::new(r"\-{2,}").unwrap();
-    re.replace_all(&title, "-").to_string()
+    let mut title = re.replace_all(&title, "-").to_string();
+    info!("Slug step 2: '{}'", title);
+    let mut title = if title.starts_with("-"){
+        title.remove(0).to_string();
+        title
+    }else{
+        title
+    };
+    info!("Slug step 3: '{}'", title);
+    if title.ends_with("-"){
+        title.pop();
+        title
+    }else{
+        title.to_string()
+    }
 }
 
 #[tokio::test]
