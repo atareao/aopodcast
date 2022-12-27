@@ -7,7 +7,7 @@ site:
   author: Papá Friki
   name: Papá Friki
   description: Batallitas del día a día de un Papá Friki
-  baseurl: /podcast
+  baseurl: /
   avatar: https://assets.gitlab-static.net/uploads/-/system/project/avatar/5685462/avatar.png
   google_analytics:
   disqus: papfriki

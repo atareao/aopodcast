@@ -36,9 +36,9 @@ pub struct Item{
 impl PartialOrd for Item {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.mtime == other.mtime {
-            return Some(self.mtime.cmp(&other.mtime));
+            return Some(other.mtime.cmp(&self.mtime));
         }
-        Some(self.mtime.cmp(&other.mtime))
+        Some(other.mtime.cmp(&self.mtime))
     }
 
 }

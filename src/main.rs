@@ -63,7 +63,7 @@ async fn read_and_save(configuration: &Configuration){
     generate_index(&configuration, items.get_items()).await;
     let style_css = configuration.get_style_css();
     let public = configuration.get_public();
-    let output = format!("{}/{}", public, style_css);
+    let output = format!("{}/style.css", public);
     copy_file(style_css, &output).await;
 }
 
