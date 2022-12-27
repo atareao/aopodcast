@@ -50,6 +50,13 @@ async fn read_and_save(configuration: &Configuration){
                 to_add.push(item);
             }
         }
+        if to_add.len() > 0 {
+            items.add(&to_add);
+            match items.save_items(configuration.get_data()).await{
+                Ok(_) => info!("Saved"),
+                Err(e) => error!("Some error happened, {}", e),
+            }
+        }
         info!("Added {} items", to_add.len());
     }
     generate_html(&configuration, items.get_items()).await;
