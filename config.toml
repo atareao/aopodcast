@@ -1,3 +1,6 @@
 [[runners]]
   [runners.docker]
+    tls_verify = false
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+    image = "docker:stable"
+    privileged = true
