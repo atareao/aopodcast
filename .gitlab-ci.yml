@@ -1,7 +1,6 @@
 image:
   name: atareao/aopodcast:latest
-  volumes:
-    - "${PWD}/config.yml:/app/config.yml"
+  entrypoint: ["/bin/sh"]
 
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
