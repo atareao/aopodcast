@@ -8,16 +8,10 @@ variables:
   BOT_NAME: "GitLab Runner Bot"              # Bot's name that appears in the commit log
   BOT_EMAIL: "gitlab-runner-bot@example.net" # Bot's email, not really important
   COMMIT_MESSAGE: "Commit from runner "      # Part of the commit message
-  DOCKER_HOST: "tcp://docker:2375"
 
 
 .modify: &modify |
   /app/aopodcast
-  docker run -v "${PWD}/config.yml:/app/config.yml" \
-             -v "${PWD}/data:/app/data" \
-             -v "${PWD}/templates:/app/templates" \
-             atareao/aopodcast:latest
-  # python ao/main.py
 
 .push: &push |
   git status

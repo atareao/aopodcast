@@ -1,4 +1,4 @@
-log_level: error
+log_level: debug
 creator: Papa Friki
 data: data/data.json
 public: public
