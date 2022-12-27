@@ -5,11 +5,9 @@
   <div class="entry">
     {{ page.content | safe }}
   </div>
-
   <div class="date">
     Escrito el {{ page.date | date(format="%d/%m/%Y") }}
   </div>
-
   {% include "disqus.html" %}
 </article>
 {% endblock content %}

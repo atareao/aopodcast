@@ -3,39 +3,30 @@
     <head>
         {% block head %}
         <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }} – {{ site.description }}</title>
-
         {% include "meta.html" %}
-
-
-        <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
-        <link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}" href="{{ site.baseurl }}/feed.xml" />
-
+        <link rel="stylesheet" type="text/css" href="{{ site.baseurl | safe }}/style.css" />
+        <link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}" href="{{ site.baseurl | safe }}/feed.xml" />
         {% endblock head %}
     </head>
-
   <body>
     <div class="wrapper-masthead">
       <div class="container">
         <header class="masthead clearfix">
-          <a href="{{ site.baseurl }}/" class="site-avatar"><img src="{{ site.avatar }}" /></a>
-
+          <a href="{{ site.baseurl | safe }}/" class="site-avatar"><img src="{{ site.avatar | safe }}" /></a>
           <div class="site-info">
-            <h1 class="site-name"><a href="{{ site.baseurl }}/">{{ site.name }}</a></h1>
+            <h1 class="site-name"><a href="{{ site.baseurl | safe }}/">{{ site.name }}</a></h1>
             <p class="site-description">{{ site.description }}</p>
           </div>
-
           <nav>
-            <a href="{{ site.baseurl }}/">Blog</a>
-            <a href="{{ site.baseurl }}/about">Acerca de</a>
+            <a href="{{ site.baseurl | safe }}/">Blog</a>
+            <a href="{{ site.baseurl | safe }}/about">Acerca de</a>
           </nav>
         </header>
       </div>
     </div>
-
     <div id="main" role="main" class="container">
         {% block content %}{% endblock content %}
     </div>
-
     <div class="wrapper-footer">
       <div class="container">
         <footer class="footer">
@@ -43,7 +34,6 @@
         </footer>
       </div>
     </div>
-
     {% include "analytics.html" %}
   </body>
 </html>
