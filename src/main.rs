@@ -40,7 +40,7 @@ async fn read_and_save(configuration: &Configuration){
     };
     info!("{}", since);
     let mut to_add = Vec::new();
-    let read = false;
+    let read = true;
     if read {
         let aoc = ArchiveOrgClient::new(configuration.get_creator());
         let read_items = aoc.get_items(&since).await;
@@ -153,6 +153,25 @@ async fn create_dir(base: &str, endpoint: &str){
     let endpoint = clean_path(endpoint);
     let output = format!("{}/{}", base, endpoint);
     info!("Going to create : {}", &output);
+    let exists = match tokio::fs::metadata(&output).await{
+        Ok(metadata) => {
+            info!("Output dir {} exists", &output);
+            metadata.is_dir()
+        },
+        Err(e) => {
+            info!("Output dir {}, {}", &output, e);
+            false
+        },
+    };
+    if exists{
+        match tokio::fs::remove_dir_all(&output).await{
+            Ok(_) => info!("Directory {} removed", output),
+            Err(e) => {
+                error!("Cant delete directory {}, {}", &output, e);
+                std::process::exit(1);
+            }
+        }
+    }
     match tokio::fs::create_dir(&output).await{
         Ok(_) => info!("Directory {} created", output),
         Err(e) => {

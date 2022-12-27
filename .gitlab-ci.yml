@@ -40,7 +40,6 @@ pages:
   script:
     - *modify
     - *push
-    - make publish
   artifacts:
     paths:
     - public/
