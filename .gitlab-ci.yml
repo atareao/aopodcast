@@ -1,4 +1,7 @@
-image: atareao/aopodcast:latest
+image:
+  name: atareao/aopodcast:latest
+  volumes:
+    - "${PWD}/config.yml:/app/config.yml"
 
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
