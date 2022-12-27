@@ -12,7 +12,8 @@ rust-version = "1.60"
 tokio = { version = "1.22", features = ["full", "time"] }
 
 # reqwest
-reqwest = { version = "0.11", features = ["json", "rustls-tls"]}
+reqwest = { version = "0.11", features = ["json"] }
+openssl = { version = "0.10", features = ["vendored"] }
 
 # Templates
 tera = { version = "1.17", features = ["builtins"] }

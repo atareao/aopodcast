@@ -6,7 +6,9 @@ FROM rust:1.64 AS builder
 LABEL maintainer="Lorenzo Carbonell <a.k.a. atareao> lorenzo.carbonell.cerezo@gmail.com"
 
 ARG TARGET=x86_64-unknown-linux-musl
-ENV RUST_MUSL_CROSS_TARGET=$TARGETARCH
+ENV RUST_MUSL_CROSS_TARGET=$TARGET
+ENV OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu"
+ENV OPENSSL_INCLUDE_DIR="/usr/include/openssl"
 
 RUN rustup target add $TARGET && \
     apt-get update && \
@@ -18,6 +20,7 @@ RUN rustup target add $TARGET && \
         cmake \
         musl-dev \
         pkg-config \
+        libssl-dev \
         && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -26,8 +29,8 @@ WORKDIR /app
 COPY Cargo.toml Cargo.lock ./
 COPY src src
 
-RUN cargo build --release --target $TARGETARCH && \
-    cp /app/target/$TARGETARCH/release/aopodcast /app/aopodcast
+RUN cargo build --release --target $TARGET && \
+    cp /app/target/$TARGET/release/aopodcast /app/aopodcast
 
 ###############################################################################
 ## Final image
