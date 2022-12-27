@@ -1,7 +1,7 @@
 image: docker
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
-  BRANCH_NAME: "master"                       # Name of the branch to modify
+  BRANCH_NAME: "main"                       # Name of the branch to modify
   BOT_NAME: "GitLab Runner Bot"              # Bot's name that appears in the commit log
   BOT_EMAIL: "gitlab-runner-bot@example.net" # Bot's email, not really important
   COMMIT_MESSAGE: "Commit from runner "      # Part of the commit message
