@@ -1,3 +1,5 @@
+image: docker:dind
+
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
   BRANCH_NAME: "main"                       # Name of the branch to modify
@@ -5,9 +7,6 @@ variables:
   BOT_EMAIL: "gitlab-runner-bot@example.net" # Bot's email, not really important
   COMMIT_MESSAGE: "Commit from runner "      # Part of the commit message
   DOCKER_HOST: "tcp://docker:2375"
-
-services:
-  - docker:dind
 
 .modify: &modify |
   docker run -v "${PWD}/config.yml:/app/config.yml" \
