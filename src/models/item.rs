@@ -1,15 +1,16 @@
 use std::fmt::Display;
+use core::cmp::Ordering;
 
 use chrono::{DateTime, Utc, NaiveDateTime};
 use regex::Regex;
 use std::fmt;
 use serde::{Serialize, Deserialize};
 use comrak::{markdown_to_html, ComrakOptions};
-use log::info;
+use log::{debug, info};
 
 use super::{metadata::Metadata, mp3metadata::Mp3Metadata, site::Page};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord)]
 pub struct Item{
     identifier: String,
     mediatype: String,
@@ -30,6 +31,16 @@ pub struct Item{
     slug: String,
     post_filename: String,
     date: String,
+}
+
+impl PartialOrd for Item {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        if self.mtime == other.mtime {
+            return Some(self.mtime.cmp(&other.mtime));
+        }
+        Some(self.mtime.cmp(&other.mtime))
+    }
+
 }
 
 impl Display for Item {
@@ -140,17 +151,17 @@ fn get_slug(title: &str) -> String{
             _                   => '-'
         })
         .collect();
-    info!("Slug step 1: '{}'", title);
+    debug!("Slug step 1: '{}'", title);
     let re = Regex::new(r"\-{2,}").unwrap();
     let mut title = re.replace_all(&title, "-").to_string();
-    info!("Slug step 2: '{}'", title);
+    debug!("Slug step 2: '{}'", title);
     let mut title = if title.starts_with("-"){
         title.remove(0).to_string();
         title
     }else{
         title
     };
-    info!("Slug step 3: '{}'", title);
+    debug!("Slug step 3: '{}'", title);
     if title.ends_with("-"){
         title.pop();
         title

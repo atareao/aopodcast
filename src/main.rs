@@ -2,7 +2,7 @@ mod models;
 
 use models::config::Configuration;
 use simplelog::{SimpleLogger, Config, LevelFilter};
-use log::{info, error};
+use log::{debug, info, error};
 use tera::{Context, Tera};
 use crate::models::{
     item::Item,
@@ -24,15 +24,15 @@ async fn main(){
         _ => LevelFilter::Off,
     };
     let _ = SimpleLogger::init(level_filter, Config::default());
-    info!("Configuration: {:?}", configuration);
+    debug!("Configuration: {:?}", configuration);
     read_and_save(&configuration).await;
 }
 
 async fn read_and_save(configuration: &Configuration){
     create_public(&configuration).await;
     let mut items = Items::read_saved_items(configuration.get_data()).await;
-    info!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
-    info!("{}", items.get_last().get_date());
+    debug!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
+    debug!("{}", items.get_last().get_date());
     let since = if items.len() == 0{
         "1971-01-01".to_string()
     }else{
@@ -46,24 +46,18 @@ async fn read_and_save(configuration: &Configuration){
         let read_items = aoc.get_items(&since).await;
         for item in read_items{
             if !items.exists(&item){
-                info!("To add {}", &item.get_identifier());
+                debug!("To add {}", &item.get_identifier());
                 to_add.push(item);
-            }
-        }
-        if to_add.len() > 0 {
-            items.add(&to_add);
-            match items.save_items(configuration.get_data()).await{
-                Ok(_) => {
-                    info!("Saved");
-                    generate_html(&configuration, &to_add).await;
-                },
-                Err(e) => error!("Some error happened, {}", e),
             }
         }
         info!("Added {} items", to_add.len());
     }
     generate_html(&configuration, items.get_items()).await;
     generate_index(&configuration, items.get_items()).await;
+    let style_css = configuration.get_style_css();
+    let public = configuration.get_public();
+    let output = format!("{}/{}", public, style_css);
+    copy_file(style_css, &output).await;
 }
 
 
@@ -83,7 +77,7 @@ async fn generate_index(configuration: &Configuration, items: &Vec<Item>){
     context.insert("posts", &posts);
     match tera.render("index.html", &context){
         Ok(content) => {
-            info!("{}", content);
+            debug!("{}", content);
             write_post(public, "", &content).await;
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
@@ -106,8 +100,8 @@ async fn generate_html(configuration: &Configuration, new_items: &Vec<Item>){
         context.insert("page", &item.get_page());
         match tera.render("post.html", &context){
             Ok(content) => {
-                info!("{}", &content);
-                info!("Page: {:?}", &item.get_page());
+                debug!("{}", &content);
+                debug!("Page: {:?}", &item.get_page());
                 create_dir(public, &item.get_page().slug).await;
                 write_post(public, &item.get_page().slug, &content).await
             },
@@ -140,7 +134,7 @@ async fn write_post(base: &str, endpoint: &str, content: &str){
         format!("{}/{}/index.html", base, endpoint)
     };
     match tokio::fs::write(&output, content,).await{
-        Ok(_) => info!("post {} created", &output),
+        Ok(_) => debug!("post {} created", &output),
         Err(e) => {
             error!("Cant create post {}, {}", &output, e);
             std::process::exit(1);
@@ -152,14 +146,14 @@ async fn create_dir(base: &str, endpoint: &str){
     let base = clean_path(base);
     let endpoint = clean_path(endpoint);
     let output = format!("{}/{}", base, endpoint);
-    info!("Going to create : {}", &output);
+    debug!("Going to create : {}", &output);
     let exists = match tokio::fs::metadata(&output).await{
         Ok(metadata) => {
-            info!("Output dir {} exists", &output);
+            debug!("Output dir {} exists", &output);
             metadata.is_dir()
         },
         Err(e) => {
-            info!("Output dir {}, {}", &output, e);
+            debug!("Output dir {}, {}", &output, e);
             false
         },
     };
@@ -181,6 +175,16 @@ async fn create_dir(base: &str, endpoint: &str){
     }
 }
 
+pub async fn copy_file(from: &str, to: &str){
+    match tokio::fs::copy(from, to).await{
+        Ok(_) => info!("Copied from {} to {}", from, to),
+        Err(e) => {
+            error!("Cant copy from {} to {}. {}", from, to, e);
+            std::process::exit(1);
+        }
+    }
+}
+
 pub async fn create_public(configuration: &Configuration){
     let output = configuration.get_public();
     info!("Output dir: {}", &output);
@@ -190,7 +194,7 @@ pub async fn create_public(configuration: &Configuration){
             metadata.is_dir()
         },
         Err(e) => {
-            info!("Output dir {}, {}", &output, e);
+            error!("Output dir {}, {}", &output, e);
             false
         },
     };

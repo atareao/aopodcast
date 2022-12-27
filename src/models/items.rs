@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use super::item::Item;
-use log::info;
+use log::{debug, info};
 
 
 
@@ -57,7 +57,8 @@ impl Items{
         }
     }
 
-    pub fn get_items(&self) -> &Vec<Item>{
+    pub fn get_items(&mut self) -> &Vec<Item>{
+        self.items.sort();
         &self.items
     }
 

@@ -1,4 +1,4 @@
-use log::info;
+use log::{debug, info};
 use regex::Regex;
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ impl Mp3Metadata {
         if text.is_empty(){
             return None;
         }
-        info!("Text: {}", &text);
+        debug!("Text: {}", &text);
         let mtime = Self::get_value("mtime", &text);
         let size = Self::get_value("size", &text);
         let length = Self::get_value("length", &text);
