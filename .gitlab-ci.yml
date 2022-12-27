@@ -1,3 +1,5 @@
+image: atareao/aopodcast:latest
+
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
   BRANCH_NAME: "master"                       # Name of the branch to modify
@@ -8,7 +10,8 @@ variables:
 .modify: &modify |
   docker run -v "${PWD}/config.yml:/app/config.yml" \
              -v "${PWD}/data:/app/data" \
-             -v "${PWD}/templates:/app/templates"
+             -v "${PWD}/templates:/app/templates" \
+             atareao/aopodcast:latest
   # python ao/main.py
 
 .push: &push |
