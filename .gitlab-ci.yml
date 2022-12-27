@@ -1,0 +1,56 @@
+variables:
+  GIT_DEPTH: 1                               # Create a shallow copy
+  BRANCH_NAME: "master"                       # Name of the branch to modify
+  BOT_NAME: "GitLab Runner Bot"              # Bot's name that appears in the commit log
+  BOT_EMAIL: "gitlab-runner-bot@example.net" # Bot's email, not really important
+  COMMIT_MESSAGE: "Commit from runner "      # Part of the commit message
+
+.modify: &modify |
+  docker run -v "${PWD}/config.yml:/app/config.yml" \
+             -v "${PWD}/data:/app/data" \
+             -v "${PWD}/templates:/app/templates"
+  # python ao/main.py
+
+.push: &push |
+  git status
+  lines=$(git status -s | wc -l)
+  if [ $lines -gt 0 ];then
+    echo "committing"
+    git config --global user.name "${BOT_NAME}"
+    git config --global user.email "${BOT_EMAIL}"
+    git add .
+    git commit -m "${COMMIT_MESSAGE} ${CI_RUNNER_ID}"
+    echo "git push -o ci.skip 'https://whatever:${GIT_PUSH_TOKEN}@${CI_REPOSITORY_URL#*@}' ${BRANCH_NAME}"
+    git push -o ci.skip "https://whatever:${GIT_PUSH_TOKEN}@${CI_REPOSITORY_URL#*@}" $BRANCH_NAME
+  else
+    echo "no change, nothing to commit"
+  fi
+
+pages:
+  stage: deploy
+  only:
+    - schedules
+  before_script:
+    - apk add --update --no-cache make git bash
+    - git fetch
+    - git checkout $BRANCH_NAME
+    - cd $CI_PROJECT_DIR
+  script:
+    - *modify
+    - *push
+    - make publish
+  artifacts:
+    paths:
+    - public/
+  # rules:
+  #  - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+
+test:
+  stage: test
+  script:
+  - apk update && apk add make
+  - pip install -r requirements.txt
+  - make publish
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+
