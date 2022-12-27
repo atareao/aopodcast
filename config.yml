@@ -2,6 +2,7 @@ log_level: info
 creator: Papa Friki
 data: data/data.json
 public: public
+style_css: assets/style.css
 site:
   author: Papá Friki
   name: Papá Friki

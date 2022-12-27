@@ -13,6 +13,7 @@ pub struct Configuration{
     creator: String,
     data: String,
     public: String,
+    style_css: String,
     site: Site,
     footer_links: FooterLinks
 }
@@ -48,6 +49,10 @@ impl Configuration {
 
     pub fn get_public(&self) -> &str{
         &self.public
+    }
+
+    pub fn get_style_css(&self) -> &str{
+        &self.style_css
     }
 
     pub async fn read_configuration() -> Configuration{
