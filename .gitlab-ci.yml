@@ -1,3 +1,4 @@
+image: docker
 variables:
   GIT_DEPTH: 1                               # Create a shallow copy
   BRANCH_NAME: "master"                       # Name of the branch to modify
