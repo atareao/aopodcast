@@ -34,11 +34,12 @@ pub struct Post{
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Podcast{
+    pub identfier: String,
     pub slug: String,
     pub excerpt: String,
     pub title: String,
     pub content: String,
     pub date: u64,
-    pub link: String,
+    pub filename: String,
     pub length: String,
 }
