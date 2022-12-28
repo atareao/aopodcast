@@ -7,8 +7,7 @@ use tera::{Context, Tera};
 use crate::models::{
     item::Item,
     items::Items,
-    site::Page,
-    archive::ArchiveOrgClient,
+    site::Post,
 };
 
 #[tokio::main]
@@ -42,8 +41,8 @@ async fn read_and_save(configuration: &Configuration){
     let mut to_add = Vec::new();
     let read = true;
     if read {
-        let aoc = ArchiveOrgClient::new(configuration.get_creator());
-        let read_items = aoc.get_items(&since).await;
+        let archiveorg = &configuration.get_site().archiveorg;
+        let read_items = archiveorg.get_items(&since).await;
         for item in read_items{
             if !items.exists(&item){
                 debug!("To add {}", &item.get_identifier());
@@ -79,8 +78,7 @@ async fn generate_index(configuration: &Configuration, items: &Vec<Item>){
     let public = configuration.get_public();
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
-    context.insert("footer_links", configuration.get_footer_links());
-    let posts: Vec<Page> = items.iter().map(|item| item.get_page()).collect();
+    let posts: Vec<Post> = items.iter().map(|item| item.get_post()).collect();
     context.insert("posts", &posts);
     match tera.render("index.html", &context){
         Ok(content) => {
@@ -102,15 +100,14 @@ async fn generate_html(configuration: &Configuration, new_items: &Vec<Item>){
     let public = configuration.get_public();
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
-    context.insert("footer_links", configuration.get_footer_links());
     for item in new_items.as_slice(){
-        context.insert("page", &item.get_page());
+        context.insert("post", &item.get_post());
         match tera.render("post.html", &context){
             Ok(content) => {
                 debug!("{}", &content);
-                debug!("Page: {:?}", &item.get_page());
-                create_dir(public, &item.get_page().slug).await;
-                write_post(public, &item.get_page().slug, &content).await
+                debug!("Page: {:?}", &item.get_post());
+                create_dir(public, &item.get_post().slug).await;
+                write_post(public, &item.get_post().slug, &content).await
             },
             Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
         }

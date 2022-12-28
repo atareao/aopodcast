@@ -1,5 +1,5 @@
 use log::{info, warn, error};
-use serde::Deserialize;
+use serde::{Serialize, Deserialize, Deserializer};
 use crate::models::{metadata::Metadata, mp3metadata::Mp3Metadata};
 use super::item::Item;
 
@@ -10,9 +10,19 @@ pub struct BaseItem{
     identifier: String,
 }
 
-#[derive(Debug)]
-pub struct ArchiveOrgClient{
-    creator: String,
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ArchiveOrg{
+    pub uploader: String,
+    pub identifier: String,
+    #[serde(deserialize_with = "deserialize_on_empty")]
+    pub subject: Option<String>,
+}
+
+fn deserialize_on_empty<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
+where D: Deserializer<'de>{
+        let o: Option<String> = Option::deserialize(deserializer)?;
+        Ok(o.filter(|s| !s.is_empty()))
+
 }
 
 #[derive(Debug, Deserialize)]
@@ -20,19 +30,26 @@ struct Response{
     items: Vec<BaseItem>,
 }
 
-impl ArchiveOrgClient{
-    pub fn new(creator: &str) -> Self{
+impl ArchiveOrg{
+    pub fn new(uploader: &str, identifier: &str, subject: Option<String>) -> Self{
         Self{
-            creator: creator.to_string(),
+            uploader: uploader.to_string(),
+            identifier: identifier.to_string(),
+            subject,
         }
     }
 
 
     pub async fn get_items(&self, since: &str) -> Vec<Item>{
         let mut items = Vec::new();
+        let optional = match &self.subject{
+            Some(value) => format!("AND subject:({})", value.to_string()),
+            None => "".to_string(),
+        };
         let query = format!(
-            "creator:({creator}) AND date:[{since} TO 9999-12-31]",
-            creator=self.creator, since=since);
+            "creator:({creator}) AND date:[{since} TO 9999-12-31] 
+                AND mediatype:(audio) {optional}",
+            creator=self.uploader, since=since, optional=optional);
         let params = [
             ("q", query),
             ("fields", "identifier".to_string()),
@@ -124,7 +141,10 @@ impl ArchiveOrgClient{
 
 #[tokio::test]
 async fn test(){
-    let aoclient = ArchiveOrgClient::new("Papa Friki");
+    let aoclient = ArchiveOrg::new(
+        "atareao@atareao.es",
+        "atareao",
+        Some("atareao".to_string()));
     let items = aoclient.get_items("2022-12-01").await;
     if items.len() > 0{
         println!("{}", items.get(0).unwrap());

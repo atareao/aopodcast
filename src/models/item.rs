@@ -8,7 +8,7 @@ use serde::{Serialize, Deserialize};
 use comrak::{markdown_to_html, ComrakOptions};
 use log::{debug, info};
 
-use super::{metadata::Metadata, mp3metadata::Mp3Metadata, site::Page};
+use super::{metadata::Metadata, mp3metadata::Mp3Metadata, site::Post};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord)]
 pub struct Item{
@@ -73,7 +73,7 @@ impl Display for Item {
 }
 
 impl Item {
-    pub fn get_page(&self) -> Page{
+    pub fn get_post(&self) -> Post{
         let content = markdown_to_html(&self.description, &ComrakOptions::default());
         let date = self.get_mtime().parse::<u64>().unwrap();
         let slug = if self.slug.is_empty(){
@@ -81,7 +81,7 @@ impl Item {
         }else{
             self.slug.clone()
         };
-        Page{
+        Post{
             slug,
             excerpt: self.comment.clone(),
             title: self.title.clone(),
