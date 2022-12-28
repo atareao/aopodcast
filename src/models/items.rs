@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use super::item::Item;
-use log::{debug, info};
+use log::info;
 
 
 
@@ -70,9 +70,5 @@ impl Items{
             }
         }
         last
-    }
-
-    pub fn count(&self) -> usize{
-        self.items.len()
     }
 }
