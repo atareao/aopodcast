@@ -28,7 +28,6 @@ async fn main(){
 }
 
 async fn read_and_save(configuration: &Configuration){
-    create_public(&configuration).await;
     let mut items = Items::read_saved_items(configuration.get_data()).await;
     debug!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
     debug!("{}", items.get_last().get_date());
@@ -39,33 +38,56 @@ async fn read_and_save(configuration: &Configuration){
     };
     info!("{}", since);
     let mut to_add = Vec::new();
-    let read = true;
-    if read {
-        let archiveorg = &configuration.get_site().archiveorg;
-        let read_items = archiveorg.get_items(&since).await;
-        for item in read_items{
-            if !items.exists(&item){
-                debug!("To add {}", &item.get_identifier());
-                to_add.push(item);
-            }
+    let archiveorg = configuration.get_archiveorg();
+    let read_items = archiveorg.get_items(&since).await;
+    for item in read_items{
+        if !items.exists(&item){
+            debug!("To add {}", &item.get_identifier());
+            to_add.push(item);
         }
-        if to_add.len() > 0 {
-            items.add(&to_add);
-            match items.save_items(configuration.get_data()).await{
-                Ok(_) => info!("Saved"),
-                Err(e) => error!("Some error happened, {}", e),
-            }
-        }
-        info!("Added {} items", to_add.len());
     }
-    generate_html(&configuration, items.get_items()).await;
-    generate_index(&configuration, items.get_items()).await;
-    let style_css = configuration.get_style_css();
-    let public = configuration.get_public();
-    let output = format!("{}/style.css", public);
-    copy_file(style_css, &output).await;
+    if to_add.len() > 0 {
+        items.add(&to_add);
+        info!("Added {} items", to_add.len());
+        match items.save_items(configuration.get_data()).await{
+            Ok(_) => {
+                info!("Saved");
+                create_public(&configuration).await;
+                generate_html(&configuration, items.get_items()).await;
+                generate_index(&configuration, items.get_items()).await;
+                generate_feed(&configuration, items.get_items()).await;
+                let style_css = configuration.get_style_css();
+                let public = configuration.get_public();
+                let output = format!("{}/style.css", public);
+                copy_file(style_css, &output).await;
+            },
+            Err(e) => error!("Some error happened, {}", e),
+        }
+    }
 }
 
+async fn generate_feed(configuration: &Configuration, items: &Vec<Item>){
+    let tera = match Tera::new("templates/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let public = configuration.get_public();
+    let mut context = Context::new();
+    context.insert("site", configuration.get_site());
+    let posts: Vec<Post> = items.iter().map(|item| item.get_post()).collect();
+    context.insert("posts", &posts);
+    match tera.render("index.html", &context){
+        Ok(content) => {
+            debug!("{}", content);
+            write_post(public, "", &content).await;
+        },
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
+
+}
 
 async fn generate_index(configuration: &Configuration, items: &Vec<Item>){
     let tera = match Tera::new("templates/*.html") {
