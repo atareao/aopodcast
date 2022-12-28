@@ -22,7 +22,6 @@ fn deserialize_on_empty<'de, D>(deserializer: D) -> Result<Option<String>, D::Er
 where D: Deserializer<'de>{
         let o: Option<String> = Option::deserialize(deserializer)?;
         Ok(o.filter(|s| !s.is_empty()))
-
 }
 
 #[derive(Debug, Deserialize)]

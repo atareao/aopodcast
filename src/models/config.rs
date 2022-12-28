@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use tokio::fs::read_to_string;
 use std::{process, fmt::{self, Display}};
 
-use super::site::Site;
+use super::{site::Site, archive::ArchiveOrg};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Configuration{
@@ -27,6 +27,11 @@ impl Configuration {
     pub fn get_site(&self) -> &Site {
         &self.site
     }
+
+    pub fn get_archiveorg(&self) -> &ArchiveOrg{
+        &self.site.archiveorg
+    }
+
     pub fn get_log_level(&self) -> &str{
         &self.log_level
     }

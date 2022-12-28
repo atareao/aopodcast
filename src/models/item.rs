@@ -8,7 +8,14 @@ use serde::{Serialize, Deserialize};
 use comrak::{markdown_to_html, ComrakOptions};
 use log::{debug, info};
 
-use super::{metadata::Metadata, mp3metadata::Mp3Metadata, site::Post};
+use super::{
+    metadata::Metadata,
+    mp3metadata::Mp3Metadata,
+    site::{
+        Post,
+        Podcast,
+    }
+};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord)]
 pub struct Item{
@@ -29,7 +36,6 @@ pub struct Item{
     genre: String,
     comment: String,
     slug: String,
-    post_filename: String,
     date: String,
 }
 
@@ -40,7 +46,6 @@ impl PartialOrd for Item {
         }
         Some(other.mtime.cmp(&self.mtime))
     }
-
 }
 
 impl Display for Item {
@@ -62,13 +67,12 @@ impl Display for Item {
                    Genre: {}\n
                    Comment: {}\n
                    Slug: {}\n
-                   Post_filename: {}\n
                    Date: {}\n",
             self.identifier, self.mediatype, self.collection.concat(),
             self.subject.concat(), self.description, self.filename, self.mtime,
             self.size, self.length, self.title, self.creator, self.album,
             self.track, self.artist, self.genre, self.comment, self.slug,
-            self.post_filename, self.date)
+            self.date)
     }
 }
 
@@ -89,6 +93,26 @@ impl Item {
             date,
         }
     }
+    pub fn get_pocast(&self) -> Podcast{
+        let content = markdown_to_html(&self.description, &ComrakOptions::default());
+        let date = self.get_mtime().parse::<u64>().unwrap();
+        let slug = if self.slug.is_empty(){
+            get_slug(&self.title)
+        }else{
+            self.slug.clone()
+        };
+        Podcast{
+            identfier: self.identifier.clone(),
+            slug,
+            excerpt: self.comment.clone(),
+            title: self.title.clone(),
+            content,
+            date,
+            filename: self.filename.clone(),
+            length: self.length.clone(),
+        }
+
+    }
     pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
         Self{
             identifier: metadata.identifier.to_string(),
@@ -108,7 +132,6 @@ impl Item {
             genre: mp3metadata.genre.to_string(),
             comment: mp3metadata.comment.to_string(),
             slug: get_slug(&mp3metadata.title),
-            post_filename: "".to_string(),
             date: get_date(&mp3metadata.mtime),
         }
 
