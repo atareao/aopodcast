@@ -14,3 +14,13 @@ tag:
 
 push:
     docker push {{user}}/{{name}} --all-tags
+
+run:
+    docker run --rm \
+               --init \
+               --name aopodcast \
+               --volume $PWD/config.yml:/app/config.yml \
+               --volume $PWD/data:/app/data \
+               --volume $PWD/assets:/app/assets \
+               --volume $PWD/templates:/app/templates \
+               {{user}}/{{name}}
