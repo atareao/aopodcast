@@ -12,8 +12,8 @@ pub struct BaseItem{
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ArchiveOrg{
-    pub uploader: String,
-    pub identifier: String,
+    pub creator: String,
+    pub link: String,
     #[serde(deserialize_with = "deserialize_on_empty")]
     pub subject: Option<String>,
 }
@@ -30,14 +30,6 @@ struct Response{
 }
 
 impl ArchiveOrg{
-    pub fn new(uploader: &str, identifier: &str, subject: Option<String>) -> Self{
-        Self{
-            uploader: uploader.to_string(),
-            identifier: identifier.to_string(),
-            subject,
-        }
-    }
-
 
     pub async fn get_items(&self, since: &str) -> Vec<Item>{
         let mut items = Vec::new();
@@ -48,7 +40,7 @@ impl ArchiveOrg{
         let query = format!(
             "creator:({creator}) AND date:[{since} TO 9999-12-31] 
                 AND mediatype:(audio) {optional}",
-            creator=self.uploader, since=since, optional=optional);
+            creator=self.creator, since=since, optional=optional);
         let params = [
             ("q", query),
             ("fields", "identifier".to_string()),
