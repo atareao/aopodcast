@@ -4,6 +4,7 @@ use models::config::Configuration;
 use simplelog::{SimpleLogger, Config, LevelFilter};
 use log::{debug, info, error};
 use tera::{Context, Tera};
+use std::str::FromStr;
 use crate::models::{
     item::Item,
     items::Items,
@@ -14,14 +15,8 @@ use crate::models::{
 async fn main(){
     println!("Hello, world!");
     let configuration = Configuration::read_configuration().await;
-    let level_filter = match configuration.get_log_level(){
-        "error" => LevelFilter::Error,
-        "warn" => LevelFilter::Warn,
-        "info" => LevelFilter::Info,
-        "debug" => LevelFilter::Debug,
-        "trace" => LevelFilter::Trace,
-        _ => LevelFilter::Off,
-    };
+    let level_filter = LevelFilter::from_str(configuration.get_log_level())
+        .unwrap_or(LevelFilter::Info);
     let _ = SimpleLogger::init(level_filter, Config::default());
     debug!("Configuration: {:?}", configuration);
     read_and_save(&configuration).await;
