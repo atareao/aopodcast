@@ -23,4 +23,6 @@ run:
                --volume $PWD/data:/app/data \
                --volume $PWD/assets:/app/assets \
                --volume $PWD/templates:/app/templates \
+               --volume $PWD/posts:/app/posts \
+               --volume $PWD/pages:/app/pages \
                {{user}}/{{name}}
