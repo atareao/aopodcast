@@ -11,7 +11,7 @@ use async_recursion::async_recursion;
 use log::debug;
 
 const BASE_URL: &'static str = "https://archive.org";
-const PAGESIZE: i64 = 100;
+const PAGESIZE: usize = 100;
 
 #[derive(Debug, Deserialize)]
 pub struct BaseItem{
@@ -68,7 +68,7 @@ impl ArchiveOrg{
             .collect::<Vec<String>>()
         .join("&");
         
-        let sort = "publicdate desc";
+        let sort = "publicdate asc";
         let output = "json";
         let url = format!("{base}/advancedsearch.php?q=creator:({creator}) \
             AND date:[{since} TO 9999-12-31] \
@@ -94,20 +94,24 @@ impl ArchiveOrg{
                 match response.json::<Value>().await {
                     Ok(value) => {
                         let response = &value["response"];
-                        let num_found = response["numFound"].as_i64().unwrap();
-                        let start = response["start"].as_i64().unwrap();
+                        let num_found = response["numFound"].as_u64().unwrap();
+                        let start = response["start"].as_u64().unwrap();
                         debug!("Page: {}", page);
                         debug!("Start: {}", start);
                         debug!("Found: {}", num_found);
-                        if num_found > start + PAGESIZE {
+                        let pagesize: u64 = PAGESIZE.try_into().unwrap();
+                        if num_found > start + pagesize {
                             debug!("Recursion");
                             let new_page = page + 1;
                             debug!("Page: {}", new_page);
                             let mut more_items = self.get_docs(since, new_page).await;
                             items.append(&mut more_items)
                         }
-                        for doc in response["docs"].as_array().unwrap(){
-                            items.push(serde_json::from_value(doc.clone()).unwrap());
+                        for (i, doc) in response["docs"].as_array().unwrap().iter().enumerate(){
+                            debug!("Doc: {:?}", doc);
+                            let mut doc: Doc = serde_json::from_value(doc.clone()).unwrap();
+                            doc.set_number(i + (page - 1) * PAGESIZE);
+                            items.push(doc);
                         }
                     },
                     Err(e) => {
@@ -154,11 +158,11 @@ impl ArchiveOrg{
                             let metadata_result = Self::get_metadata(&item.identifier).await;
                             let mp3_metadata_result = Self::get_mp3_metadata(&item.identifier).await;
                             if metadata_result.is_some() && mp3_metadata_result.is_some(){
-                                let metadata = Metadata::new(&metadata_result.unwrap());
-                                if let Some(mp3_metadata) = Mp3Metadata::new(&mp3_metadata_result.unwrap()){
+                                //let metadata = Metadata::new(&metadata_result.unwrap());
+                                //if let Some(mp3_metadata) = mp3_metadata_result.unwrap(){
                                     //let item = Item::from_metadata(&metadata, &mp3_metadata);
                                     //items.push(item);
-                                }
+                                //}
                             }
                         }
                     },
@@ -174,7 +178,7 @@ impl ArchiveOrg{
         items
     }
 
-    async fn get_mp3_metadata(identifier: &str) -> Option<String>{
+    pub async fn get_mp3_metadata(identifier: &str) -> Option<Mp3Metadata>{
         let url = format!("{}/download/{identifier}/{identifier}_files.xml",
             BASE_URL, identifier=identifier);
         info!("url: {}", url);
@@ -187,7 +191,7 @@ impl ArchiveOrg{
         match response.status() {
             reqwest::StatusCode::OK => {
                 match response.text().await{
-                    Ok(value) => Some(value),
+                    Ok(content) => Mp3Metadata::new(&content),
                     Err(_) => None,
                 }
             }
@@ -197,7 +201,7 @@ impl ArchiveOrg{
         }
     }
 
-    async fn get_metadata(identifier: &str) -> Option<String>{
+    pub async fn get_metadata(identifier: &str) -> Option<Metadata>{
         let url = format!("{}/download/{identifier}/{identifier}_meta.xml",
             BASE_URL, identifier=identifier);
         info!("url: {}", url);
@@ -210,7 +214,7 @@ impl ArchiveOrg{
         match response.status() {
             reqwest::StatusCode::OK => {
                 match response.text().await{
-                    Ok(value) => Some(value),
+                    Ok(content) => Some(Metadata::new(&content)),
                     Err(_) => None,
                 }
             }

@@ -1,4 +1,4 @@
-log_level: info
+log_level: debug
 data: data/data.json
 public: public
 style_css: assets/style.css

@@ -3,6 +3,7 @@ use regex::Regex;
 
 #[derive(Debug)]
 pub struct Mp3Metadata{
+    pub title: String,
     pub filename: String,
     pub mtime: u64,
     pub size: u64,
@@ -32,15 +33,21 @@ impl Mp3Metadata {
             return None;
         }
         debug!("Text: {}", &text);
+        let title = Self::get_value("title", &text);
         let mtime = Self::get_value("mtime", &text).parse().unwrap();
         let size = Self::get_value("size", &text).parse().unwrap();
-        let length = Self::get_value("length", &text).parse().unwrap();
+        let length = Self::get_value("length", &text);
+        let length = match length.find("."){
+            Some(pos) => length.get(0..pos).unwrap().parse().unwrap(),
+            None => length.parse().unwrap(),
+        };
         let comment = Self::get_value("comment", &text);
         let pattern = r#"<file name="([^"]*)" source="original">"#;
         let re = Regex::new(pattern).unwrap();
         let caps = re.captures(&text).unwrap();
         let filename = caps.get(1).unwrap().as_str().to_string();
         Some(Mp3Metadata{
+            title,
             filename,
             mtime,
             size,

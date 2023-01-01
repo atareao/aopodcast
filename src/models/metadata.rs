@@ -4,18 +4,12 @@ use html_escape::decode_html_entities;
 #[derive(Debug)]
 pub struct Metadata{
     pub identifier: String,
-    pub mediatype: String,
-    pub collection: Vec<String>,
-    pub subject: Vec<String>,
     pub description: String,
 }
 
 impl Metadata {
     pub fn new(content: &str) -> Metadata{
         let identifier = Self::get("identifier", &content).get(0).unwrap().to_string();
-        let mediatype = Self::get("mediatype", &content).get(0).unwrap().to_string();
-        let collection = Self::get("collection", &content);
-        let subject = Self::get("subject", &content);
         let description = html2md::parse_html(
             &decode_html_entities(
                 &Self::get("description", &content)
@@ -24,9 +18,6 @@ impl Metadata {
                 .to_string()).to_string());
         Metadata{
             identifier,
-            mediatype,
-            collection,
-            subject,
             description,
         }
     }

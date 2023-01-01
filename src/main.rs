@@ -6,9 +6,10 @@ use log::{debug, info, error};
 use tera::{Context, Tera};
 use std::str::FromStr;
 use crate::models::{
+    archive::ArchiveOrg,
     item::Item,
     items::Items,
-    site::Post,
+    site::Post, episode::Episode,
 };
 
 #[tokio::main]
@@ -23,22 +24,41 @@ async fn main(){
     let aoclient = configuration.get_archiveorg();
     let docs = aoclient.get_all_docs().await;
     for doc in docs{
-       if !doc.exists().await{
+        if doc.exists().await{
+            info!("Doc {} exists", doc.get_identifier());
+            let filename = doc.get_filename();
+            match Episode::new("episodes", &filename).await{
+                Some(ref mut episode) => {
+                    if episode.downloads != doc.get_downloads(){
+                        episode.downloads = doc.get_downloads();
+                        episode.save().await;
+                    }
+                },
+                None => new_docs.push(doc),
+            }
+        }else{
             new_docs.push(doc);
         } 
     }
-    read_and_save(&configuration).await;
+    for doc in new_docs{
+        match ArchiveOrg::get_metadata(doc.get_identifier()).await{
+            Some(metadata) => {
+                match ArchiveOrg::get_mp3_metadata(doc.get_identifier()).await{
+                    Some(mp3) => {
+                        let episode = Episode::combine(&doc, &metadata, &mp3);
+                        episode.save().await;
+                    },
+                    None => error!("Cant download from {}", doc.get_identifier()),
+                }
+            },
+            None => error!("Cant download from {}", doc.get_identifier()),
+        }
+
+    }
+    //read_and_save(&configuration).await;
 }
 
 async fn read_and_save(configuration: &Configuration){
-    let mut new_docs = Vec::new();
-    let aoclient = configuration.get_archiveorg();
-    let docs = aoclient.get_all_docs().await;
-    for doc in docs{
-       if !doc.exists().await{
-            new_docs.push(doc);
-        } 
-    }
 
     let mut items = Items::read_saved_items(configuration.get_data()).await;
     debug!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
