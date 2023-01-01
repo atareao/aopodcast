@@ -110,7 +110,7 @@ impl ArchiveOrg{
                         for (i, doc) in response["docs"].as_array().unwrap().iter().enumerate(){
                             debug!("Doc: {:?}", doc);
                             let mut doc: Doc = serde_json::from_value(doc.clone()).unwrap();
-                            doc.set_number(i + (page - 1) * PAGESIZE);
+                            doc.set_number(i + (page - 1) * PAGESIZE - (page - 1));
                             items.push(doc);
                         }
                     },
