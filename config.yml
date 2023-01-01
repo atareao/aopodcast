@@ -2,6 +2,10 @@ log_level: info
 data: data/data.json
 public: public
 style_css: assets/style.css
+archiveorg:
+  creator: Papá Friki
+  link: papafriki
+  subject:
 site:
   author: Papá Friki
   title: Batallitas del día a día de un Papá Friki
@@ -18,7 +22,3 @@ site:
   twitter: papa_friki
   google_analytics:
   disqus: papafriki
-  archiveorg:
-    creator: Papá Friki
-    link: papafriki
-    subject:
