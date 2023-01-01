@@ -13,16 +13,33 @@ use crate::models::{
 
 #[tokio::main]
 async fn main(){
-    println!("Hello, world!");
     let configuration = Configuration::read_configuration().await;
     let level_filter = LevelFilter::from_str(configuration.get_log_level())
         .unwrap_or(LevelFilter::Info);
     let _ = SimpleLogger::init(level_filter, Config::default());
     debug!("Configuration: {:?}", configuration);
+
+    let mut new_docs = Vec::new();
+    let aoclient = configuration.get_archiveorg();
+    let docs = aoclient.get_all_docs().await;
+    for doc in docs{
+       if !doc.exists().await{
+            new_docs.push(doc);
+        } 
+    }
     read_and_save(&configuration).await;
 }
 
 async fn read_and_save(configuration: &Configuration){
+    let mut new_docs = Vec::new();
+    let aoclient = configuration.get_archiveorg();
+    let docs = aoclient.get_all_docs().await;
+    for doc in docs{
+       if !doc.exists().await{
+            new_docs.push(doc);
+        } 
+    }
+
     let mut items = Items::read_saved_items(configuration.get_data()).await;
     debug!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
     debug!("{}", items.get_last().get_date());
