@@ -14,7 +14,8 @@ use super::{
     site::{
         Post,
         Podcast,
-    }
+    },
+    article::Article
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord)]
@@ -37,6 +38,31 @@ pub struct Item{
     comment: String,
     slug: String,
     date: String,
+}
+
+impl From<Article> for Item{
+    fn from(article: Article) -> Self{
+        Self{
+            identifier: article.filename.to_string(),
+            mediatype: "".to_string(),
+            collection: Vec::new(),
+            subject: Vec::new(),
+            description: article.content,
+            filename: article.filename.to_string(),
+            mtime: "".to_string(),
+            size: "".to_string(),
+            length: "".to_string(),
+            title: article.title.to_string(),
+            creator: "".to_string(),
+            album: "".to_string(),
+            track: "".to_string(),
+            artist: "".to_string(),
+            genre: "".to_string(),
+            comment: article.excerpt.to_string(),
+            slug: article.filename.to_string(),
+            date: "".to_string(),
+        }
+    }
 }
 
 impl PartialOrd for Item {

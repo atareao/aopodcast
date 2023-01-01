@@ -1,9 +1,13 @@
 use log::{info, warn, error};
 use serde::{Serialize, Deserialize, Deserializer};
+use serde_json::Value;
 use crate::models::{metadata::Metadata, mp3metadata::Mp3Metadata};
 use super::item::Item;
+use async_recursion::async_recursion;
+use log::debug;
 
 const BASE_URL: &'static str = "https://archive.org";
+const PAGESIZE: i64 = 100;
 
 #[derive(Debug, Deserialize)]
 pub struct BaseItem{
@@ -29,7 +33,94 @@ struct Response{
     items: Vec<BaseItem>,
 }
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Doc{
+    description: String,
+    downloads: usize,
+    identifier: String,
+    item_size: u64,
+    publicdate: String,
+    subject: Vec<String>,
+    title: String,
+}
+
 impl ArchiveOrg{
+    pub fn new(creator: &str, link: &str, subject: Option<String>) -> Self{
+        Self{
+            creator: creator.to_string(),
+            link: link.to_string(),
+            subject,
+        }
+    }
+
+    #[async_recursion]
+    pub async fn get_docs(&self, since: &str, page: usize) -> Vec<Doc>{
+        let mut items = Vec::new();
+        let optional = match &self.subject{
+            Some(value) => format!("AND subject:({})", value.to_string()),
+            None => "".to_string(),
+        };
+        let fields: String = vec!["description", "downloads", "identifier",
+            "item_size", "name", "publicdate",
+            "publisher", "subject", "title"]
+            .into_iter()
+            .map(|field| format!("fl[]={}", field))
+            .collect::<Vec<String>>()
+        .join("&");
+        
+        let sort = "publicdate desc";
+        let output = "json";
+        let url = format!("{base}/advancedsearch.php?q=creator:({creator}) \
+            AND date:[{since} TO 9999-12-31] \
+            AND mediatype:(audio) \
+            {optional} \
+            &{fields}\
+            &sort[]={sort}\
+            &output={output}\
+            &rows={rows}\
+            &page={page}",
+            base=BASE_URL, creator=self.creator, since=since,
+            optional=optional, fields=fields,sort=sort, output=output,
+            rows=PAGESIZE, page=page);
+        let client = reqwest::Client::new();
+        info!("url: {}", url);
+        let response = client
+            .get(url)
+            .send()
+            .await
+            .unwrap();
+        match response.status() {
+            reqwest::StatusCode::OK => {
+                match response.json::<Value>().await {
+                    Ok(value) => {
+                        let response = &value["response"];
+                        let num_found = response["numFound"].as_i64().unwrap();
+                        let start = response["start"].as_i64().unwrap();
+                        debug!("Page: {}", page);
+                        debug!("Start: {}", start);
+                        debug!("Found: {}", num_found);
+                        if num_found > start + PAGESIZE {
+                            debug!("Recursion");
+                            let new_page = page + 1;
+                            debug!("Page: {}", new_page);
+                            let mut more_items = self.get_docs(since, new_page).await;
+                            items.append(&mut more_items)
+                        }
+                        for doc in response["docs"].as_array().unwrap(){
+                            items.push(serde_json::from_value(doc.clone()).unwrap());
+                        }
+                    },
+                    Err(e) => {
+                        error!("Error: {:?}", e);
+                    },
+                }
+            }
+            _ => {
+                warn!("Nothing found?");
+            }
+        }
+        items
+    }
 
     pub async fn get_items(&self, since: &str) -> Vec<Item>{
         let mut items = Vec::new();
@@ -130,15 +221,24 @@ impl ArchiveOrg{
     }
 }
 
-#[tokio::test]
-async fn test(){
-    let aoclient = ArchiveOrg::new(
-        "atareao@atareao.es",
-        "atareao",
-        Some("atareao".to_string()));
-    let items = aoclient.get_items("2022-12-01").await;
-    if items.len() > 0{
-        println!("{}", items.get(0).unwrap());
+#[cfg(test)]
+mod tests {
+    use simplelog::{LevelFilter, SimpleLogger, Config};
+    use crate::models::archive::ArchiveOrg;
+    use log::debug;
+
+    #[tokio::test]
+    async fn test_get_docs(){
+        let _ = SimpleLogger::init(LevelFilter::Debug, Config::default());
+
+        let aoclient = ArchiveOrg::new(
+            "Papá Friki",
+            "papafiki",
+            None);
+        let docs = aoclient.get_docs("1970-01-01", 1).await;
+        if docs.len() > 0{
+            debug!("{:?}", docs.get(0).unwrap());
+        }
+        assert!(docs.len() > 0)
     }
-    assert!(items.len() > 0)
 }
