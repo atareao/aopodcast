@@ -1,7 +1,11 @@
 use log::{info, warn, error};
 use serde::{Serialize, Deserialize, Deserializer};
 use serde_json::Value;
-use crate::models::{metadata::Metadata, mp3metadata::Mp3Metadata};
+use crate::models::{
+    metadata::Metadata,
+    mp3metadata::Mp3Metadata,
+    doc::Doc,
+};
 use super::item::Item;
 use async_recursion::async_recursion;
 use log::debug;
@@ -33,16 +37,6 @@ struct Response{
     items: Vec<BaseItem>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Doc{
-    description: String,
-    downloads: usize,
-    identifier: String,
-    item_size: u64,
-    publicdate: String,
-    subject: Vec<String>,
-    title: String,
-}
 
 impl ArchiveOrg{
     pub fn new(creator: &str, link: &str, subject: Option<String>) -> Self{
@@ -53,8 +47,14 @@ impl ArchiveOrg{
         }
     }
 
+    pub async fn get_all_docs(&self) -> Vec<Doc>{
+        let since = "1970-01-01";
+        let page = 1;
+        self.get_docs(since, page).await
+    }
+
     #[async_recursion]
-    pub async fn get_docs(&self, since: &str, page: usize) -> Vec<Doc>{
+    async fn get_docs(&self, since: &str, page: usize) -> Vec<Doc>{
         let mut items = Vec::new();
         let optional = match &self.subject{
             Some(value) => format!("AND subject:({})", value.to_string()),
@@ -156,8 +156,8 @@ impl ArchiveOrg{
                             if metadata_result.is_some() && mp3_metadata_result.is_some(){
                                 let metadata = Metadata::new(&metadata_result.unwrap());
                                 if let Some(mp3_metadata) = Mp3Metadata::new(&mp3_metadata_result.unwrap()){
-                                    let item = Item::from_metadata(&metadata, &mp3_metadata);
-                                    items.push(item);
+                                    //let item = Item::from_metadata(&metadata, &mp3_metadata);
+                                    //items.push(item);
                                 }
                             }
                         }

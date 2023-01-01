@@ -1,7 +1,5 @@
 use serde::{Serialize, Deserialize};
 
-use super::archive::ArchiveOrg;
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Site{
     pub author: String,
@@ -19,7 +17,6 @@ pub struct Site{
     pub twitter: String,
     pub google_analytics: String,
     pub disqus: String,
-    pub archiveorg: ArchiveOrg,
 }
 
 

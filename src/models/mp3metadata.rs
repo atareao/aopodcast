@@ -4,15 +4,9 @@ use regex::Regex;
 #[derive(Debug)]
 pub struct Mp3Metadata{
     pub filename: String,
-    pub mtime: String,
-    pub size: String,
-    pub length: String,
-    pub title: String,
-    pub creator: String,
-    pub album: String,
-    pub track: String,
-    pub artist: String,
-    pub genre: String,
+    pub mtime: u64,
+    pub size: u64,
+    pub length: u64,
     pub comment: String,
 }
 
@@ -38,15 +32,9 @@ impl Mp3Metadata {
             return None;
         }
         debug!("Text: {}", &text);
-        let mtime = Self::get_value("mtime", &text);
-        let size = Self::get_value("size", &text);
-        let length = Self::get_value("length", &text);
-        let title = Self::get_value("title", &text);
-        let creator = Self::get_value("creator", &text);
-        let album = Self::get_value("album", &text);
-        let track = Self::get_value("track", &text);
-        let artist = Self::get_value("artist", &text);
-        let genre = Self::get_value("genre", &text);
+        let mtime = Self::get_value("mtime", &text).parse().unwrap();
+        let size = Self::get_value("size", &text).parse().unwrap();
+        let length = Self::get_value("length", &text).parse().unwrap();
         let comment = Self::get_value("comment", &text);
         let pattern = r#"<file name="([^"]*)" source="original">"#;
         let re = Regex::new(pattern).unwrap();
@@ -57,12 +45,6 @@ impl Mp3Metadata {
             mtime,
             size,
             length,
-            title,
-            creator,
-            album,
-            track,
-            artist,
-            genre,
             comment,
         })
     }

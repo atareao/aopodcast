@@ -7,3 +7,4 @@ pub mod items;
 pub mod site;
 pub mod article;
 pub mod episode;
+pub mod doc;

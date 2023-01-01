@@ -21,15 +21,16 @@ use super::{
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord)]
 pub struct Item{
     identifier: String,
-    mediatype: String,
-    collection: Vec<String>,
+    title: String,
     subject: Vec<String>,
     description: String,
+    downloads: usize,
+    item_size: u64,
+    publicdate: String,
     filename: String,
     mtime: String,
     size: String,
     length: String,
-    title: String,
     creator: String,
     album: String,
     track: String,
@@ -44,15 +45,16 @@ impl From<Article> for Item{
     fn from(article: Article) -> Self{
         Self{
             identifier: article.filename.to_string(),
-            mediatype: "".to_string(),
-            collection: Vec::new(),
+            title: article.title.to_string(),
             subject: Vec::new(),
             description: article.content,
+            downloads: 0,
+            item_size: 0,
+            publicdate: "".to_string(),
             filename: article.filename.to_string(),
             mtime: "".to_string(),
             size: "".to_string(),
             length: "".to_string(),
-            title: article.title.to_string(),
             creator: "".to_string(),
             album: "".to_string(),
             track: "".to_string(),
@@ -77,8 +79,6 @@ impl PartialOrd for Item {
 impl Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "Identifier: {}\n
-                   Mediatype: {}\n
-                   Collection: {}\n
                    Subject: {}\n
                    Description: {}\n
                    Filename: {}\n
@@ -94,7 +94,7 @@ impl Display for Item {
                    Comment: {}\n
                    Slug: {}\n
                    Date: {}\n",
-            self.identifier, self.mediatype, self.collection.concat(),
+            self.identifier,
             self.subject.concat(), self.description, self.filename, self.mtime,
             self.size, self.length, self.title, self.creator, self.album,
             self.track, self.artist, self.genre, self.comment, self.slug,
@@ -139,29 +139,27 @@ impl Item {
         }
 
     }
-    pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
-        Self{
-            identifier: metadata.identifier.to_string(),
-            mediatype: metadata.mediatype.to_string(),
-            collection: metadata.collection.clone(),
-            subject: metadata.subject.clone(),
-            description: metadata.description.to_string(),
-            filename: mp3metadata.filename.to_string(),
-            mtime: mp3metadata.mtime.to_string(),
-            size: mp3metadata.size.to_string(),
-            length: mp3metadata.length.to_string(),
-            title: mp3metadata.title.to_string(),
-            creator: mp3metadata.creator.to_string(),
-            album: mp3metadata.album.to_string(),
-            track: mp3metadata.track.to_string(),
-            artist: mp3metadata.artist.to_string(),
-            genre: mp3metadata.genre.to_string(),
-            comment: mp3metadata.comment.to_string(),
-            slug: get_slug(&mp3metadata.title),
-            date: get_date(&mp3metadata.mtime),
-        }
+    //pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
+    //    Self{
+    //        identifier: metadata.identifier.to_string(),
+    //        subject: metadata.subject.clone(),
+    //        description: metadata.description.to_string(),
+    //        filename: mp3metadata.filename.to_string(),
+    //        mtime: mp3metadata.mtime.to_string(),
+    //        size: mp3metadata.size.to_string(),
+    //        length: mp3metadata.length.to_string(),
+    //        title: mp3metadata.title.to_string(),
+    //        creator: mp3metadata.creator.to_string(),
+    //        album: mp3metadata.album.to_string(),
+    //        track: mp3metadata.track.to_string(),
+    //        artist: mp3metadata.artist.to_string(),
+    //        genre: mp3metadata.genre.to_string(),
+    //        comment: mp3metadata.comment.to_string(),
+    //        slug: get_slug(&mp3metadata.title),
+    //        date: get_date(&mp3metadata.mtime),
+    //    }
 
-    }
+    //}
     pub fn get_mtime(&self) -> &str{
         &self.mtime
     }

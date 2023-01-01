@@ -10,6 +10,7 @@ pub struct Configuration{
     data: String,
     public: String,
     style_css: String,
+    archiveorg: ArchiveOrg,
     site: Site,
 }
 
@@ -29,7 +30,7 @@ impl Configuration {
     }
 
     pub fn get_archiveorg(&self) -> &ArchiveOrg{
-        &self.site.archiveorg
+        &self.archiveorg
     }
 
     pub fn get_log_level(&self) -> &str{

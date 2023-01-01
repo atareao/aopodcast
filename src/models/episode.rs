@@ -5,18 +5,20 @@ use log::{debug, info, error};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Episode{
+    // from doc
     pub identifier: String,
     pub title: String,
-    pub slug: String,
-    pub excerpt: String,
-    pub content: String,
+    pub subject: Vec<String>,
+    pub description: String,
+    pub downloads: u64,
+    // from mp3 metadata
     pub filename: String,
-    pub audio: String,
-    pub mtime: String,
-    pub date: String,
-    pub size: String,
-    pub length: String,
-    pub tags: Vec<String>,
+    pub mtime: u64,
+    pub size: u64,
+    pub length: u64,
+    pub comment: String,
+    // more
+    pub slug: String,
 }
 
 impl Episode{
@@ -26,31 +28,30 @@ impl Episode{
         let data = tokio::fs::read_to_string(&filename)
             .await
             .unwrap();
-        Self::parse(&data, &filename)
+        Self::parse(&data)
     }
 
-    fn parse(data: &str, filename: &str) -> Option<Episode>{
+    fn parse(data: &str) -> Option<Episode>{
         match serde_yaml::from_str::<Value>(&data) {
             Ok(value) => {
-                info!("Filename: {}", filename);
                 debug!("Value: {:?}", value);
                 Some(Self{
-                    identifier: value["identifier"].to_string(),
-                    title: value["title"].to_string(),
-                    slug: value["slug"].to_string(),
-                    excerpt: value["excerpt"].to_string(),
-                    content: value["content"].to_string(),
-                    filename: value["filename"].to_string(),
-                    audio: value["audio"].to_string(),
-                    mtime: value["mtime"].to_string(),
-                    date: value["date"].to_string(),
-                    size: value["size"].to_string(),
-                    length: value["length"].to_string(),
-                    tags: value["tags"].as_array()
-                            .unwrap()
-                            .into_iter()
-                            .map(|item| item.as_str().unwrap().to_string())
-                            .collect(),
+                    identifier: value["identifier"].as_str().unwrap().to_string(),
+                    title: value["title"].as_str().unwrap().to_string(),
+                    subject: value["subject"]
+                        .as_array()
+                        .unwrap()
+                        .into_iter()
+                        .map(|subject| subject.as_str().unwrap().to_string())
+                        .collect(),
+                    description: value["description"].as_str().unwrap().to_string(),
+                    downloads: value["downloads"].as_u64().unwrap(),
+                    filename: value["filename"].as_str().unwrap().to_string(),
+                    mtime: value["mtime"].as_u64().unwrap(),
+                    size: value["size"].as_u64().unwrap(),
+                    length: value["length"].as_u64().unwrap(),
+                    comment: value["comment"].as_str().unwrap().to_string(),
+                    slug: value["slug"].as_str().unwrap().to_string(),
                 })
             },
             Err(e) => {
