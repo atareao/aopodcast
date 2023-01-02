@@ -2,10 +2,10 @@
 <html>
     <head>
         {% block head %}
-        <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }} – {{ site.description }}</title>
+        <title>{% if post.title %}{{ post.title }} – {% endif %}{{ site.title }} – {{ site.description }}</title>
         {% include "meta.html" %}
         <link rel="stylesheet" type="text/css" href="{{ site.baseurl | safe }}/style.css" />
-        <link rel="alternate" type="application/rss+xml" title="{{ site.name }} - {{ site.description }}" href="{{ site.baseurl | safe }}/feed.xml" />
+        <link rel="alternate" type="application/rss+xml" title="{{ site.title }} - {{ site.description }}" href="{{ site.baseurl | safe }}/feed.xml" />
         {% endblock head %}
     </head>
   <body>
@@ -14,7 +14,7 @@
         <header class="masthead clearfix">
           <a href="{{ site.baseurl | safe }}/" class="site-avatar"><img src="{{ site.avatar | safe }}" /></a>
           <div class="site-info">
-            <h1 class="site-name"><a href="{{ site.baseurl | safe }}/">{{ site.name }}</a></h1>
+            <h1 class="site-name"><a href="{{ site.baseurl | safe }}/">{{ site.title }}</a></h1>
             <p class="site-description">{{ site.description }}</p>
           </div>
           <nav>
