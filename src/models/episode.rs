@@ -9,6 +9,7 @@ use super::{
     mp3metadata::Mp3Metadata
 };
 
+const EXCERPT_LENGTH: usize = 150;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Episode{
@@ -59,7 +60,7 @@ impl Episode{
             &mp3.title
         };
         let comment = if mp3.comment.is_empty(){
-            if metadata.description.len() > 60{
+            if metadata.description.len() > EXCERPT_LENGTH{
                 debug!("Description ({}): {}", metadata.description.len(),
                     metadata.description);
                 let item = metadata.description
@@ -69,11 +70,11 @@ impl Episode{
                     .unwrap()
                     .to_string();
                 debug!("Sort description: item");
-                if item.len() > 60{
+                if item.len() > EXCERPT_LENGTH{
                    item.as_str()
                         .chars()
                         .into_iter()
-                        .take(60)
+                        .take(EXCERPT_LENGTH)
                         .collect::<String>()
                         .to_string()
                 }else{
