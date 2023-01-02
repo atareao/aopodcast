@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use log::{debug, info, error};
+use comrak::{markdown_to_html, ComrakOptions};
 
 use super::{
     doc::Doc,
@@ -55,12 +56,13 @@ impl Episode{
     }
 
     pub fn get_post(&self) -> Post{
+        let content = markdown_to_html(&self.description, &ComrakOptions::default());
         Post{
             layout: Layout::PODCAST,
             slug: self.slug.clone(),
             excerpt: self.comment.clone(),
             title: self.title.clone(),
-            content: self.description.clone(),
+            content,
             date: self.mtime,
             identifier: self.identifier.clone(),
             filename: self.filename.clone(),

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use log::{debug, info, error};
+use comrak::{markdown_to_html, ComrakOptions};
 
 use super::{
     site::{Post, Layout},
@@ -23,12 +24,13 @@ impl Article{
         let slug = get_slug(&self.title);
         let identifier = get_slug(&self.title);
         let date = get_unix_time(&self.date);
+        let content = markdown_to_html(&self.content, &ComrakOptions::default());
         Post{
             layout: Layout::POST,
             slug,
             excerpt: self.excerpt.clone(),
             title: self.title.clone(),
-            content: self.content.clone(),
+            content,
             date,
             identifier,
             filename: "".to_string(),
@@ -52,10 +54,10 @@ impl Article{
                 let slug = filename.replace(".yml", "");
                 Some(Self{
                     slug,
-                    title: value["title"].to_string(),
-                    date: value["date"].to_string(),
-                    excerpt: value["excerpt"].to_string(),
-                    content: value["content"].to_string(),
+                    title: value["title"].as_str().unwrap().to_string(),
+                    date: value["date"].as_str().unwrap().to_string(),
+                    excerpt: value["excerpt"].as_str().unwrap().to_string(),
+                    content: value["content"].as_str().unwrap().to_string(),
                     filename: filename.to_string(),
                 })
             },
