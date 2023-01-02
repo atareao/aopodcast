@@ -37,7 +37,6 @@ impl ArchiveOrg{
 
     pub async fn get_all_docs(&self) -> Vec<Doc>{
         let since = "1970-01-01";
-        let since = "2022-12-01";
         let page = 1;
         self.get_docs(since, page).await
     }
