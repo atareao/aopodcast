@@ -4,6 +4,7 @@ pub mod mp3metadata;
 pub mod config;
 pub mod site;
 pub mod article;
+pub mod page;
 pub mod episode;
 pub mod doc;
 pub mod utils;

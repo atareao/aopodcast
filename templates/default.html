@@ -19,7 +19,9 @@
           </div>
           <nav>
             <a href="{{ site.baseurl | safe }}/">Blog</a>
-            <a href="{{ site.baseurl | safe }}/about">Acerca de</a>
+            {% for page in pages %}
+                <a href="{{ site.baseurl | safe }}/{{ page.slug }}">{{ page.title }}</a>
+            {% endfor %}
           </nav>
         </header>
       </div>
