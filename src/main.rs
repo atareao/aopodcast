@@ -8,6 +8,7 @@ use std::str::FromStr;
 use crate::models::{
     archive::ArchiveOrg,
     article::Article,
+    page::Page,
     site::{Post, Layout},
     episode::Episode,
 };
@@ -23,11 +24,12 @@ async fn main(){
     update(&configuration).await;
 
     let posts = read_episodes_and_posts().await;
+    let pages = read_pages().await;
     debug!("{:?}", posts);
     info!("=== Generation ===");
     create_public(&configuration).await;
-    generate_html(&configuration, &posts).await;
-    generate_index(&configuration, &posts).await;
+    generate_html(&configuration, &posts, &pages).await;
+    generate_index(&configuration, &posts, &pages).await;
     generate_feed(&configuration, &posts).await;
     let style_css = configuration.get_style_css();
     let public = configuration.get_public();
@@ -35,6 +37,20 @@ async fn main(){
     copy_file(style_css, &output).await;
 }
 
+async fn read_pages() -> Vec<Post>{
+    let mut posts = Vec::new();
+    let mut posts_dir = tokio::fs::read_dir("pages").await.unwrap();
+    while let Some(file) = posts_dir.next_entry().await.unwrap(){
+        if file.metadata().await.unwrap().is_file(){
+            let filename = file.file_name().to_str().unwrap().to_string();
+            if let Some(article) = Page::new(&filename).await{
+                posts.push(article.get_post());
+            }
+        }
+    }
+    posts.sort_by(|a, b| b.date.cmp(&a.date));
+    posts
+}
 async fn read_episodes_and_posts() -> Vec<Post>{
     let mut posts = Vec::new();
     let mut episodes_dir = tokio::fs::read_dir("episodes").await.unwrap();
@@ -55,7 +71,7 @@ async fn read_episodes_and_posts() -> Vec<Post>{
             }
         }
     }
-    posts.sort_by(|a, b| a.date.cmp(&b.date));
+    posts.sort_by(|a, b| b.date.cmp(&a.date));
     posts
 }
 
@@ -84,7 +100,7 @@ async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
 
 }
 
-async fn generate_index(configuration: &Configuration, posts: &Vec<Post>){
+async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
     let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -95,6 +111,7 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>){
     let public = configuration.get_public();
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
+    context.insert("pages", pages);
     context.insert("posts", &posts);
     match tera.render("index.html", &context){
         Ok(content) => {
@@ -105,7 +122,7 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>){
     }
 }
 
-async fn generate_html(configuration: &Configuration, posts: &Vec<Post>){
+async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
     let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -116,7 +133,11 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>){
     let public = configuration.get_public();
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
-    for post in posts.as_slice(){
+    context.insert("pages", pages);
+    let mut post_and_pages = Vec::new();
+    post_and_pages.extend_from_slice(posts);
+    post_and_pages.extend_from_slice(pages);
+    for post in post_and_pages.as_slice(){
         context.insert("post", post);
         match tera.render("post.html", &context){
             Ok(content) => {
