@@ -15,7 +15,8 @@ use super::{
         Post,
         Podcast,
     },
-    article::Article
+    article::Article,
+    utils::get_slug,
 };
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord)]
@@ -103,42 +104,6 @@ impl Display for Item {
 }
 
 impl Item {
-    pub fn get_post(&self) -> Post{
-        let content = markdown_to_html(&self.description, &ComrakOptions::default());
-        let date = self.get_mtime().parse::<u64>().unwrap();
-        let slug = if self.slug.is_empty(){
-            get_slug(&self.title)
-        }else{
-            self.slug.clone()
-        };
-        Post{
-            slug,
-            excerpt: self.comment.clone(),
-            title: self.title.clone(),
-            content,
-            date,
-        }
-    }
-    pub fn get_pocast(&self) -> Podcast{
-        let content = markdown_to_html(&self.description, &ComrakOptions::default());
-        let date = self.get_mtime().parse::<u64>().unwrap();
-        let slug = if self.slug.is_empty(){
-            get_slug(&self.title)
-        }else{
-            self.slug.clone()
-        };
-        Podcast{
-            identfier: self.identifier.clone(),
-            slug,
-            excerpt: self.comment.clone(),
-            title: self.title.clone(),
-            content,
-            date,
-            filename: self.filename.clone(),
-            length: self.length.clone(),
-        }
-
-    }
     //pub fn from_metadata(metadata: &Metadata, mp3metadata: &Mp3Metadata) -> Item{
     //    Self{
     //        identifier: metadata.identifier.to_string(),
@@ -180,41 +145,6 @@ fn get_date(mtime: &str) -> String{
     let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
     let date = DateTime::<Utc>::from_utc(naive_date_time, Utc);
     date.format("%Y-%m-%d").to_string()
-}
-
-fn get_slug(title: &str) -> String{
-    info!("Slug from: '{}'", title);
-    let title: String = title
-        .to_lowercase().
-        chars()
-        .map(|c| match c {
-            'a'..='z'|'0'..='9' => c,
-            'á'|'ä'|'à'|'â'     => 'a',
-            'é'|'ë'|'è'|'ê'     => 'e',
-            'í'|'ï'|'ì'|'î'     => 'i',
-            'ó'|'ö'|'ò'|'ô'     => 'o',
-            'ú'|'ü'|'ù'|'û'     => 'u',
-            'ñ'                 => 'n',
-            _                   => '-'
-        })
-        .collect();
-    debug!("Slug step 1: '{}'", title);
-    let re = Regex::new(r"\-{2,}").unwrap();
-    let mut title = re.replace_all(&title, "-").to_string();
-    debug!("Slug step 2: '{}'", title);
-    let mut title = if title.starts_with("-"){
-        title.remove(0).to_string();
-        title
-    }else{
-        title
-    };
-    debug!("Slug step 3: '{}'", title);
-    if title.ends_with("-"){
-        title.pop();
-        title
-    }else{
-        title.to_string()
-    }
 }
 
 #[tokio::test]
