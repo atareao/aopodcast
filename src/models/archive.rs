@@ -11,7 +11,7 @@ use async_recursion::async_recursion;
 use log::debug;
 
 const BASE_URL: &'static str = "https://archive.org";
-const PAGESIZE: usize = 100;
+const PAGESIZE: usize = 200;
 
 #[derive(Debug, Deserialize)]
 pub struct BaseItem{
@@ -73,6 +73,7 @@ impl ArchiveOrg{
         let url = format!("{base}/advancedsearch.php?q=creator:({creator}) \
             AND date:[{since} TO 9999-12-31] \
             AND mediatype:(audio) \
+            AND format:(VBR MP3) \
             {optional} \
             &{fields}\
             &sort[]={sort}\
@@ -108,9 +109,11 @@ impl ArchiveOrg{
                             items.append(&mut more_items)
                         }
                         for (i, doc) in response["docs"].as_array().unwrap().iter().enumerate(){
-                            debug!("Doc: {:?}", doc);
+                            //debug!("Doc: {:?}", doc);
                             let mut doc: Doc = serde_json::from_value(doc.clone()).unwrap();
-                            doc.set_number(i + (page - 1) * PAGESIZE - (page - 1));
+                            let number = i + 1 + (page - 1) * PAGESIZE;
+                            debug!("Doc {}. Number: {} => {}", doc.get_identifier(), i, number);
+                            doc.set_number(number);
                             items.push(doc);
                         }
                     },
