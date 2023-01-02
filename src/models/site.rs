@@ -19,7 +19,7 @@ pub struct Site{
     pub disqus: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum Layout{
     POST,
     PODCAST,
