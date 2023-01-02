@@ -12,11 +12,6 @@ use log::debug;
 const BASE_URL: &'static str = "https://archive.org";
 const PAGESIZE: usize = 200;
 
-#[derive(Debug, Deserialize)]
-pub struct BaseItem{
-    identifier: String,
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ArchiveOrg{
     pub creator: String,
@@ -31,12 +26,6 @@ where D: Deserializer<'de>{
         Ok(o.filter(|s| !s.is_empty()))
 }
 
-#[derive(Debug, Deserialize)]
-struct Response{
-    items: Vec<BaseItem>,
-}
-
-
 impl ArchiveOrg{
     pub fn new(creator: &str, link: &str, subject: Option<String>) -> Self{
         Self{
@@ -48,6 +37,7 @@ impl ArchiveOrg{
 
     pub async fn get_all_docs(&self) -> Vec<Doc>{
         let since = "1970-01-01";
+        let since = "2022-12-01";
         let page = 1;
         self.get_docs(since, page).await
     }
