@@ -19,24 +19,35 @@ pub struct Site{
     pub disqus: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub enum Layout{
+    POST,
+    PODCAST,
+    PAGE,
+}
+
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Post{
+    pub layout: Layout,
     pub slug: String,
     pub excerpt: String,
     pub title: String,
     pub content: String,
     pub date: u64,
+    pub identifier: String,
+    pub filename: String,
+    pub length: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Podcast{
-    pub identfier: String,
     pub slug: String,
     pub excerpt: String,
     pub title: String,
     pub content: String,
     pub date: u64,
+    pub identifier: String,
     pub filename: String,
     pub length: String,
 }
