@@ -64,14 +64,14 @@ impl Doc{
         &self.description
     }
     pub fn get_filename(&self) -> String{
-        format!("episodes/{}.yml", self.identifier)
+        format!("{}.yml", self.identifier)
     }
     pub fn get_downloads(&self) -> u64{
         self.downloads
     }
 
     pub async fn exists(&self) -> bool{
-        let file = self.get_filename();
+        let file = format!("episodes/{}", self.get_filename());
         match fs::metadata(&file).await{
             Ok(metadata) => {
                 debug!("Output file {} exists", &file);

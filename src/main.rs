@@ -27,7 +27,7 @@ async fn main(){
         if doc.exists().await{
             info!("Doc {} exists", doc.get_identifier());
             let filename = doc.get_filename();
-            match Episode::new("episodes", &filename).await{
+            match Episode::new(&filename).await{
                 Some(ref mut episode) => {
                     if episode.downloads != doc.get_downloads(){
                         episode.downloads = doc.get_downloads();

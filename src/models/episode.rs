@@ -43,8 +43,8 @@ impl Episode{
         }
     }
 
-    pub async fn new(path: &str, filename: &str) -> Option<Self>{
-        let filename = format!("{}/{}", path, filename);
+    pub async fn new(filename: &str) -> Option<Self>{
+        let filename = format!("episodes/{}", filename);
         debug!("Filename: {}", filename);
         let data = tokio::fs::read_to_string(&filename)
             .await
@@ -53,19 +53,51 @@ impl Episode{
     }
 
     pub fn combine(doc: &Doc, metadata: &Metadata, mp3: &Mp3Metadata) -> Episode{
+        let title = if mp3.title.is_empty(){
+            doc.get_identifier()
+        }else{
+            &mp3.title
+        };
+        let comment = if mp3.comment.is_empty(){
+            if metadata.description.len() > 60{
+                debug!("Description ({}): {}", metadata.description.len(),
+                    metadata.description);
+                let item = metadata.description
+                    .split("\n")
+                    .collect::<Vec<&str>>()
+                    .get(0)
+                    .unwrap()
+                    .to_string();
+                debug!("Sort description: item");
+                if item.len() > 60{
+                   item.as_str()
+                        .chars()
+                        .into_iter()
+                        .take(60)
+                        .collect::<String>()
+                        .to_string()
+                }else{
+                    item
+                }
+            }else{
+                metadata.description.to_string()
+            }
+        }else{
+            mp3.comment.to_string()
+        };
         Self{
             number: doc.get_number(),
             identifier: doc.get_identifier().to_string(),
             subject: doc.get_subject(),
             description: metadata.description.to_string(),
             downloads: doc.get_downloads(),
-            title: mp3.title.clone(),
+            title: title.to_string(),
             filename: mp3.filename.to_string(),
             mtime: mp3.mtime,
             size: mp3.size,
             length: mp3.length,
-            comment: mp3.comment.to_string(),
-            slug: get_slug(&mp3.title),
+            comment: comment.to_string(),
+            slug: get_slug(title),
         }
     }
 
@@ -74,7 +106,7 @@ impl Episode{
             Ok(value) => {
                 debug!("Value: {:?}", value);
                 Some(Self{
-                    number: value["identifier"].as_u64().unwrap().try_into().unwrap(),
+                    number: value["number"].as_u64().unwrap().try_into().unwrap(),
                     identifier: value["identifier"].as_str().unwrap().to_string(),
                     title: value["title"].as_str().unwrap().to_string(),
                     subject: value["subject"]
@@ -146,7 +178,7 @@ mod tests {
     async fn test2(){
         let level_filter = LevelFilter::Trace;
         let _ = SimpleLogger::init(level_filter, Config::default());
-        let episode = Episode::new("episodes", "pihole.md").await;
+        let episode = Episode::new("pihole.md").await;
         debug!("{:?}", episode);
         assert_eq!(episode.is_some(), true);
     }
