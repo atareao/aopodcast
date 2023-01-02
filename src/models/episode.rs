@@ -1,12 +1,13 @@
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use regex::Regex;
 use log::{debug, info, error};
 
 use super::{
     doc::Doc,
+    site::{Post, Layout},
     metadata::Metadata,
-    mp3metadata::Mp3Metadata
+    mp3metadata::Mp3Metadata,
+    utils::get_slug,
 };
 
 const EXCERPT_LENGTH: usize = 150;
@@ -51,6 +52,20 @@ impl Episode{
             .await
             .unwrap();
         Self::parse(&data)
+    }
+
+    pub fn get_post(&self) -> Post{
+        Post{
+            layout: Layout::PODCAST,
+            slug: self.slug.clone(),
+            excerpt: self.comment.clone(),
+            title: self.title.clone(),
+            content: self.description.clone(),
+            date: self.mtime,
+            identifier: self.identifier.clone(),
+            filename: self.filename.clone(),
+            length: self.length,
+        }
     }
 
     pub fn combine(doc: &Doc, metadata: &Metadata, mp3: &Mp3Metadata) -> Episode{
@@ -131,41 +146,6 @@ impl Episode{
                 None
             },
         }
-    }
-}
-
-fn get_slug(title: &str) -> String{
-    info!("Slug from: '{}'", title);
-    let title: String = title
-        .to_lowercase().
-        chars()
-        .map(|c| match c {
-            'a'..='z'|'0'..='9' => c,
-            'á'|'ä'|'à'|'â'     => 'a',
-            'é'|'ë'|'è'|'ê'     => 'e',
-            'í'|'ï'|'ì'|'î'     => 'i',
-            'ó'|'ö'|'ò'|'ô'     => 'o',
-            'ú'|'ü'|'ù'|'û'     => 'u',
-            'ñ'                 => 'n',
-            _                   => '-'
-        })
-        .collect();
-    debug!("Slug step 1: '{}'", title);
-    let re = Regex::new(r"\-{2,}").unwrap();
-    let mut title = re.replace_all(&title, "-").to_string();
-    debug!("Slug step 2: '{}'", title);
-    let mut title = if title.starts_with("-"){
-        title.remove(0).to_string();
-        title
-    }else{
-        title
-    };
-    debug!("Slug step 3: '{}'", title);
-    if title.ends_with("-"){
-        title.pop();
-        title
-    }else{
-        title.to_string()
     }
 }
 
