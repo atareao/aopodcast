@@ -8,8 +8,6 @@ use std::str::FromStr;
 use crate::models::{
     archive::ArchiveOrg,
     article::Article,
-    item::Item,
-    items::Items,
     site::{Post, Layout},
     episode::Episode,
 };
@@ -22,20 +20,19 @@ async fn main(){
     let _ = SimpleLogger::init(level_filter, Config::default());
     debug!("Configuration: {:?}", configuration);
 
-    //update(&configuration).await;
+    update(&configuration).await;
 
     let posts = read_episodes_and_posts().await;
     debug!("{:?}", posts);
     info!("=== Generation ===");
     create_public(&configuration).await;
     generate_html(&configuration, &posts).await;
-    //generate_index(&configuration, &posts).await;
-    //generate_feed(&configuration, &posts).await;
+    generate_index(&configuration, &posts).await;
+    generate_feed(&configuration, &posts).await;
     let style_css = configuration.get_style_css();
     let public = configuration.get_public();
     let output = format!("{}/style.css", public);
     copy_file(style_css, &output).await;
-    //read_and_save(&configuration).await;
 }
 
 async fn read_episodes_and_posts() -> Vec<Post>{
