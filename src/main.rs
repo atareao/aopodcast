@@ -10,7 +10,8 @@ use crate::models::{
     article::Article,
     item::Item,
     items::Items,
-    site::Post, episode::Episode,
+    site::{Post, Layout},
+    episode::Episode,
 };
 
 #[tokio::main]
@@ -21,6 +22,118 @@ async fn main(){
     let _ = SimpleLogger::init(level_filter, Config::default());
     debug!("Configuration: {:?}", configuration);
 
+    //update(&configuration).await;
+
+    let posts = read_episodes_and_posts().await;
+    debug!("{:?}", posts);
+    info!("=== Generation ===");
+    create_public(&configuration).await;
+    generate_html(&configuration, &posts).await;
+    //generate_index(&configuration, &posts).await;
+    //generate_feed(&configuration, &posts).await;
+    let style_css = configuration.get_style_css();
+    let public = configuration.get_public();
+    let output = format!("{}/style.css", public);
+    copy_file(style_css, &output).await;
+    //read_and_save(&configuration).await;
+}
+
+async fn read_episodes_and_posts() -> Vec<Post>{
+    let mut posts = Vec::new();
+    let mut episodes_dir = tokio::fs::read_dir("episodes").await.unwrap();
+    while let Some(file) = episodes_dir.next_entry().await.unwrap(){
+        if file.metadata().await.unwrap().is_file(){
+            let filename = file.file_name().to_str().unwrap().to_string();
+            if let Some(episode) = Episode::new(&filename).await{
+                posts.push(episode.get_post());
+            }
+        }
+    }
+    let mut posts_dir = tokio::fs::read_dir("posts").await.unwrap();
+    while let Some(file) = posts_dir.next_entry().await.unwrap(){
+        if file.metadata().await.unwrap().is_file(){
+            let filename = file.file_name().to_str().unwrap().to_string();
+            if let Some(article) = Article::new(&filename).await{
+                posts.push(article.get_post());
+            }
+        }
+    }
+    posts.sort_by(|a, b| a.date.cmp(&b.date));
+    posts
+}
+
+async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
+    let tera = match Tera::new("templates/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let public = configuration.get_public();
+    let mut context = Context::new();
+    context.insert("site", configuration.get_site());
+    let filter_posts: Vec<&Post> = posts
+        .iter()
+        .filter(|post| post.layout == Layout::PODCAST).collect();
+    context.insert("posts", &filter_posts);
+    match tera.render("index.html", &context){
+        Ok(content) => {
+            debug!("{}", content);
+            write_post(public, "", &content).await;
+        },
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
+
+}
+
+async fn generate_index(configuration: &Configuration, posts: &Vec<Post>){
+    let tera = match Tera::new("templates/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let public = configuration.get_public();
+    let mut context = Context::new();
+    context.insert("site", configuration.get_site());
+    context.insert("posts", &posts);
+    match tera.render("index.html", &context){
+        Ok(content) => {
+            debug!("{}", content);
+            write_post(public, "", &content).await;
+        },
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
+}
+
+async fn generate_html(configuration: &Configuration, posts: &Vec<Post>){
+    let tera = match Tera::new("templates/*.html") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let public = configuration.get_public();
+    let mut context = Context::new();
+    context.insert("site", configuration.get_site());
+    for post in posts.as_slice(){
+        context.insert("post", post);
+        match tera.render("post.html", &context){
+            Ok(content) => {
+                debug!("{}", &content);
+                debug!("Post: {:?}", &post);
+                create_dir(public, &post.slug).await;
+                write_post(public, &post.slug, &content).await
+            },
+            Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+        }
+    }
+}
+
+async fn update(configuration: &Configuration){
     let mut new_docs = Vec::new();
     let aoclient = configuration.get_archiveorg();
     let docs = aoclient.get_all_docs().await;
@@ -53,144 +166,6 @@ async fn main(){
                 }
             },
             None => error!("Cant download from {}", doc.get_identifier()),
-        }
-
-    }
-    let posts = read_episodes_and_posts().await;
-    debug!("{:?}", posts);
-    //read_and_save(&configuration).await;
-}
-
-async fn read_and_save(configuration: &Configuration){
-
-    let mut items = Items::read_saved_items(configuration.get_data()).await;
-    debug!("{}", items.get_last().get_mtime().parse::<u64>().unwrap());
-    debug!("{}", items.get_last().get_date());
-    let since = if items.len() == 0{
-        "1971-01-01".to_string()
-    }else{
-        items.get_last().get_date().format("%Y-%m-%d").to_string()
-    };
-    info!("{}", since);
-    let mut to_add = Vec::new();
-    let archiveorg = configuration.get_archiveorg();
-    let read_items = archiveorg.get_items(&since).await;
-    for item in read_items{
-        if !items.exists(&item){
-            debug!("To add {}", &item.get_identifier());
-            to_add.push(item);
-        }
-    }
-    if to_add.len() > 0 {
-        items.add(&to_add);
-        info!("Added {} items", to_add.len());
-        match items.save_items(configuration.get_data()).await{
-            Ok(_) => {
-                info!("Saved");
-                create_public(&configuration).await;
-                //generate_html(&configuration, items.get_items()).await;
-                //generate_index(&configuration, items.get_items()).await;
-                //generate_feed(&configuration, items.get_items()).await;
-                let style_css = configuration.get_style_css();
-                let public = configuration.get_public();
-                let output = format!("{}/style.css", public);
-                copy_file(style_css, &output).await;
-            },
-            Err(e) => error!("Some error happened, {}", e),
-        }
-    }
-}
-
-async fn read_episodes_and_posts() -> Vec<Post>{
-    let mut posts = Vec::new();
-    let mut episods_dir = tokio::fs::read_dir("episodes").await.unwrap();
-    while let Some(file) = episods_dir.next_entry().await.unwrap(){
-        if file.metadata().await.unwrap().is_file(){
-            let filename = file.file_name().to_str().unwrap().to_string();
-            if let Some(episode) = Episode::new(&filename).await{
-                posts.push(episode.get_post());
-            }
-        }
-    }
-    let mut posts_dir = tokio::fs::read_dir("posts").await.unwrap();
-    while let Some(file) = posts_dir.next_entry().await.unwrap(){
-        if file.metadata().await.unwrap().is_file(){
-            let filename = file.file_name().to_str().unwrap().to_string();
-            if let Some(article) = Article::new(&filename).await{
-                posts.push(article.get_post());
-            }
-        }
-    }
-    posts.sort_by(|a, b| a.date.cmp(&b.date));
-    posts
-}
-
-async fn generate_feed(configuration: &Configuration, items: &Vec<Item>){
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
-    let public = configuration.get_public();
-    let mut context = Context::new();
-    context.insert("site", configuration.get_site());
-    //let posts: Vec<Post> = items.iter().map(|item| item.get_post()).collect();
-    //context.insert("posts", &posts);
-    match tera.render("index.html", &context){
-        Ok(content) => {
-            debug!("{}", content);
-            write_post(public, "", &content).await;
-        },
-        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
-    }
-
-}
-
-async fn generate_index(configuration: &Configuration, items: &Vec<Item>){
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
-    let public = configuration.get_public();
-    let mut context = Context::new();
-    context.insert("site", configuration.get_site());
-    //let posts: Vec<Post> = items.iter().map(|item| item.get_post()).collect();
-    //context.insert("posts", &posts);
-    match tera.render("index.html", &context){
-        Ok(content) => {
-            debug!("{}", content);
-            write_post(public, "", &content).await;
-        },
-        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
-    }
-}
-
-async fn generate_html(configuration: &Configuration, posts: &Vec<Post>){
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
-    let public = configuration.get_public();
-    let mut context = Context::new();
-    context.insert("site", configuration.get_site());
-    for post in posts.as_slice(){
-        context.insert("post", post);
-        match tera.render("post.html", &context){
-            Ok(content) => {
-                debug!("{}", &content);
-                debug!("Post: {:?}", &post);
-                create_dir(public, &post.slug).await;
-                write_post(public, &post.slug, &content).await
-            },
-            Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
         }
     }
 }
