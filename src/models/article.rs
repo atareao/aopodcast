@@ -11,12 +11,11 @@ use super::{
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Article{
-    pub slug: String,
     pub title: String,
     pub date: String,
     pub excerpt: String,
-    pub content: String,
-    pub filename: String,
+    pub slug: String,
+    pub update: boolean,
 }
 
 impl Article{
