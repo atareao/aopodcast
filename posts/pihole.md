@@ -1,7 +1,10 @@
 ---
 title: Instalación docker y pihole
 date: 2020-05-15
-excerpt: Buenas muchachada, hoy me estreno con un manual sobre la instalación de docker en una raspberry pi y luego configurar Pihole para evitar publicidad en la navegación.
+slug:
+update: false
+---
+Buenas muchachada, hoy me estreno con un manual sobre la instalación de docker en una raspberry pi y luego configurar Pihole para evitar publicidad en la navegación.
 ---
 # Instalación de docker
 
