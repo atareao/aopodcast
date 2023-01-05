@@ -22,7 +22,7 @@ tera = { version = "1.17", features = ["builtins"] }
 # Yaml
 serde_yaml = "0.9"
 # front matter
-gray_matter = 0.2
+gray_matter = "0.2"
 
 # log
 log = "0.4"
