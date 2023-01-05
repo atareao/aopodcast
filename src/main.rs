@@ -66,8 +66,9 @@ async fn read_episodes_and_posts() -> Vec<Post>{
     while let Some(file) = posts_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
             let filename = file.file_name().to_str().unwrap().to_string();
-            if let Some(article) = Article::new(&filename).await{
-                posts.push(article.get_post());
+            match Article::new(&filename).await{
+                Ok(article) => posts.push(article.get_post()),
+                Err(e) => error!("Cant write {}. {}", filename, e),
             }
         }
     }
