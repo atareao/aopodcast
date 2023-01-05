@@ -2,6 +2,33 @@ use regex::Regex;
 use chrono::{DateTime, Utc, NaiveDate, NaiveTime, NaiveDateTime};
 use log::{info, debug};
 
+const EXCERPT_LENGTH: usize = 150;
+
+pub fn get_excerpt(content: &str) -> String{
+    debug!("Content ({}): {}", content.len(), content);
+    if content.len() > EXCERPT_LENGTH{
+        let excerpt = content
+            .split("\n")
+            .collect::<Vec<&str>>()
+            .get(0)
+            .unwrap()
+            .to_string();
+        debug!("Sort description: item");
+        if excerpt.len() > EXCERPT_LENGTH{
+           excerpt.as_str()
+                .chars()
+                .into_iter()
+                .take(EXCERPT_LENGTH)
+                .collect::<String>()
+                .to_string()
+        }else{
+            excerpt
+        }
+    }else{
+        content.to_string()
+    }
+}
+
 pub fn get_slug(title: &str) -> String{
     info!("Slug from: '{}'", title);
     let title: String = title

@@ -3,6 +3,8 @@ use serde_json::Value;
 use log::{debug, info, error};
 use comrak::{markdown_to_html, ComrakOptions};
 
+use crate::models::utils::get_excerpt;
+
 use super::{
     doc::Doc,
     site::{Post, Layout},
@@ -77,29 +79,7 @@ impl Episode{
             &mp3.title
         };
         let comment = if mp3.comment.is_empty(){
-            if metadata.description.len() > EXCERPT_LENGTH{
-                debug!("Description ({}): {}", metadata.description.len(),
-                    metadata.description);
-                let item = metadata.description
-                    .split("\n")
-                    .collect::<Vec<&str>>()
-                    .get(0)
-                    .unwrap()
-                    .to_string();
-                debug!("Sort description: item");
-                if item.len() > EXCERPT_LENGTH{
-                   item.as_str()
-                        .chars()
-                        .into_iter()
-                        .take(EXCERPT_LENGTH)
-                        .collect::<String>()
-                        .to_string()
-                }else{
-                    item
-                }
-            }else{
-                metadata.description.to_string()
-            }
+            get_excerpt(&metadata.description)
         }else{
             mp3.comment.to_string()
         };
