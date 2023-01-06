@@ -3,11 +3,12 @@ use log::{debug, info, error};
 use gray_matter::{Matter, engine::YAML};
 use comrak::{markdown_to_html, ComrakOptions};
 
-use crate::models::utils::{self, get_excerpt};
-
 use super::{
     site::{Post, Layout},
-    utils::{get_slug, get_unix_time},
+    utils::{get_slug,
+            get_unix_time,
+            get_excerpt,
+    },
 };
 
 
@@ -18,6 +19,12 @@ struct Metadata{
     pub slug: String,
 }
 
+impl Metadata{
+    pub fn get_filename(&self) -> String {
+        format!("posts/{}.md", self.slug)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Article{
     metadata: Metadata,
@@ -25,11 +32,6 @@ pub struct Article{
     pub content: String,
 }
 
-impl Metadata{
-    pub fn get_filename(&self) -> String {
-        format!("posts/{}.md", self.slug)
-    }
-}
 
 impl Article{
     pub fn get_post(&self) -> Post{
@@ -57,7 +59,6 @@ impl Article{
             .unwrap();
         let matter = Matter::<YAML>::new();
         let result = matter.parse(&data);
-        debug!("Aqui");
         let mut metadata: Metadata = result.data.unwrap().deserialize()?;
         debug!("Metadata: {:?}", &metadata);
         if metadata.slug.is_empty(){
@@ -129,7 +130,7 @@ mod tests {
     use log::debug;
 
     #[tokio::test]
-    async fn test_write_article(){
+    async fn test_article(){
         let level_filter = LevelFilter::Debug;
         let _ = SimpleLogger::init(level_filter, Config::default());
         let article = Article::new("pihole.md").await.unwrap();
