@@ -43,14 +43,16 @@ async fn read_pages() -> Vec<Post>{
     while let Some(file) = posts_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
             let filename = file.file_name().to_str().unwrap().to_string();
-            if let Some(article) = Page::new(&filename).await{
-                posts.push(article.get_post());
+            match Page::new(&filename).await{
+                Ok(page) => posts.push(page.get_post()),
+                Err(e) => error!("Cant write {}. {}", filename, e),
             }
         }
     }
     posts.sort_by(|a, b| b.date.cmp(&a.date));
     posts
 }
+
 async fn read_episodes_and_posts() -> Vec<Post>{
     let mut posts = Vec::new();
     let mut episodes_dir = tokio::fs::read_dir("episodes").await.unwrap();
