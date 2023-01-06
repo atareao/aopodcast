@@ -11,6 +11,7 @@ filename: QuePortatilCompro2.mp3
 mtime: 1521843630
 size: 118134073
 length: 5906
+excerpt: El pasado 18 de marzo participé nuevamente con Monos del Espacio que tituló "Recomendaciones concretas y ejemplos de portátiles".
 slug: queportatilcompro2
 ---
 El pasado 18 de marzo participé nuevamente con Monos del Espacio que tituló "Recomendaciones concretas y ejemplos de portátiles".

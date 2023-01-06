@@ -10,6 +10,7 @@ filename: Rclone2parte.mp3
 mtime: 1562310189
 size: 13004131
 length: 750
+excerpt: Buenas muchachada hoy os traigo una segunda parte sobre el programa rclone y rclone browser.
 slug: rclone-segunda-parte
 ---
 Buenas muchachada hoy os traigo una segunda parte sobre el programa rclone y rclone browser.

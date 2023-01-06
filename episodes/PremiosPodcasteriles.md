@@ -10,6 +10,7 @@ filename: PremiosPodcasteriles.mp3
 mtime: 1535098378
 size: 7703534
 length: 435
+excerpt: 'Buenas muchachada hoy entrego mis premios "podcasteriles". Entender que son basados en los podcast que conozco y escucho, seguramente haya muchos mas '
 slug: premios-podcasteriles
 ---
 Buenas muchachada hoy entrego mis premios "podcasteriles". Entender que son basados en los podcast que conozco y escucho, seguramente haya muchos mas y muy buenos que se merecen premio. Haz una lista y entrega tus premios y compártelos con los demás.  

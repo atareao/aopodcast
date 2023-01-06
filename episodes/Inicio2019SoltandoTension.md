@@ -12,6 +12,7 @@ filename: Inicio2019SoltandoTension.mp3
 mtime: 1546506282
 size: 11341508
 length: 652
+excerpt: Buenas muchachada, inicio el 2019 y os cuento cosas sobre el redmi note 5, Pixel os comparto un audio que grabé la semana pasada a la salida del traba
 slug: inicio-2019-y-soltando-tension
 ---
 Buenas muchachada, inicio el 2019 y os cuento cosas sobre el redmi note 5, Pixel os comparto un audio que grabé la semana pasada a la salida del trabajo en el que libero tensiones.

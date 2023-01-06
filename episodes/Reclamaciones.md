@@ -12,6 +12,7 @@ filename: Reclamaciones.mp3
 mtime: 1571919375
 size: 9764888
 length: 631
+excerpt: Buenas muchachada, hoy os comento que sigo esperando noticias del C4 que sigue en el taller, sobre la charla de smartwatch reciente, freebuds y algo m
 slug: reclamaciones
 ---
 Buenas muchachada, hoy os comento que sigo esperando noticias del C4 que sigue en el taller, sobre la charla de smartwatch reciente, freebuds y algo más.
