@@ -1,7 +1,9 @@
 ---
 title: Acerca de
 date: 2018-01-01
-excerpt: Acerca de
+slug: acerca-de
+---
+Acerca de
 ---
 Mi nombre es Alberto (algo más conocido como Papá Friki) y aquí podrás encontrar batallitas del día a día de un Papá Friki.
 
