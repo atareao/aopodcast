@@ -2,13 +2,13 @@ use regex::Regex;
 use html_escape::decode_html_entities;
 
 #[derive(Debug)]
-pub struct Metadata{
+pub struct AOMetadata{
     pub identifier: String,
     pub description: String,
 }
 
-impl Metadata {
-    pub fn new(content: &str) -> Metadata{
+impl AOMetadata {
+    pub fn new(content: &str) -> Self{
         let identifier = Self::get("identifier", &content).get(0).unwrap().to_string();
         let description = html2md::parse_html(
             &decode_html_entities(
@@ -16,7 +16,7 @@ impl Metadata {
                 .get(0)
                 .unwrap()
                 .to_string()).to_string());
-        Metadata{
+        Self{
             identifier,
             description,
         }

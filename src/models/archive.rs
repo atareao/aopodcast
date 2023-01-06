@@ -2,7 +2,7 @@ use log::{info, warn, error};
 use serde::{Serialize, Deserialize, Deserializer};
 use serde_json::Value;
 use crate::models::{
-    metadata::Metadata,
+    metadata::AOMetadata,
     mp3metadata::Mp3Metadata,
     doc::Doc,
 };
@@ -140,7 +140,7 @@ impl ArchiveOrg{
         }
     }
 
-    pub async fn get_metadata(identifier: &str) -> Option<Metadata>{
+    pub async fn get_metadata(identifier: &str) -> Option<AOMetadata>{
         let url = format!("{}/download/{identifier}/{identifier}_meta.xml",
             BASE_URL, identifier=identifier);
         info!("url: {}", url);
@@ -153,7 +153,7 @@ impl ArchiveOrg{
         match response.status() {
             reqwest::StatusCode::OK => {
                 match response.text().await{
-                    Ok(content) => Some(Metadata::new(&content)),
+                    Ok(content) => Some(AOMetadata::new(&content)),
                     Err(_) => None,
                 }
             }
