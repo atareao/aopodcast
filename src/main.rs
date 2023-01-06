@@ -59,11 +59,13 @@ async fn read_episodes_and_posts() -> Vec<Post>{
     while let Some(file) = episodes_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
             let filename = file.file_name().to_str().unwrap().to_string();
-            if let Some(episode) = Episode::new(&filename).await{
-                posts.push(episode.get_post());
+            match Episode::new(&filename).await{
+                Ok(episode) => posts.push(episode.get_post()),
+                Err(e) => error!("Cant write {}. {}", filename, e),
             }
         }
     }
+
     let mut posts_dir = tokio::fs::read_dir("posts").await.unwrap();
     while let Some(file) = posts_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
@@ -163,13 +165,19 @@ async fn update(configuration: &Configuration){
             info!("Doc {} exists", doc.get_identifier());
             let filename = doc.get_filename();
             match Episode::new(&filename).await{
-                Some(ref mut episode) => {
-                    if episode.downloads != doc.get_downloads(){
-                        episode.downloads = doc.get_downloads();
-                        episode.save().await;
+                Ok(ref mut episode) => {
+                    if episode.get_downloads() != doc.get_downloads(){
+                        episode.set_downloads(doc.get_downloads());
+                        match episode.save().await{
+                            Ok(_) => info!("Episode saved"),
+                            Err(e) => error!("Cant save episode. {}", e),
+                        }
                     }
                 },
-                None => new_docs.push(doc),
+                Err(e) => {
+                    error!("Cant create episode. {}", e);
+                    new_docs.push(doc);
+                }
             }
         }else{
             new_docs.push(doc);
@@ -181,7 +189,10 @@ async fn update(configuration: &Configuration){
                 match ArchiveOrg::get_mp3_metadata(doc.get_identifier()).await{
                     Some(mp3) => {
                         let episode = Episode::combine(&doc, &metadata, &mp3);
-                        episode.save().await;
+                        match episode.save().await{
+                            Ok(_) => info!("Episode saved"),
+                            Err(e) => error!("Cant save episode. {}", e),
+                        }
                     },
                     None => error!("Cant download from {}", doc.get_identifier()),
                 }
