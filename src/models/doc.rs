@@ -64,7 +64,7 @@ impl Doc{
         &self.description
     }
     pub fn get_filename(&self) -> String{
-        format!("{}.yml", self.identifier)
+        format!("{}.md", self.identifier)
     }
     pub fn get_downloads(&self) -> u64{
         self.downloads
