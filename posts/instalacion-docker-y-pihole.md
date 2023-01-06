@@ -1,8 +1,7 @@
 ---
 title: Instalación docker y pihole
 date: 2020-05-15
-slug:
-update: false
+slug: instalacion-docker-y-pihole
 ---
 Buenas muchachada, hoy me estreno con un manual sobre la instalación de docker en una raspberry pi y luego configurar Pihole para evitar publicidad en la navegación.
 ---
@@ -10,7 +9,7 @@ Buenas muchachada, hoy me estreno con un manual sobre la instalación de docker 
 
 En un par de comandos se deja listo.
 
-``` curl -sSL https://get.docker.com | sh ``` 
+``` curl -sSL https://get.docker.com | sh ```
 
 (Opcional pero recomendable) para agregar el usuario docker al grupo pi, para no tener que ejecutar los comandos docker con sudo delante:
 
@@ -39,7 +38,7 @@ Ya podemos acceder a la ip de la raspberry y al servicio del puerto 9000 que es 
 
 Rápido con un solo comando. Llevará un tiempo ya que la imagen del contenedor no la tenemos en local y tiene que descargarla. Éste paso seria posible hacerlo desde la consola grafica de Portainer pero sinceramente he aprendido a hacerlo por consola y es muy sencillo.
 
-``` 
+```
  docker run -d \
     --name pihole \
     -p 53:53/tcp \
@@ -54,8 +53,8 @@ Rápido con un solo comando. Llevará un tiempo ya que la imagen del contenedor 
     -e 127.0.0.1 \
     -e 1.1.1.1 \
     --restart=unless-stopped \
-    pihole/pihole:latest 
-```    
+    pihole/pihole:latest
+```
 
 
 Paso opcional pero recomendable cambiar la contraseña de pihole. Hay que correr el docker con shell para ello:
