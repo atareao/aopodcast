@@ -44,6 +44,8 @@ pub fn get_slug(title: &str) -> String{
 }
 
 pub fn get_first_words<'a>(content: &'a str, number: usize) -> &'a str{
+    debug!("get_first_words");
+    debug!("Content: {}", &content);
     let re1 = Regex::new(r"[ ]{2,}").unwrap();
     let re2 = Regex::new(r"[\n]{2,}").unwrap();
     let re3 = Regex::new(r"[\t]{2,}").unwrap();

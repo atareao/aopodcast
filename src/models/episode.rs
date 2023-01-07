@@ -163,6 +163,7 @@ impl Episode{
 
     pub async fn save(&self)-> tokio::io::Result<()>{
         let mut content = String::new();
+        debug!("Metadata: {}", &serde_yaml::to_string(&self.metadata).unwrap());
         content.push_str("---\n");
         content.push_str(&serde_yaml::to_string(&self.metadata).unwrap());
         content.push_str("---\n");
@@ -190,7 +191,7 @@ impl Episode{
             subject: doc.get_subject(),
             downloads: doc.get_downloads(),
             title: title.to_string(),
-            excerpt: comment.to_string(),
+            excerpt: comment.to_owned(),
             filename: mp3.filename.to_string(),
             mtime: mp3.mtime,
             size: mp3.size,
