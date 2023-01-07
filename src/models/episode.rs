@@ -95,6 +95,8 @@ impl Episode{
             identifier: self.metadata.identifier.clone(),
             filename: self.metadata.filename.clone(),
             length: self.metadata.length,
+            number: self.metadata.number,
+            downloads: self.metadata.downloads,
         }
     }
 

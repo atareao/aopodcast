@@ -48,6 +48,8 @@ impl Article{
             identifier: self.metadata.slug.clone(),
             filename: "".to_string(),
             length: 0,
+            number: 0,
+            downloads: 0,
         }
     }
 

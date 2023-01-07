@@ -17,6 +17,8 @@ pub struct Site{
     pub twitter: String,
     pub google_analytics: String,
     pub disqus: String,
+    pub youtube: String,
+    pub linktree: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -38,16 +40,6 @@ pub struct Post{
     pub identifier: String,
     pub filename: String,
     pub length: u64,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Podcast{
-    pub slug: String,
-    pub excerpt: String,
-    pub title: String,
-    pub content: String,
-    pub date: u64,
-    pub identifier: String,
-    pub filename: String,
-    pub length: String,
+    pub number: usize,
+    pub downloads: u64,
 }
