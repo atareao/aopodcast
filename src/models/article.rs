@@ -5,9 +5,10 @@ use comrak::{markdown_to_html, ComrakOptions};
 
 use super::{
     site::{Post, Layout},
-    utils::{get_slug,
-            get_unix_time,
-            get_excerpt,
+    utils::{
+        get_slug,
+        get_unix_time,
+        get_excerpt,
     },
 };
 
@@ -16,6 +17,7 @@ use super::{
 struct Metadata{
     pub title: String,
     pub date: String,
+    pub excerpt: String,
     pub slug: String,
 }
 
@@ -28,7 +30,6 @@ impl Metadata{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Article{
     metadata: Metadata,
-    pub excerpt: String,
     pub content: String,
 }
 
@@ -40,7 +41,7 @@ impl Article{
         Post{
             title: self.metadata.title.clone(),
             date,
-            excerpt: self.excerpt.clone(),
+            excerpt: self.metadata.excerpt.clone(),
             layout: Layout::POST,
             slug: self.metadata.slug.clone(),
             content,
@@ -66,17 +67,18 @@ impl Article{
             metadata.slug = get_slug(&metadata.title);
             save = true;
         }
-        let excerpt = match result.excerpt {
-            Some(excerpt) => {
-                save = true;
-                excerpt
-            },
-            None => get_excerpt(&result.content),
-        };
+        if metadata.excerpt.is_empty(){
+            metadata.excerpt = match result.excerpt {
+                Some(excerpt) => {
+                    save = true;
+                    excerpt
+                },
+                None => get_excerpt(&result.content).to_string(),
+            };
+        }
         debug!("Metadata: {:?}", &metadata);
         let article = Article{
             metadata,
-            excerpt,
             content: result.content,
         };
         if save{
@@ -98,18 +100,6 @@ impl Article{
 
     pub fn get_filename(&self) -> String{
         self.metadata.get_filename()
-    }
-
-    pub fn get_title(&self) -> String{
-        self.metadata.title.to_string()
-    }
-
-    pub fn get_date(&self) -> String{
-        self.metadata.date.to_string()
-    }
-
-    pub fn get_slug(&self) -> String{
-        self.metadata.slug.to_string()
     }
 
     pub async fn save(&self)-> tokio::io::Result<()>{
@@ -134,10 +124,9 @@ mod tests {
         let level_filter = LevelFilter::Debug;
         let _ = SimpleLogger::init(level_filter, Config::default());
         let article = Article::new("pihole.md").await.unwrap();
-        debug!("Title: {}", article.get_title());
         debug!("=========================");
         debug!("{:?}", article);
         debug!("=========================");
-        assert_eq!(article.get_title().is_empty(), false);
+        assert_eq!(article.metadata.title.is_empty(), false);
     }
 }

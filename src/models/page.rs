@@ -16,6 +16,7 @@ use super::{
 struct Metadata{
     pub title: String,
     pub date: String,
+    pub excerpt: String,
     pub slug: String,
 }
 
@@ -28,7 +29,6 @@ impl Metadata{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Page{
     metadata: Metadata,
-    pub excerpt: String,
     pub content: String,
 }
 
@@ -39,7 +39,7 @@ impl Page{
         Post{
             title: self.metadata.title.clone(),
             date,
-            excerpt: self.excerpt.clone(),
+            excerpt: self.metadata.excerpt.clone(),
             layout: Layout::PAGE,
             slug: self.metadata.slug.clone(),
             content,
@@ -65,17 +65,18 @@ impl Page{
             metadata.slug = get_slug(&metadata.title);
             save = true;
         }
-        let excerpt = match result.excerpt {
-            Some(excerpt) => {
-                save = true;
-                excerpt
-            },
-            None => get_excerpt(&result.content),
-        };
+        if metadata.excerpt.is_empty(){
+            metadata.excerpt = match result.excerpt {
+                Some(excerpt) => {
+                    save = true;
+                    excerpt
+                },
+                None => get_excerpt(&result.content).to_string(),
+            };
+        }
         debug!("Metadata: {:?}", &metadata);
         let page = Page{
             metadata,
-            excerpt,
             content: result.content,
         };
         if save{
@@ -97,18 +98,6 @@ impl Page{
 
     pub fn get_filename(&self) -> String{
         self.metadata.get_filename()
-    }
-
-    pub fn get_title(&self) -> String{
-        self.metadata.title.to_string()
-    }
-
-    pub fn get_date(&self) -> String{
-        self.metadata.date.to_string()
-    }
-
-    pub fn get_slug(&self) -> String{
-        self.metadata.slug.to_string()
     }
 
     pub async fn save(&self)-> tokio::io::Result<()>{
@@ -133,11 +122,11 @@ mod tests {
         let level_filter = LevelFilter::Trace;
         let _ = SimpleLogger::init(level_filter, Config::default());
         let page = Page::new("about.md").await.unwrap();
-        debug!("Title: {}", page.get_title());
+        debug!("Title: {}", page.metadata.title);
         debug!("=========================");
         debug!("{:?}", page);
         debug!("=========================");
-        assert_eq!(page.get_title().is_empty(), false);
+        assert_eq!(page.metadata.title.is_empty(), false);
     }
 }
 

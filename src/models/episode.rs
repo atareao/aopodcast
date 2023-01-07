@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize, Deserializer, de};
 use log::{debug, info, error};
 use gray_matter::{Matter, engine::YAML};
 use comrak::{markdown_to_html, ComrakOptions};
-use tokio::fs;
 use std::{fmt, marker::PhantomData};
 
 use super::{
@@ -12,8 +11,7 @@ use super::{
     mp3metadata::Mp3Metadata,
     utils::{
         get_slug,
-        get_excerpt,
-        get_date,
+        get_excerpt
     },
 };
 
@@ -33,6 +31,7 @@ pub struct Metadata{
     pub mtime: u64,
     pub size: u64,
     pub length: u64,
+    pub excerpt: String,
     //pub comment: String,
     // more
     pub slug: String,
@@ -80,7 +79,6 @@ impl Metadata{
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Episode{
     metadata: Metadata,
-    pub excerpt: String,
     pub content: String,
 }
 
@@ -90,7 +88,7 @@ impl Episode{
         Post{
             layout: Layout::PODCAST,
             slug: self.metadata.slug.clone(),
-            excerpt: self.excerpt.clone(),
+            excerpt: self.metadata.excerpt.clone(),
             title: self.metadata.title.clone(),
             content,
             date: self.metadata.mtime.clone(),
@@ -102,7 +100,7 @@ impl Episode{
 
     pub async fn new(filename: &str) -> Result<Self, serde_json::Error>{
         let mut save = false;
-        let filename = format!("posts/{}", filename);
+        let filename = format!("episodes/{}", filename);
         debug!("Filename: {}", filename);
         let data = tokio::fs::read_to_string(&filename)
             .await
@@ -116,17 +114,18 @@ impl Episode{
             metadata.slug = get_slug(&metadata.title);
             save = true;
         }
-        let excerpt = match result.excerpt {
-            Some(excerpt) => {
-                save = true;
-                excerpt
-            },
-            None => get_excerpt(&result.content),
-        };
+        if metadata.excerpt.is_empty(){
+            metadata.excerpt = match result.excerpt {
+                Some(excerpt) => {
+                    save = true;
+                    excerpt
+                },
+                None => get_excerpt(&result.content).to_string(),
+            };
+        }
         debug!("Metadata: {:?}", &metadata);
         let episode = Self{
             metadata,
-            excerpt,
             content: result.content,
         };
         if save{
@@ -148,14 +147,6 @@ impl Episode{
 
     pub fn get_filename(&self) -> String{
         self.metadata.get_filename()
-    }
-
-    pub fn get_title(&self) -> String{
-        self.metadata.title.to_string()
-    }
-
-    pub fn get_date(&self) -> String{
-        get_date(&self.metadata.mtime.to_string())
     }
 
     pub fn get_slug(&self) -> String{
@@ -187,41 +178,28 @@ impl Episode{
             &mp3.title
         };
         let comment = if mp3.comment.is_empty(){
+            debug!("Description: {}", &aometadata.description);
             get_excerpt(&aometadata.description)
         }else{
-            mp3.comment.to_string()
+            &mp3.comment
         };
+        debug!("Comment: {}", &comment);
         let metadata = Metadata{
             number: doc.get_number(),
             identifier: doc.get_identifier().to_string(),
             subject: doc.get_subject(),
             downloads: doc.get_downloads(),
             title: title.to_string(),
+            excerpt: comment.to_string(),
             filename: mp3.filename.to_string(),
             mtime: mp3.mtime,
             size: mp3.size,
             length: mp3.length,
             slug: get_slug(title),
-
         };
         Self{
             metadata,
-            excerpt: comment.to_string(),
-            content: aometadata.description.to_string(),
-        }
-    }
-
-    pub async fn exists(&self) -> bool{
-        let file = format!("episodes/{}", self.get_filename());
-        match fs::metadata(&file).await{
-            Ok(metadata) => {
-                debug!("Output file {} exists", &file);
-                metadata.is_file()
-            },
-            Err(e) => {
-                debug!("Output file {} not exists. {}", &file, e);
-                false
-            },
+            content: aometadata.description.to_owned()
         }
     }
 }
@@ -237,11 +215,10 @@ mod tests {
         let level_filter = LevelFilter::Trace;
         let _ = SimpleLogger::init(level_filter, Config::default());
         let episode = Episode::new("pihole.md").await.unwrap();
-        debug!("Title: {}", episode.get_title());
+        debug!("Title: {}", episode.metadata.title);
         debug!("=========================");
         debug!("{:?}", episode);
         debug!("=========================");
-        assert_eq!(episode.get_title().is_empty(), false);
+        assert_eq!(episode.metadata.title.is_empty(), false);
     }
 }
-
