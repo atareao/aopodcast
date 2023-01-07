@@ -1,8 +1,8 @@
 ---
 title: Recuperar un wd mycloud gen 1
 date: 2022-08-17
-slug: ""
 excerpt: Si tienes un wd my cloud generación 1 (el que tiene el frontal mas redondito) ya sabrás que ha fecha 15 de abril del 2022 la empresa Western Digital dejó de dar soporte a tu disco de red y ha inhabilitado el acceso remoto, actualizaciones de seguridad y asistencia técnica.
+slug: recuperar-un-wd-mycloud-gen-1
 ---
 Si tienes un wd my cloud generación 1 (el que tiene el frontal mas redondito) ya sabrás que ha fecha 15 de abril del 2022 la empresa Western Digital dejó de dar soporte a tu disco de red y ha inhabilitado el acceso remoto, actualizaciones de seguridad y asistencia técnica.
 
@@ -10,7 +10,7 @@ Si tienes un wd my cloud generación 1 (el que tiene el frontal mas redondito) y
 
 En mi caso tras un apagado en caliente perdí la información que tenia y terminé formateando el disco duro con idea de meterlo en otro nas mas formal, pero tras recapacitar un poco decidí dejar este disco en red como segunda copia de seguridad del nas principal. Con lo cual me encontré sin el software de Western Digital en el disco que hace que un disco duro normal y corriente se convierta en un disco duro en red.
 
-Encontré una pagina en la que se puede descargar una iso con la imagen del sistema de Western Digital 
+Encontré una pagina en la que se puede descargar una iso con la imagen del sistema de Western Digital
 [https://mega.nz/b9fc16c2-f485-47cb-9ad7-d61e2faa5d14](https://mega.nz/b9fc16c2-f485-47cb-9ad7-d61e2faa5d14)
 
 El siguiente paso es grabar la imagen descargada mycloud3T.7z en tu disco duro, en mi caso tiene 4 TB de capacidad y la imagen es de un dispositivo de 3 TB pero no hay problema, en todo este proceso he descubierto que se puede ampliar el disco duro a la capacidad que queramos. Para quemar la imagen he usado una distribución linux desde un usb con ventoy que me permite tener en dicho usb las imagenes iso que quiera llevar siempre conmigo. Os dejo un enlace a la pagina de Yo virtulizador que explica mejor que yo como crear este usb que debe ser un imprescindible en vuestra mochila tecnológica.
@@ -37,7 +37,7 @@ Aunque seguramente sepas que significan que son los parámetros pasados nunca es
 bs es para indicarle el tamaño del bloque en 256 mb que venía así en la pagina donde encontré la información.
 status=progress es para que nos muestra la información procesada hasta el momento por el comando.
 
-Una vez termina el proceso podríamos meter nuevamente el disco con su controladora en la caja y funcionar perfectamente con el software pero con una capacidad de 3 Tb y no la de nuestro disco, ya que como he comentado anteriormente la imagen que he localizado es de 3 Tb pero mi disco es de 4 Tb. Para ello seguimos en linux y abrimos un gestor de particiones como puedo ser gparted. 
+Una vez termina el proceso podríamos meter nuevamente el disco con su controladora en la caja y funcionar perfectamente con el software pero con una capacidad de 3 Tb y no la de nuestro disco, ya que como he comentado anteriormente la imagen que he localizado es de 3 Tb pero mi disco es de 4 Tb. Para ello seguimos en linux y abrimos un gestor de particiones como puedo ser gparted.
 sudo gparted
 
 Importante que lo hagais con permisos de administración que sino el proceso no se puede realizar y tendréis bastantes fallos.
@@ -59,7 +59,7 @@ Una vez termina se puede volver a montar el dico duro en su placa propietaria pa
 
 Con ésto conseguimos tener el disco de red con la capacidad del disco duro que le hayamos metido pero con la versión del firmware antigua concretamente la v03.03.01-156, si queremos actualizarla la primera vez no me dejó hacerlo por la red y tuve que bajar el firmware a local del siguiente enlace y decirle que actulizaba desde fichero.
 
-[https://downloads.wdc.com/nas/sq-040500-342-20190805.deb](https://downloads.wdc.com/nas/sq-040500-342-20190805.deb) 
+[https://downloads.wdc.com/nas/sq-040500-342-20190805.deb](https://downloads.wdc.com/nas/sq-040500-342-20190805.deb)
 
 Que nos lleva a una version v04.05.00 y ya en ésta si pude actualizar desde el dispositivo conectandose a sus servidores, aunque desconozco por cuanto tiempo será así.
 
@@ -70,7 +70,7 @@ Que nos lleva a una version v04.05.00 y ya en ésta si pude actualizar desde el 
 En total no es un proceso largo pero claro, siempre vas con miedo a fastidiar algo pero en este caso no había datos que perder y vas mas relajado en el proceso. Espero que os sea útil y que si lo estais leyendo no hayais perdido datos.
 
 Un saludo, Papá Friki.
-  
+
 Documentación consultada:
 
 Debrick a completely dead MyCloud
