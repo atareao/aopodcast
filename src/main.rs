@@ -43,9 +43,11 @@ async fn read_pages() -> Vec<Post>{
     while let Some(file) = posts_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
             let filename = file.file_name().to_str().unwrap().to_string();
-            match Page::new(&filename).await{
-                Ok(page) => posts.push(page.get_post()),
-                Err(e) => error!("Cant write {}. {}", filename, e),
+            if filename.ends_with(".md"){
+                match Page::new(&filename).await{
+                    Ok(page) => posts.push(page.get_post()),
+                    Err(e) => error!("Cant write {}. {}", filename, e),
+                }
             }
         }
     }
@@ -59,9 +61,12 @@ async fn read_episodes_and_posts() -> Vec<Post>{
     while let Some(file) = episodes_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
             let filename = file.file_name().to_str().unwrap().to_string();
-            match Episode::new(&filename).await{
-                Ok(episode) => posts.push(episode.get_post()),
-                Err(e) => error!("Cant write {}. {}", filename, e),
+            if filename.ends_with(".md"){
+                debug!("Read episode: {}", filename);
+                match Episode::new(&filename).await{
+                    Ok(episode) => posts.push(episode.get_post()),
+                    Err(e) => error!("Cant write {}. {}", filename, e),
+                }
             }
         }
     }
@@ -70,9 +75,11 @@ async fn read_episodes_and_posts() -> Vec<Post>{
     while let Some(file) = posts_dir.next_entry().await.unwrap(){
         if file.metadata().await.unwrap().is_file(){
             let filename = file.file_name().to_str().unwrap().to_string();
-            match Article::new(&filename).await{
-                Ok(article) => posts.push(article.get_post()),
-                Err(e) => error!("Cant write {}. {}", filename, e),
+            if filename.ends_with(".md"){
+                match Article::new(&filename).await{
+                    Ok(article) => posts.push(article.get_post()),
+                    Err(e) => error!("Cant write {}. {}", filename, e),
+                }
             }
         }
     }
@@ -169,7 +176,7 @@ async fn update(configuration: &Configuration){
                     if episode.get_downloads() != doc.get_downloads(){
                         episode.set_downloads(doc.get_downloads());
                         match episode.save().await{
-                            Ok(_) => info!("Episode saved"),
+                            Ok(_) => info!("Episode {} saved", episode.get_slug()),
                             Err(e) => error!("Cant save episode. {}", e),
                         }
                     }
@@ -190,7 +197,7 @@ async fn update(configuration: &Configuration){
                     Some(mp3) => {
                         let episode = Episode::combine(&doc, &metadata, &mp3);
                         match episode.save().await{
-                            Ok(_) => info!("Episode saved"),
+                            Ok(_) => info!("Episode {} saved", episode.get_slug()),
                             Err(e) => error!("Cant save episode. {}", e),
                         }
                     },
