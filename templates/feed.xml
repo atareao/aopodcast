@@ -8,7 +8,7 @@ xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
 xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
 xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
 >
- 
+
 <channel>
 <title>{{ site.title }}</title>
 <atom:link href="{{ site.url | safe}}/feed/podcast" rel="self" type="application/rss+xml" />
@@ -16,13 +16,13 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
 <description>{{ site.description }}</description>
 <lastBuildDate>{{ now() | date(format="%a, %d %b %Y %H:%M:%S %z") }}</lastBuildDate>
 <language>es-es</language>
-<sy:updatePeriod>hourly</sy:updatePeriod>
+<sy:updatePeriod>weekly</sy:updatePeriod>
 <sy:updateFrequency>1</sy:updateFrequency>
 <generator>https://atareao.es</generator>
 <itunes:summary>{{ site.description }}</itunes:summary>
 <itunes:author>{{ site.author }}</itunes:author>
 <itunes:explicit>{{ site.explicit }}</itunes:explicit>
-<itunes:image href="{{ site.url | safe}}{{ site.avatar }}" />
+<itunes:image href="{{ site.url | safe }}{{ site.avatar | safe }}" />
 <itunes:owner>
 <itunes:name>{{ site.author }}</itunes:name>
 <itunes:email>{{ site.email }}</itunes:email>
@@ -31,35 +31,34 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
 <itunes:subtitle>{{ site.description }}</itunes:subtitle>
 <image>
 <title>{{ site.title }}</title>
-<url>{{ site.url | safe }}{{ site.avatar }}</url>
+<url>{{ site.url | safe }}{{ site.avatar | safe }}</url>
 <link>{{ site.url | safe }}</link>
 </image>
 <itunes:category text="{{ site.category }}">
 <itunes:category text="{{ site.subcategory }}" />
 </itunes:category>
-{% for podcast in podcasts %}
+{% for post in posts %}
   <item>
-    <title>{{ podcast.title }}</title>
-    <link>{{ site.url | safe }}/{{ podcast.slug }}/</link>
-    <comments>{{ site.url | safe }}/{{ podcast.slug }}/#comments</comments>
-    <pubDate>{{ podcast.date | date(format="%a, %d %b %Y %T %z") }}</pubDate>
+    <title>{{ post.title }}</title>
+    <link>{{ site.url | safe }}/{{ post.slug }}/</link>
+    <comments>{{ site.url | safe }}/{{ post.slug }}/#comments</comments>
+    <pubDate>{{ post.date | date(format="%a, %d %b %Y %H:%M:%S")}}</pubDate>
     <dc:creator><![CDATA[{{ site.author | safe }}]]></dc:creator>
     <category><![CDATA[{{ site.category | safe }}]]></category>
-{% endfor %}
-    <guid isPermaLink="{% if ep.podcast_guid %}false{% else %}true{% endif %}">{{ site.url }}{% if ep.podcast_guid %}/{{ ep.podcast_guid }}{% else %}{{ ep.url }}{% endif %}</guid>
+    <guid isPermaLink="false">{{ post.identifier }}</guid>
     <description>
-        <![CDATA[{{ podcast.excerpt | trucate(length=50) | safe}}]]>
+        <![CDATA[{{ post.excerpt | truncate(length=50) | safe}}]]>
     </description>
     <content:encoded>
-        <![CDATA[{{ podcast.content | safe }}]]>
+        <![CDATA[{{ post.content | safe }}]]>
     </content:encoded>
-      <enclosure url="{{ podcast.link }}.mp3" length="{{ podcast.length }}" type="audio/mpeg" />
-    <itunes:subtitle><![CDATA[{{ podcast.excerpt | safe }}]]></itunes:subtitle>
-    <itunes:summary><![CDATA[{{ podcast.content | safe }}]]></itunes:summary>
+    <enclosure url="https://archive.org/download/{{post.identifier | safe}}/{{post.filename | safe}}" length="{{ post.length }}" type="audio/mpeg" />
+    <itunes:subtitle><![CDATA[ {{ post.excerpt | safe }} ]]></itunes:subtitle>
+    <itunes:summary><![CDATA[ {{ post.content | safe }} ]]></itunes:summary>
     <itunes:author>{{ site.author }}</itunes:author>
-    <itunes:image href="{{ site.url }}{{ site.avatar }}" />
+    <itunes:image href="{{ site.url | safe }}{{ site.avatar | safe }}" />
     <itunes:explicit>{{ site.explicit }}</itunes:explicit>
-    <itunes:duration>{{ podcast.length }}</itunes:duration>
+    <itunes:duration>{{ post.length }}</itunes:duration>
   </item>
 {% endfor %}
 </channel>
