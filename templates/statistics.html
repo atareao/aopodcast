@@ -1,0 +1,20 @@
+{% extends "default.html" %}
+{% block title %}Statistics{% endblock title %}
+{% block content %}
+<div class="posts">
+    <table>
+        <tr>
+            <th>Number</th>
+            <th>Title</th>
+            <th>View</th>
+        </tr>
+        {% for post in posts %}
+        <tr>
+            <th>{{ post.number }}</th>
+            <th><a href="{{ site.baseurl | safe }}/{{ post.slug }}">{{ post.title | safe}}</a></th>
+            <th>{{ post.downloads }}</th>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock content %}

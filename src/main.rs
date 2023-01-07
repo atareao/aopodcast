@@ -31,6 +31,7 @@ async fn main(){
     generate_html(&configuration, &posts, &pages).await;
     generate_index(&configuration, &posts, &pages).await;
     generate_feed(&configuration, &posts).await;
+    generate_stats(&configuration, &posts, &pages).await;
     let style_css = configuration.get_style_css();
     let public = configuration.get_public();
     let output = format!("{}/style.css", public);
@@ -88,6 +89,34 @@ async fn read_episodes_and_posts() -> Vec<Post>{
 }
 
 async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
+    let tera = match Tera::new("templates/*.xml") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let public = if configuration.get_site().baseurl.is_empty(){
+        configuration.get_public().to_owned()
+    }else{
+        format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
+    };
+    let mut context = Context::new();
+    context.insert("site", configuration.get_site());
+    let filter_posts: Vec<&Post> = posts
+        .iter()
+        .filter(|post| post.layout == Layout::PODCAST).collect();
+    context.insert("posts", &filter_posts);
+    match tera.render("feed.xml", &context){
+        Ok(content) => {
+            debug!("{}", content);
+            write_post(&public, "", Some("feed.xml"), &content).await;
+        },
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
+}
+
+async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
     let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -95,21 +124,23 @@ async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
             std::process::exit(1);
         }
     };
-    let public = configuration.get_public();
+    let public = if configuration.get_site().baseurl.is_empty(){
+        configuration.get_public().to_owned()
+    }else{
+        format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
+    };
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
-    let filter_posts: Vec<&Post> = posts
-        .iter()
-        .filter(|post| post.layout == Layout::PODCAST).collect();
-    context.insert("posts", &filter_posts);
-    match tera.render("index.html", &context){
+    context.insert("pages", pages);
+    context.insert("posts", posts);
+    match tera.render("statistics.html", &context){
         Ok(content) => {
             debug!("{}", content);
-            write_post(public, "", &content).await;
+            create_dir(&format!("{}/{}", public, "statistics")).await;
+            write_post(&public, "statistics", None, &content).await;
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }
-
 }
 
 async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
@@ -120,7 +151,11 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
             std::process::exit(1);
         }
     };
-    let public = configuration.get_public();
+    let public = if configuration.get_site().baseurl.is_empty(){
+        configuration.get_public().to_owned()
+    }else{
+        format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
+    };
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
     context.insert("pages", pages);
@@ -128,7 +163,7 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
     match tera.render("index.html", &context){
         Ok(content) => {
             debug!("{}", content);
-            write_post(public, "", &content).await;
+            write_post(&public, "", None, &content).await;
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }
@@ -142,7 +177,11 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: 
             std::process::exit(1);
         }
     };
-    let public = configuration.get_public();
+    let public = if configuration.get_site().baseurl.is_empty(){
+        configuration.get_public().to_owned()
+    }else{
+        format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
+    };
     let mut context = Context::new();
     context.insert("site", configuration.get_site());
     context.insert("pages", pages);
@@ -155,8 +194,8 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: 
             Ok(content) => {
                 debug!("{}", &content);
                 debug!("Post: {:?}", &post);
-                create_dir(public, &post.slug).await;
-                write_post(public, &post.slug, &content).await
+                create_dir(&format!("{}/{}",public, &post.slug)).await;
+                write_post(&public, &post.slug, None, &content).await
             },
             Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
         }
@@ -224,13 +263,14 @@ fn clean_path(path: &str) -> &str{
     }
 }
 
-async fn write_post(base: &str, endpoint: &str, content: &str){
+async fn write_post(base: &str, endpoint: &str, filename: Option<&str>, content: &str){
     let base = clean_path(base);
     let endpoint = clean_path(endpoint);
+    let filename =filename.unwrap_or("index.html");
     let output = if endpoint.is_empty(){
-        format!("{}/index.html", base)
+        format!("{}/{}", base, filename)
     }else{
-        format!("{}/{}/index.html", base, endpoint)
+        format!("{}/{}/{}", base, endpoint, filename)
     };
     match tokio::fs::write(&output, content,).await{
         Ok(_) => debug!("post {} created", &output),
@@ -241,10 +281,7 @@ async fn write_post(base: &str, endpoint: &str, content: &str){
     }
 }
 
-async fn create_dir(base: &str, endpoint: &str){
-    let base = clean_path(base);
-    let endpoint = clean_path(endpoint);
-    let output = format!("{}/{}", base, endpoint);
+async fn create_dir(output: &str){
     debug!("Going to create : {}", &output);
     let exists = match tokio::fs::metadata(&output).await{
         Ok(metadata) => {
@@ -265,7 +302,7 @@ async fn create_dir(base: &str, endpoint: &str){
             }
         }
     }
-    match tokio::fs::create_dir(&output).await{
+    match tokio::fs::create_dir_all(&output).await{
         Ok(_) => info!("Directory {} created", output),
         Err(e) => {
             error!("Cant create directory {}, {}", &output, e);
@@ -306,7 +343,7 @@ pub async fn create_public(configuration: &Configuration){
             }
         }
     }
-    match tokio::fs::create_dir(output).await{
+    match tokio::fs::create_dir_all(output).await{
         Ok(_) => info!("Directory {} created", output),
         Err(e) => {
             error!("Cant create directory {}, {}", output, e);
