@@ -6,7 +6,7 @@ subject:
 - portatil
 - podcast
 - colaboración
-downloads: 2090
+downloads: 2087
 filename: QuePortatilCompro.mp3
 mtime: 1521757935
 size: 36408960
@@ -22,8 +22,8 @@ Y sin mas os dejo los métodos de contacto:
 
 Twitter: https://twitter.com/papa\_friki
 
-Correo: papafrikipodast@gmail.com  
+Correo: papafrikipodast@gmail.com
 
-Web: https://papafriki.gitlab.io/podcast  
+Web: https://papafriki.gitlab.io/podcast
 
 Feed Podcast: https://papafriki.gitlab.io/podcast/feed

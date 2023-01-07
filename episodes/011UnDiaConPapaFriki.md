@@ -7,7 +7,7 @@ subject:
 - iTunes
 - Los Joseles
 - Papá Friki
-downloads: 2076
+downloads: 2073
 filename: 011undiaconpapafriki.mp3
 mtime: 1523553992
 size: 7222627
@@ -15,7 +15,7 @@ length: 451
 excerpt: Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangr
 slug: 011-un-dia-con-papa-friki
 ---
-Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangre y comentaros la experiencia de compra en Hipercor y pequeños problemillas con el feed de iTunes.   
+Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangre y comentaros la experiencia de compra en Hipercor y pequeños problemillas con el feed de iTunes.
 
 Referencias que he hecho en el podcast de hoy:
 
