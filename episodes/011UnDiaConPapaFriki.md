@@ -22,15 +22,3 @@ Referencias que he hecho en el podcast de hoy:
 [EducandoGeek ](https://educandogeek.github.io/)de @jgurillo.
 
 [Los Joseles](https://www.losjoseles.com/Podcast/)
-
-Os recuerdo los métodos de contacto:
-
-Twitter: https://twitter.com/papa\_friki
-
-Correo: papafrikipodast@gmail.com
-
-Web: https://papafriki.gitlab.io/podcast
-
-Feed Podcast: http://feeds.feedburner.com/papafriki
-
-Ya sabéis, nos escuchamos, leemos o vemos hasta luego!
