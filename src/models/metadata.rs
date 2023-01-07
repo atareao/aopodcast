@@ -15,7 +15,7 @@ impl AOMetadata {
                 &Self::get("description", &content)
                 .get(0)
                 .unwrap()
-                .to_string()).to_string());
+                .to_owned()).trim());
         Self{
             identifier,
             description,
