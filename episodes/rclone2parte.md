@@ -5,7 +5,7 @@ title: Rclone segunda parte
 subject:
 - Rclone
 - Papá Friki
-downloads: 2448
+downloads: 2458
 filename: Rclone2parte.mp3
 mtime: 1562310189
 size: 13004131
@@ -21,19 +21,19 @@ El programa original de Rclone Browser lo tenéis en la siguiente dirección
 
 El fork que muestra la subida con barra de progreso
 
-[https://github.com/noabody/RcloneBrowser](https://github.com/noabody/RcloneBrowser)  
+[https://github.com/noabody/RcloneBrowser](https://github.com/noabody/RcloneBrowser)
 
 Un par de videos que explican el uso de Rclone en windows
 
-[https://www.youtube.com/watch?v=uI7OdUXhREI](https://www.youtube.com/watch?v=uI7OdUXhREI)  
+[https://www.youtube.com/watch?v=uI7OdUXhREI](https://www.youtube.com/watch?v=uI7OdUXhREI)
 
 [https://www.youtube.com/watch?v=uXBlqEOE\_lo](https://www.youtube.com/watch?v=uXBlqEOE_lo)
 
 Y este es el comando que usé en la subida de la carpeta del año 2011
 
-C:\\rclone\\rclone.exe copy --verbose --transfers 30 --checkers 20 --contimeout 60s --timeout 300s --retries 3 --low-level-retries 10 --stats 1s L:\\FOTOGRAFIAS\\2011 gdrivecifrado:2011  
+C:\\rclone\\rclone.exe copy --verbose --transfers 30 --checkers 20 --contimeout 60s --timeout 300s --retries 3 --low-level-retries 10 --stats 1s L:\\FOTOGRAFIAS\\2011 gdrivecifrado:2011
 
-Los métodos de contacto:  
+Los métodos de contacto:
 
 Twitter: [https://twitter.com/papa\_friki](https://twitter.com/papa_friki)
 
