@@ -2,7 +2,7 @@
 <html>
     <head>
         {% block head %}
-        <title>{% if post.title %}{{ post.title }} – {% endif %}{{ site.title }} – {{ site.description }}</title>
+        <title>{% block title %}{% endblock title %} – {{ site.title }}</title>
         {% include "meta.html" %}
         <link rel="stylesheet" type="text/css" href="{{ site.baseurl | safe }}/style.css" />
         <link rel="alternate" type="application/rss+xml" title="{{ site.title }} - {{ site.description }}" href="{{ site.baseurl | safe }}/feed.xml" />
