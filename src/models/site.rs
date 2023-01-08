@@ -5,6 +5,7 @@ pub struct Site{
     pub author: String,
     pub title: String,
     pub description: String,
+    pub podcast_feed: String,
     pub baseurl: String,
     pub url: String,
     pub avatar: String,

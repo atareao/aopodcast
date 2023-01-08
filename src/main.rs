@@ -124,7 +124,7 @@ async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
     match tera.render("feed.xml", &context){
         Ok(content) => {
             debug!("{}", content);
-            write_post(&public, "", Some("feed.xml"), &content).await;
+            write_post(&public, "", Some(&configuration.get_site().podcast_feed), &content).await;
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }
