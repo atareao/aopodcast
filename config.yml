@@ -10,7 +10,7 @@ site:
   author: Papá Friki
   title: Batallitas del día a día de un Papá Friki
   description: Batallitas del día a día de un Papá Friki
-  baseurl:
+  baseurl: podcast
   url: https://atareao.gitlab.io
   avatar: https://assets.gitlab-static.net/uploads/-/system/project/avatar/5685462/avatar.png
   category: Technology
