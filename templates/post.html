@@ -24,7 +24,7 @@
             <li>Correo: <a href="mailto:{{ site.email | safe }}">{{ site.email | safe }}</a></li>
             {% endif %}
             {% if site.email %}
-            <li>Web: <a href="{{ site.url | safe }}{% if site.baseurl %}/{{site.baseurl | safe }}{% endif %}">{{ site.url | safe }}{% if site.baseurl %}/{{site.baseurl | safe}}{% endif %}</a></li>
+            <li>Web: <a href="{{ site.url | safe }}{% if url %}/{{url | safe }}{% endif %}">{{ site.url | safe }}{% if url %}/{{url | safe}}{% endif %}</a></li>
             {% endif %}
             {% if site.youtube %}
             <li>Youtube: <a href="{{ site.youtube | safe }}">{{ site.youtube | safe}}</a></li>
