@@ -11,9 +11,9 @@
         {% for post in posts %}
         {% if post.layout == "PODCAST" %}
         <tr>
-            <th>{{ post.number }}</th>
-            <th><a href="{{ site.baseurl | safe }}/{{ post.slug }}">{{ post.title | safe}}</a></th>
-            <th>{{ post.downloads }}</th>
+            <th style="text-align: start;">{{ post.number }}</th>
+            <th style="text-align: start;"><a href="{{ site.baseurl | safe }}/{{ post.slug }}">{{ post.title | safe}}</a></th>
+            <th style="text-align: start;">{{ post.downloads }}</th>
         </tr>
         {% endif %}
         {% endfor %}
