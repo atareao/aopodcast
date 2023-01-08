@@ -44,6 +44,7 @@ impl Article{
             excerpt: self.metadata.excerpt.clone(),
             layout: Layout::POST,
             slug: self.metadata.slug.clone(),
+            subject: Vec::new(),
             content,
             identifier: self.metadata.slug.clone(),
             filename: "".to_string(),

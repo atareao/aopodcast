@@ -91,6 +91,7 @@ impl Episode{
             excerpt: self.metadata.excerpt.clone(),
             title: self.metadata.title.clone(),
             content,
+            subject: self.metadata.subject.clone(),
             date: self.metadata.mtime.clone(),
             identifier: self.metadata.identifier.clone(),
             filename: self.metadata.filename.clone(),

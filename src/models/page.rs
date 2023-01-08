@@ -43,6 +43,7 @@ impl Page{
             layout: Layout::PAGE,
             slug: self.metadata.slug.clone(),
             content,
+            subject: Vec::new(),
             identifier: self.metadata.slug.clone(),
             filename: "".to_string(),
             length: 0,

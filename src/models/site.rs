@@ -36,6 +36,7 @@ pub struct Post{
     pub excerpt: String,
     pub title: String,
     pub content: String,
+    pub subject: Vec<String>,
     pub date: u64,
     pub identifier: String,
     pub filename: String,
