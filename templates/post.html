@@ -3,6 +3,9 @@
 {% block content %}
 <article class="post">
     <h1>{{ post.title }}</h1>
+    <div class="date">
+        <p>Escrito el {{ post.date | date(format="%d/%m/%Y") | safe }}</p>
+    </div>
     <div class="entry">
         {{ post.content | safe }}
         {% if post.layout == "PODCAST" %}
@@ -10,9 +13,6 @@
             <source src="https://archive.org/download/{{post.identifier | safe}}/{{post.filename | safe}}" type="audio/mpeg" />
         </audio>
         {% endif %}
-    </div>
-    <div class="date">
-        <p>Escrito el {{ post.date | date(format="%d/%m/%Y") | safe }}</p>
     </div>
     <div>
         <p>Métodos de contacto:</p>

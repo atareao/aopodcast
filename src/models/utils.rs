@@ -65,6 +65,7 @@ pub fn get_first_words<'a>(content: &'a str, number: usize) -> &'a str{
     }
 }
 
+#[allow(dead_code)]
 pub fn get_date(mtime: &str) -> String{
     let timestamp = mtime.parse::<i64>().unwrap();
     let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
