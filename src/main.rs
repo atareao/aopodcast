@@ -33,7 +33,11 @@ async fn main(){
     generate_feed(&configuration, &posts).await;
     generate_stats(&configuration, &posts, &pages).await;
     let style_css = configuration.get_style_css();
-    let public = configuration.get_public();
+    let public = if configuration.get_site().baseurl.is_empty(){
+        configuration.get_public().to_owned()
+    }else{
+        format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
+    };
     let output = format!("{}/style.css", public);
     copy_file(style_css, &output).await;
 }
@@ -102,6 +106,16 @@ async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
     let mut context = Context::new();
+    let url = if configuration.get_site().baseurl.is_empty(){
+        "".to_string()
+    }else{
+        if configuration.get_site().baseurl.starts_with("/"){
+            configuration.get_site().baseurl.to_owned()
+        }else{
+            format!("/{}", configuration.get_site().baseurl)
+        }
+    };
+    context.insert("url", &url);
     context.insert("site", configuration.get_site());
     let filter_posts: Vec<&Post> = posts
         .iter()
@@ -130,6 +144,16 @@ async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages:
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
     let mut context = Context::new();
+    let url = if configuration.get_site().baseurl.is_empty(){
+        "".to_string()
+    }else{
+        if configuration.get_site().baseurl.starts_with("/"){
+            configuration.get_site().baseurl.to_owned()
+        }else{
+            format!("/{}", configuration.get_site().baseurl)
+        }
+    };
+    context.insert("url", &url);
     context.insert("site", configuration.get_site());
     context.insert("pages", pages);
     context.insert("posts", posts);
@@ -157,6 +181,16 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
     let mut context = Context::new();
+    let url = if configuration.get_site().baseurl.is_empty(){
+        "".to_string()
+    }else{
+        if configuration.get_site().baseurl.starts_with("/"){
+            configuration.get_site().baseurl.to_owned()
+        }else{
+            format!("/{}", configuration.get_site().baseurl)
+        }
+    };
+    context.insert("url", &url);
     context.insert("site", configuration.get_site());
     context.insert("pages", pages);
     context.insert("posts", &posts);
@@ -183,6 +217,16 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: 
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
     let mut context = Context::new();
+    let url = if configuration.get_site().baseurl.is_empty(){
+        "".to_string()
+    }else{
+        if configuration.get_site().baseurl.starts_with("/"){
+            configuration.get_site().baseurl.to_owned()
+        }else{
+            format!("/{}", configuration.get_site().baseurl)
+        }
+    };
+    context.insert("url", &url);
     context.insert("site", configuration.get_site());
     context.insert("pages", pages);
     let mut post_and_pages = Vec::new();
