@@ -6,7 +6,7 @@ slug: recuperar-un-wd-mycloud-gen-1
 ---
 Si tienes un wd my cloud generación 1 (el que tiene el frontal mas redondito) ya sabrás que ha fecha 15 de abril del 2022 la empresa Western Digital dejó de dar soporte a tu disco de red y ha inhabilitado el acceso remoto, actualizaciones de seguridad y asistencia técnica.
 
-![https://i.imgur.com/JJ4AaO5.jpg]
+![https://i.imgur.com/JJ4AaO5.jpg](https://i.imgur.com/JJ4AaO5.jpg)
 
 En mi caso tras un apagado en caliente perdí la información que tenia y terminé formateando el disco duro con idea de meterlo en otro nas mas formal, pero tras recapacitar un poco decidí dejar este disco en red como segunda copia de seguridad del nas principal. Con lo cual me encontré sin el software de Western Digital en el disco que hace que un disco duro normal y corriente se convierta en un disco duro en red.
 
@@ -26,7 +26,7 @@ Queremos saber cual es nuestro disco western digital por lo que listamos los dis
 `lsblk`
 
 
-![https://i.imgur.com/9pkGTHz.png]
+![https://i.imgur.com/9pkGTHz.png](https://i.imgur.com/9pkGTHz.png)
 
 
 En mi caso se ve por la capacidad del disco 3.6 T que está en sdc1 por lo que el comando para grabar la iso sería:
@@ -42,7 +42,7 @@ sudo gparted
 
 Importante que lo hagais con permisos de administración que sino el proceso no se puede realizar y tendréis bastantes fallos.
 
-![https://i.imgur.com/NiSizMt.png]
+![https://i.imgur.com/NiSizMt.png](https://i.imgur.com/NiSizMt.png)
 
 
 En el entorno gráfico debeis ir al desplegable que hay arriba a la derecha de la pantalla y allí elegir la unidad de disco adecuada, en mi ejemplo era /dev/sdc (3.64 TiB). Al seleccionar vamos a ver todas las particiones que ha creado en el proceso anterior pero la que nos interesa es /dev/sdc4 que vereis que no llega al final del disco teniendo a su derecha espacio sin asignar. Pues bien es sencillo darle todo el disco disponible, boton derecho sobre sdc4 y redimensionar. LLevar la flecha de tamaño a la derecha del todo y asignarle todo el disco disponible. Aplicar y esperar a que termine, no tarda mucho. También se puede hacer mediante consola con el siguiente comando lanzado como usuario administrador o su
@@ -55,7 +55,7 @@ En este punto tenemos el disco sdc4 con mayor tamaño del que estaba formateado 
 
 Una vez termina se puede volver a montar el dico duro en su placa propietaria para que podamos arrancarlo y conectarle el cable de red. Cuando el led esté fijo en azul quiere decir que está listo para funcionar por lo que podemos entrar en su pagina de gestión (seria poner la ip que le ha asignado nuestra red) y podemos ver que tenemos un error o que directamente no nos reconoce la capacidad de nuestro disco a pesar de haber ampliado el volumen. Nos da igual puesto que tenemos que formatear nuevamente desde aqui el dispositivo. Para ello nos vamos a configuracion, luego a utilidades, restaurar valores de fabrica, seleccionamos rápida que la completa puede llegar a tardar demasiadas horas.
 
-![https://i.imgur.com/WQOFnOu.png]
+![https://i.imgur.com/WQOFnOu.png](https://i.imgur.com/WQOFnOu.png)
 
 Con ésto conseguimos tener el disco de red con la capacidad del disco duro que le hayamos metido pero con la versión del firmware antigua concretamente la v03.03.01-156, si queremos actualizarla la primera vez no me dejó hacerlo por la red y tuve que bajar el firmware a local del siguiente enlace y decirle que actulizaba desde fichero.
 
@@ -64,7 +64,7 @@ Con ésto conseguimos tener el disco de red con la capacidad del disco duro que 
 Que nos lleva a una version v04.05.00 y ya en ésta si pude actualizar desde el dispositivo conectandose a sus servidores, aunque desconozco por cuanto tiempo será así.
 
 
-![https://i.imgur.com/szNQF03.png]
+![https://i.imgur.com/szNQF03.png](https://i.imgur.com/szNQF03.png)
 
 
 En total no es un proceso largo pero claro, siempre vas con miedo a fastidiar algo pero en este caso no había datos que perder y vas mas relajado en el proceso. Espero que os sea útil y que si lo estais leyendo no hayais perdido datos.
