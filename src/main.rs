@@ -38,6 +38,7 @@ async fn main(){
     }else{
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
+    //TODO: Copy directory assets a /public/{podcast}/assets
     let output = format!("{}/style.css", public);
     copy_file(style_css, &output).await;
 }
@@ -254,6 +255,7 @@ async fn update(configuration: &Configuration){
         if doc.exists().await{
             info!("Doc {} exists", doc.get_identifier());
             let filename = doc.get_filename();
+            //BUG: Esto hay que revisar
             match Episode::new(&filename).await{
                 Ok(ref mut episode) => {
                     if episode.get_downloads() != doc.get_downloads(){
