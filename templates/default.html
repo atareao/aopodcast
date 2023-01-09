@@ -4,7 +4,7 @@
         {% block head %}
         <title>{% block title %}{% endblock title %} – {{ site.title }}</title>
         {% include "meta.html" %}
-        <link rel="stylesheet" type="text/css" href="{{ url | safe }}/style.css" />
+        <link rel="stylesheet" type="text/css" href="{{ url | safe }}/assets/style.css" />
         <link rel="alternate" type="application/rss+xml" title="{{ site.title }} - {{ site.description }}" href="{{ url | safe }}/feed.xml" />
         {% endblock head %}
     </head>

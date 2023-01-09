@@ -6,7 +6,7 @@ subject:
 - portatil
 - podcast
 - colaboración
-downloads: 2091
+downloads: 2090
 filename: QuePortatilCompro.mp3
 mtime: 1521757935
 size: 36408960

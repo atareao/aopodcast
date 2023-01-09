@@ -32,15 +32,17 @@ async fn main(){
     generate_index(&configuration, &posts, &pages).await;
     generate_feed(&configuration, &posts).await;
     generate_stats(&configuration, &posts, &pages).await;
-    let style_css = configuration.get_style_css();
+    //let style_css = configuration.get_style_css();
     let public = if configuration.get_site().baseurl.is_empty(){
         configuration.get_public().to_owned()
     }else{
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
     //TODO: Copy directory assets a /public/{podcast}/assets
-    let output = format!("{}/style.css", public);
-    copy_file(style_css, &output).await;
+    //let output = format!("{}/style.css", public);
+    let assets_dir = format!("{}/assets", public);
+    create_dir(&assets_dir).await;
+    copy_all_files("assets", &assets_dir).await;
 }
 
 async fn read_pages() -> Vec<Post>{
@@ -323,6 +325,19 @@ async fn write_post(base: &str, endpoint: &str, filename: Option<&str>, content:
         Err(e) => {
             error!("Cant create post {}, {}", &output, e);
             std::process::exit(1);
+        }
+    }
+}
+
+async fn copy_all_files(from_dir: &str, to_dir: &str){
+    debug!("Going to copy from {} to {}", from_dir, to_dir);
+    let mut episodes_dir = tokio::fs::read_dir(from_dir).await.unwrap();
+    while let Some(file) = episodes_dir.next_entry().await.unwrap(){
+        if file.metadata().await.unwrap().is_file(){
+            let filename = file.file_name().to_str().unwrap().to_string();
+            let input_file = format!("{}/{}", from_dir, filename);
+            let output_file = format!("{}/{}", to_dir, filename);
+            copy_file(&input_file, &output_file).await;
         }
     }
 }

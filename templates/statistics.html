@@ -6,7 +6,8 @@
         th{
             cursor: pointer;
         }
-    </style>   <script>
+    </style>
+    <script>
     function sortTable(n) {
         var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
         table = document.getElementById("stats");
@@ -30,18 +31,14 @@
                 y = rows[i + 1].getElementsByTagName("TD")[n];
                 /* Check if the two rows should switch place,
                 based on the direction, asc or desc: */
-                if (dir == "asc") {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                      // If so, mark as a switch and break the loop:
-                      shouldSwitch = true;
-                      break;
-                    }
-                } else if (dir == "desc") {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                      // If so, mark as a switch and break the loop:
-                      shouldSwitch = true;
-                      break;
-                    }
+                if ( n == 1 && ((dir == "asc" && (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase())) || 
+                        (dir == "desc" && (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())))) {
+                    shouldSwitch = true;
+                    break;
+                }else if ((dir == "asc" && (Number(x.innerHTML) > Number(y.innerHTML))) ||
+                        (dir == "desc" && (Number(x.innerHTML) < Number(y.innerHTML)))) {
+                    shouldSwitch = true;
+                    break;
                 }
             }
             if (shouldSwitch) {
