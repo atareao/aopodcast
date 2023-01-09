@@ -70,9 +70,9 @@
         {% for post in posts %}
         {% if post.layout == "PODCAST" %}
         <tr>
-            <th style="text-align: start;">{{ post.number }}</th>
-            <th style="text-align: start;"><a href="{{ url | safe }}/{{ post.slug }}">{{ post.title | safe}}</a></th>
-            <th style="text-align: start;">{{ post.downloads }}</th>
+            <td style="text-align: start;">{{ post.number }}</td>
+            <td style="text-align: start;"><a href="{{ url | safe }}/{{ post.slug }}">{{ post.title | safe}}</a></td>
+            <td style="text-align: start;">{{ post.downloads }}</td>
         </tr>
         {% endif %}
         {% endfor %}
