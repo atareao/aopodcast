@@ -41,6 +41,7 @@ pub struct Post{
     pub date: u64,
     pub identifier: String,
     pub filename: String,
+    pub size: u64,
     pub length: u64,
     pub number: usize,
     pub downloads: u64,

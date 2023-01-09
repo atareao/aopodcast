@@ -46,6 +46,7 @@ impl Page{
             subject: Vec::new(),
             identifier: self.metadata.slug.clone(),
             filename: "".to_string(),
+            size: 0,
             length: 0,
             number: 0,
             downloads: 0,

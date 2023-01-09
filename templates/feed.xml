@@ -54,7 +54,7 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
         <content:encoded>
             <![CDATA[{{ post.content | safe }}]]>
         </content:encoded>
-        <enclosure url="https://archive.org/download/{{post.identifier | safe}}/{{post.filename | safe}}" length="{{ post.length }}" type="audio/mpeg" />
+        <enclosure url="https://archive.org/download/{{post.identifier | safe}}/{{post.filename | safe}}" length="{{ post.size }}" type="audio/mpeg" />
         <itunes:subtitle><![CDATA[ {{ post.excerpt | safe }} ]]></itunes:subtitle>
         <itunes:summary><![CDATA[ {{ post.content | safe }} ]]></itunes:summary>
         <itunes:author>{{ site.author }}</itunes:author>
