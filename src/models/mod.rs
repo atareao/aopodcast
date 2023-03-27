@@ -9,3 +9,4 @@ pub mod episode;
 pub mod doc;
 pub mod utils;
 pub mod mastodon;
+pub mod telegram;
