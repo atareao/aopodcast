@@ -8,3 +8,4 @@ pub mod page;
 pub mod episode;
 pub mod doc;
 pub mod utils;
+pub mod mastodon;
