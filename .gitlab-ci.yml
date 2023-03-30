@@ -1,5 +1,5 @@
 image:
-  name: atareao/aopodcast:latest
+  name: atareao/aopodcast:test
   entrypoint: [""]
 
 variables:
