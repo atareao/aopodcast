@@ -120,7 +120,7 @@ async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
-    context.insert("episode", episode);
+    context.insert("post", &episode.get_post());
     match tera.render("mastodon.html", &context){
         Ok(content) => {
             debug!("{}", content);
@@ -152,7 +152,7 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
-    context.insert("episode", episode);
+    context.insert("post", &episode.get_post());
     match tera.render("telegram.html", &context){
         Ok(content) => {
             debug!("{}", content);
