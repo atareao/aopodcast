@@ -35,11 +35,11 @@ RUN cargo build --release --target $TARGET && \
 ###############################################################################
 ## Final image
 ###############################################################################
-FROM alpine:3.16
+FROM alpine:3.17
 
 RUN apk add --update --no-cache \
             su-exec~=0.2 \
-            tzdata~=2022 && \
+            tzdata~=2023 && \
     rm -rf /var/cache/apk && \
     rm -rf /var/lib/app/lists*
 # Copy the user
