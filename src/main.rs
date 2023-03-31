@@ -101,7 +101,7 @@ async fn read_episodes_and_posts() -> Vec<Post>{
 
 async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
         mastodon: &Mastodon){
-    let tera = match Tera::new("templates/*.xml") {
+    let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
             error!("Parsing error(s): {}", e);
@@ -133,7 +133,7 @@ async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
 
 async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
         telegram: &Telegram){
-    let tera = match Tera::new("templates/*.xml") {
+    let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
             error!("Parsing error(s): {}", e);
