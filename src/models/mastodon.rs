@@ -1,37 +1,50 @@
 use reqwest::Client;
-use std::format;
-use serde::{Serialize, Deserialize};
+use serde_json::json;
+use log::{info, error};
+
+pub fn get_mastodon_client() -> Option<Mastodon>{
+    match std::env::var("MASTODON_TOKEN"){
+        Ok(token) => {
+            match std::env::var("MASTODON_INSTANCE"){
+                Ok(instance) => Some(Mastodon::new(&token, &instance)),
+                Err(_) => None,
+            }
+        },
+        Err(_) => None,
+    }
+}
 
 pub struct Mastodon{
-    base_uri: String,
+    instance: String,
     access_token: String,
 }
 
-#[derive(Serialize, Deserialize)]
-struct Message{
-    status: String,
-    in_reply_to_id: Option<String>,
-}
-
 impl Mastodon{
-    pub fn new(base_uri: &str, access_token: &str) -> Self{
+    pub fn new(access_token: &str, instance: &str) -> Self{
         Mastodon {
-            base_uri: base_uri.to_string(),
+            instance: instance.to_string(),
             access_token: access_token.to_string(),
         }
     }
 
-    pub async fn post(&self, message: &str, in_reply_to_id: Option<String>){
-        let url = format!("{}/api/v1/statuses", self.base_uri);
-        println!("{}", &url);
-        let client = Client::new();
-        let body = Message{status: message.to_string(), in_reply_to_id};
-        let response = client
+    pub async fn post(&self, message: &str){
+        let url = format!("https://{}/api/v1/statuses", self.instance);
+        info!("{}", &url);
+        let body = json!({"status": message});
+        match Client::new()
             .post(&url)
             .json(&body)
             .header("Authorization", format!("Bearer {}", self.access_token))
             .send()
-            .await;
-        println!("{:?}", response);
+            .await{
+                Ok(response) => {
+                    info!("Mensaje envíado a Mastodon: {}",
+                        response.status().to_string());
+                },
+                Err(error) => {
+                    error!("No he podido enviar el mensaje a Mastodon: {}",
+                        error.to_string());
+                },
+            }
     }
 }

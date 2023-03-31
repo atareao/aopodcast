@@ -1,41 +1,52 @@
 use reqwest::Client;
-use serde::{Serialize, Deserialize};
-use std::env;
+use serde_json::json;
+use log::{info, error};
 
-#[derive(Debug, Serialize, Deserialize)]
-struct Message{
-    chat_id: i64,
-    text: String,
-
+pub struct Telegram{
+    access_token: String,
+    chat_id: String,
 }
 
-impl Message {
-    fn new(chat_id: i64, text: &str) -> Self{
-        Message{
-            chat_id,
-            text: text.to_string(),
-        }
+pub fn get_telegram_client() -> Option<Telegram>{
+    match std::env::var("TELEGRAM_TOKEN"){
+        Ok(token) => {
+            match std::env::var("TELEGRAM_CHAT_ID"){
+                Ok(chat_id) => Some(Telegram::new(&token, &chat_id)),
+                Err(_) => None,
+            }
+        },
+        Err(_) => None,
     }
 }
 
-pub async fn send_message(chat_id: i64, text: &str) -> Option<String>{
-    let token = env::var("TG_TOKEN").expect("TG_TOKEN not set");
-    let url = format!("https://api.telegram.org/bot{}/sendMessage", token);
-    let message = Message::new(chat_id, text);
-    println!("{}", serde_json::to_string(&message).unwrap());
-    match Client::new()
-        .post(url)
-        .json(&message)
-        .send()
-        .await{
-            Ok(response) => {
-                println!("Mensaje envíado: {}", response.status().to_string());
-                Some(response.status().to_string())
-            },
-            Err(error) => {
-                println!("No he podido enviar el mensaje: {}",error.to_string());
-                None
-            },
+impl Telegram{
+    pub fn new(access_token: &str, chat_id: &str) -> Self{
+        Self{
+            access_token: access_token.to_string(),
+            chat_id: chat_id.to_string(),
+        }
+    }
+    pub async fn post(&self, message: &str){
+        let url = format!("https://api.telegram.org/bot{}/sendMessage",
+            self.access_token);
+        let message = json!({
+            "chat_id": self.chat_id,
+            "text": message,
+        });
+        match Client::new()
+            .post(url)
+            .json(&message)
+            .send()
+            .await{
+                Ok(response) => {
+                    info!("Mensaje envíado a Telegram: {}",
+                        response.status().to_string());
+                },
+                Err(error) => {
+                    error!("No he podido enviar el mensaje a Telegram: {}",
+                        error.to_string());
+                },
+            }
         }
 }
 

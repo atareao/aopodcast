@@ -149,6 +149,10 @@ impl Episode{
         Ok(episode)
     }
 
+    pub fn get_title(&self) -> &str{
+        &self.metadata.title
+    }
+
     pub fn get_filename(&self) -> String{
         self.metadata.get_filename()
     }

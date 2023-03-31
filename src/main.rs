@@ -1,6 +1,10 @@
 mod models;
 
-use models::config::Configuration;
+use models::{
+    config::Configuration,
+    mastodon::get_mastodon_client,
+    telegram::get_telegram_client
+};
 use simplelog::{SimpleLogger, Config, LevelFilter};
 use log::{debug, info, error};
 use tera::{Context, Tera};
@@ -249,7 +253,10 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: 
     }
 }
 
+
 async fn update(configuration: &Configuration){
+    let mastodon_client = get_mastodon_client();
+    let telegram_client = get_telegram_client();
     let mut new_docs = Vec::new();
     let aoclient = configuration.get_archiveorg();
     let docs = aoclient.get_all_docs().await;
@@ -284,7 +291,23 @@ async fn update(configuration: &Configuration){
                     Some(mp3) => {
                         let episode = Episode::combine(&doc, &metadata, &mp3);
                         match episode.save().await{
-                            Ok(_) => info!("Episode {} saved", episode.get_slug()),
+                            Ok(_) => {
+                                match &telegram_client{
+                                    Some(client) => {
+                                        let message = episode.get_title();
+                                        client.post(message).await;
+                                    }
+                                    None => {},
+                                };
+                                match &mastodon_client{
+                                    Some(client) => {
+                                        let message = episode.get_title();
+                                        client.post(message).await;
+                                    },
+                                    None => {},
+                                }
+                                info!("Episode {} saved", episode.get_slug());
+                            },
                             Err(e) => error!("Cant save episode. {}", e),
                         }
                     },
