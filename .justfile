@@ -26,3 +26,11 @@ run:
                --volume $PWD/posts:/app/posts \
                --volume $PWD/pages:/app/pages \
                {{user}}/{{name}}
+
+test:
+    echo {{version}}
+    echo {{name}}
+    docker build -t {{user}}/{{name}}:test \
+                 .
+    docker push {{user}}/{{name}}:test
+
