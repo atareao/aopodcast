@@ -2,8 +2,8 @@ mod models;
 
 use models::{
     config::Configuration,
-    mastodon::get_mastodon_client,
-    telegram::get_telegram_client
+    mastodon::{get_mastodon_client, Mastodon},
+    telegram::{get_telegram_client, Telegram}
 };
 use simplelog::{SimpleLogger, Config, LevelFilter};
 use log::{debug, info, error};
@@ -97,6 +97,70 @@ async fn read_episodes_and_posts() -> Vec<Post>{
     }
     posts.sort_by(|a, b| b.date.cmp(&a.date));
     posts
+}
+
+async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
+        mastodon: &Mastodon){
+    let tera = match Tera::new("templates/*.xml") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let mut context = Context::new();
+    let url = if configuration.get_site().baseurl.is_empty(){
+        "".to_string()
+    }else{
+        if configuration.get_site().baseurl.starts_with("/"){
+            configuration.get_site().baseurl.to_owned()
+        }else{
+            format!("/{}", configuration.get_site().baseurl)
+        }
+    };
+    context.insert("url", &url);
+    context.insert("site", configuration.get_site());
+    context.insert("episode", episode);
+    match tera.render("feed.xml", &context){
+        Ok(content) => {
+            debug!("{}", content);
+            mastodon.post(&content).await;
+        },
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
+    
+}
+
+async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
+        telegram: &Telegram){
+    let tera = match Tera::new("templates/*.xml") {
+        Ok(t) => t,
+        Err(e) => {
+            error!("Parsing error(s): {}", e);
+            std::process::exit(1);
+        }
+    };
+    let mut context = Context::new();
+    let url = if configuration.get_site().baseurl.is_empty(){
+        "".to_string()
+    }else{
+        if configuration.get_site().baseurl.starts_with("/"){
+            configuration.get_site().baseurl.to_owned()
+        }else{
+            format!("/{}", configuration.get_site().baseurl)
+        }
+    };
+    context.insert("url", &url);
+    context.insert("site", configuration.get_site());
+    context.insert("episode", episode);
+    match tera.render("feed.xml", &context){
+        Ok(content) => {
+            debug!("{}", content);
+            telegram.post(&content).await;
+        },
+        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+    }
+    
 }
 
 async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
@@ -294,15 +358,15 @@ async fn update(configuration: &Configuration){
                             Ok(_) => {
                                 match &telegram_client{
                                     Some(client) => {
-                                        let message = episode.get_title();
-                                        client.post(message).await;
+                                        post_with_telegram(configuration,
+                                            &episode, client).await;
                                     }
                                     None => {},
                                 };
                                 match &mastodon_client{
                                     Some(client) => {
-                                        let message = episode.get_title();
-                                        client.post(message).await;
+                                        post_with_mastodon(configuration,
+                                            &episode, client).await;
                                     },
                                     None => {},
                                 }
