@@ -32,6 +32,7 @@ impl Telegram{
         let message = json!({
             "chat_id": self.chat_id,
             "text": message,
+            "parse_mode": "HTML",
         });
         match Client::new()
             .post(url)
