@@ -37,4 +37,4 @@ chrono = "0.4"
 
 # Markdown
 html2md = "0.2"
-comrak = "0.15"
+comrak = "0.17"
