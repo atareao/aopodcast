@@ -9,7 +9,7 @@ rust-version = "1.60"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1.22", features = ["full", "time"] }
+tokio = { version = "1.24", features = ["full", "time"] }
 async-recursion = "1.0"
 
 # reqwest
@@ -38,4 +38,4 @@ chrono-tz = "0.8"
 
 # Markdown
 html2md = "0.2"
-comrak = "0.15"
+comrak = "0.17"
