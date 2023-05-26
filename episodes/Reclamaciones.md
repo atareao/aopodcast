@@ -7,7 +7,7 @@ subject:
 - Raspberry
 - MaratonPOD
 - Papá Friki
-downloads: 2427
+downloads: 2428
 filename: Reclamaciones.mp3
 mtime: 1685124532
 mp3_mtime: 1571919375
@@ -18,9 +18,9 @@ slug: reclamaciones
 ---
 Buenas muchachada, hoy os comento que sigo esperando noticias del C4 que sigue en el taller, sobre la charla de smartwatch reciente, freebuds y algo más.
 
-[https://diario.mosqueteroweb.eu/2019/10/problema-de-dos-horas-de-retraso-en.html](https://diario.mosqueteroweb.eu/2019/10/problema-de-dos-horas-de-retraso-en.html)  
+[https://diario.mosqueteroweb.eu/2019/10/problema-de-dos-horas-de-retraso-en.html](https://diario.mosqueteroweb.eu/2019/10/problema-de-dos-horas-de-retraso-en.html)
 
-Los métodos de contacto:  
+Los métodos de contacto:
 
 Twitter: [https://twitter.com/papa\_friki](https://twitter.com/papa_friki)
 

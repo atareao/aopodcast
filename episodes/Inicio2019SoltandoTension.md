@@ -7,7 +7,7 @@ subject:
 - Redmi Note 5
 - Tensiones
 - Papá Friki
-downloads: 2609
+downloads: 2614
 filename: Inicio2019SoltandoTension.mp3
 mtime: 1685124454
 mp3_mtime: 1546506282
@@ -18,7 +18,7 @@ slug: inicio-2019-y-soltando-tension
 ---
 Buenas muchachada, inicio el 2019 y os cuento cosas sobre el redmi note 5, Pixel os comparto un audio que grabé la semana pasada a la salida del trabajo en el que libero tensiones.
 
-Los métodos de contacto:  
+Los métodos de contacto:
 
 Twitter: [https://twitter.com/papa\_friki](https://twitter.com/papa_friki)
 
