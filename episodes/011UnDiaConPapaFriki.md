@@ -7,18 +7,31 @@ subject:
 - iTunes
 - Los Joseles
 - Papá Friki
-downloads: 2226
+downloads: 2338
 filename: 011undiaconpapafriki.mp3
-mtime: 1523553992
+mtime: 1685124362
+mp3_mtime: 1523553992
 size: 7222627
 length: 451
 excerpt: "Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangre y comentaros la experiencia de compra en Hipercor y pequeños problemillas con el feed de iTunes.   \n\nReferencias que he hecho en el podcast de hoy:\n\n[EducandoGeek ](https://educandogeek.github.io/)de @jgurillo.\n\n[Los Joseles](https://www.losjoseles.com/Po"
 slug: 011-un-dia-con-papa-friki
 ---
-Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangre y comentaros la experiencia de compra en Hipercor y pequeños problemillas con el feed de iTunes.
+Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangre y comentaros la experiencia de compra en Hipercor y pequeños problemillas con el feed de iTunes.   
 
 Referencias que he hecho en el podcast de hoy:
 
 [EducandoGeek ](https://educandogeek.github.io/)de @jgurillo.
 
 [Los Joseles](https://www.losjoseles.com/Podcast/)
+
+Os recuerdo los métodos de contacto:
+
+Twitter: https://twitter.com/papa\_friki
+
+Correo: papafrikipodast@gmail.com
+
+Web: https://papafriki.gitlab.io/podcast
+
+Feed Podcast: http://feeds.feedburner.com/papafriki
+
+Ya sabéis, nos escuchamos, leemos o vemos hasta luego!
