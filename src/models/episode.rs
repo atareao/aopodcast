@@ -29,6 +29,7 @@ pub struct Metadata{
     // from mp3 metadata
     pub filename: String,
     pub mtime: u64,
+    pub mp3_mtime: u64,
     pub size: u64,
     pub length: u64,
     pub excerpt: String,
@@ -180,7 +181,7 @@ impl Episode{
         tokio::fs::write(self.get_filename(), content).await
     }
 
-    pub fn combine(doc: &Doc, aometadata: &AOMetadata, mp3: &Mp3Metadata) -> Episode{
+    pub fn combine(doc: &Doc, aometadata: &AOMetadata, mp3: &Mp3Metadata, timestamp: u64) -> Episode{
         let title = if mp3.title.is_empty(){
             doc.get_identifier()
         }else{
@@ -201,7 +202,8 @@ impl Episode{
             title: title.to_string(),
             excerpt: comment.to_owned(),
             filename: mp3.filename.to_string(),
-            mtime: mp3.mtime,
+            mtime: timestamp,
+            mp3_mtime: mp3.mtime,
             size: mp3.size,
             length: mp3.length,
             slug: get_slug(title),

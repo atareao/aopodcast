@@ -353,7 +353,8 @@ async fn update(configuration: &Configuration){
             Some(metadata) => {
                 match ArchiveOrg::get_mp3_metadata(doc.get_identifier()).await{
                     Some(mp3) => {
-                        let episode = Episode::combine(&doc, &metadata, &mp3);
+                        let timestamp = get_current_timestamp(&configuration.get_timezone());
+                        let episode = Episode::combine(&doc, &metadata, &mp3, timestamp);
                         match episode.save().await{
                             Ok(_) => {
                                 match &telegram_client{
@@ -499,3 +500,14 @@ pub async fn create_public(configuration: &Configuration){
         }
     }
 }
+
+fn get_current_timestamp(timezone: &str) -> u64{
+    let dt = chrono::offset::Utc::now();
+    let tz = match chrono_tz::Tz::from_str(timezone){
+        Ok(tz) => tz,
+        Err(_) => chrono_tz::Tz::Europe__Madrid,
+    };
+    let nd = dt.with_timezone(&tz);
+    dt.timestamp().try_into().unwrap()
+}
+

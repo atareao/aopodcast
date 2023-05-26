@@ -11,6 +11,8 @@ pub struct Configuration{
     public: String,
     style_css: String,
     archiveorg: ArchiveOrg,
+    #[serde(default = "get_default_timezone")]
+    timezone: String,
     site: Site,
 }
 
@@ -24,7 +26,15 @@ impl Display for Configuration{
     }
 }
 
+fn get_default_timezone() -> String{
+    "Europe/Madrid".to_string()
+}
+
 impl Configuration {
+    pub fn get_timezone(&self) -> &str{
+        &self.timezone
+    }
+
     pub fn get_site(&self) -> &Site {
         &self.site
     }
