@@ -39,3 +39,6 @@ chrono-tz = "0.8"
 # Markdown
 html2md = "0.2"
 comrak = "0.17"
+
+[dev-dependencies]
+dotenv = "0.15"
