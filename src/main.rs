@@ -150,13 +150,17 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
             format!("/{}", configuration.get_site().baseurl)
         }
     };
+    let post = episode.get_post();
+    let audio = format!("https://archive.org/download/{}/{}",
+        &post.identifier,
+        &post.filename);
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
-    context.insert("post", &episode.get_post());
+    context.insert("post", &post);
     match tera.render("telegram.html", &context){
-        Ok(content) => {
-            debug!("{}", content);
-            telegram.post(&content).await;
+        Ok(caption) => {
+            debug!("{}", caption);
+            telegram.send_audio(&audio, &caption).await;
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }

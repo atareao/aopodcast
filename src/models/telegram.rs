@@ -26,6 +26,7 @@ impl Telegram{
             chat_id: chat_id.to_string(),
         }
     }
+
     pub async fn post(&self, message: &str){
         let url = format!("https://api.telegram.org/bot{}/sendMessage",
             self.access_token);
@@ -48,6 +49,54 @@ impl Telegram{
                         error.to_string());
                 },
             }
-        }
+    }
+
+    pub async fn send_audio(&self, audio: &str, caption: &str){
+        let url = format!("https://api.telegram.org/bot{}/sendAudio",
+            self.access_token);
+        let message = json!({
+            "chat_id": self.chat_id,
+            "audio": audio,
+            "caption": caption,
+            "parse_mode": "HTML",
+        });
+        match Client::new()
+            .post(url)
+            .json(&message)
+            .send()
+            .await{
+                Ok(response) => {
+                    info!("Mensaje envíado a Telegram: {}",
+                        response.status().to_string());
+                },
+                Err(error) => {
+                    error!("No he podido enviar el mensaje a Telegram: {}",
+                        error.to_string());
+                },
+            }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use dotenv::dotenv;
+    use std::env;
+    use crate::models::telegram::Telegram;
+    use tokio;
+
+    #[tokio::test]
+    async fn send_audio_test(){
+        dotenv().ok();
+        let token = env::var("TOKEN").unwrap();
+        let chat_id = env::var("CHAT_ID").unwrap();
+        let audio = env::var("AUDIO").unwrap();
+        let caption = "Este es un título de prueba";
+        println!("{}, {}, {}, {}", token, chat_id, audio, caption);
+        
+        let telegram = Telegram::new(&token, &chat_id);
+        let answer = telegram.send_audio(&audio, caption).await;
+        println!("{:?}", answer);
+        assert!(true);
+    }
 }
 
