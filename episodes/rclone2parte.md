@@ -8,7 +8,7 @@ subject:
 downloads: 2733
 filename: Rclone2parte.mp3
 mtime: 1685124503
-pub_mtime: 0
+pub_mtime: 1685124503
 size: 13004131
 length: 750
 excerpt: "Buenas muchachada hoy os traigo una segunda parte sobre el programa rclone y rclone browser.\n\nEl programa original de Rclone Browser lo tenéis en la siguiente dirección\n\n[https://martins.ninja/RcloneBrowser/](https://martins.ninja/RcloneBrowser/)\n\nEl fork que muestra la subida con barra de progreso\n\n[https://github.com/noabody/RcloneBrowser](https://github.com/noabody/RcloneBrowser)  \n\nUn par de videos que explican el uso de Rclone en windows\n\n[https://www.youtube.com/watch?v=uI7OdUXhREI](https://www.youtube.com/watch?v=uI7OdUXhREI)  \n\n[https://www.youtube.com/watch?v=uXBlqEOE\\_lo](https://www.youtube.com/watch?v=uXB"

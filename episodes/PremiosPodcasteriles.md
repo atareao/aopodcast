@@ -8,13 +8,13 @@ subject:
 downloads: 2311
 filename: PremiosPodcasteriles.mp3
 mtime: 1685124409
-mp3_mtime: 1535098378
+pub_mtime: 1685124409
 size: 7703534
 length: 435
 excerpt: "Buenas muchachada hoy entrego mis premios \"podcasteriles\". Entender que son basados en los podcast que conozco y escucho, seguramente haya muchos mas y muy buenos que se merecen premio. Haz una lista y entrega tus premios y compártelos con los demás.  \n\nReferencias del episodio de hoy:\n\n[MarcoGeek](https://www.ivoox.com/podcast-marcogeek_sq_f1151977_1.html)\n\n[MazinguerAstur Podcast](http://feeds.feedburner.com/Mazingerastur)\n\n[A ratos podcast](http://www.ivoox.com/p_sq_f1463037_1.html)\n\n[Podcast Linux](http://www.ivoox.com/p_sq_f1297890_"
 slug: premios-podcasteriles
 ---
-Buenas muchachada hoy entrego mis premios "podcasteriles". Entender que son basados en los podcast que conozco y escucho, seguramente haya muchos mas y muy buenos que se merecen premio. Haz una lista y entrega tus premios y compártelos con los demás.  
+Buenas muchachada hoy entrego mis premios "podcasteriles". Entender que son basados en los podcast que conozco y escucho, seguramente haya muchos mas y muy buenos que se merecen premio. Haz una lista y entrega tus premios y compártelos con los demás.
 
 Referencias del episodio de hoy:
 
@@ -24,21 +24,21 @@ Referencias del episodio de hoy:
 
 [A ratos podcast](http://www.ivoox.com/p_sq_f1463037_1.html)
 
-[Podcast Linux](http://www.ivoox.com/p_sq_f1297890_1.html)  
+[Podcast Linux](http://www.ivoox.com/p_sq_f1297890_1.html)
 
-[Comercial Geek](http://www.ivoox.com/p_sq_f143401_1.html)  
+[Comercial Geek](http://www.ivoox.com/p_sq_f143401_1.html)
 
-[Los Joseles](http://www.ivoox.com/p_sq_f1280363_1.html)  
+[Los Joseles](http://www.ivoox.com/p_sq_f1280363_1.html)
 
-[Monos del espacio](http://www.ivoox.com/p_sq_f1148042_1.html)  
+[Monos del espacio](http://www.ivoox.com/p_sq_f1148042_1.html)
 
-[Chiringuito digital](http://www.ivoox.com/p_sq_f197142_1.html)  
+[Chiringuito digital](http://www.ivoox.com/p_sq_f197142_1.html)
 
-[Lo que tu digas](http://www.ivoox.com/p_sq_f1424550_1.html)  
+[Lo que tu digas](http://www.ivoox.com/p_sq_f1424550_1.html)
 
-[Sospechos habituales](http://www.ivoox.com/p_sq_f1564393_1.html)  
+[Sospechos habituales](http://www.ivoox.com/p_sq_f1564393_1.html)
 
-Los métodos de contacto:  
+Los métodos de contacto:
 
 Twitter: [https://twitter.com/papa\_friki](https://twitter.com/papa_friki)
 
