@@ -29,13 +29,18 @@ pub struct Metadata{
     // from mp3 metadata
     pub filename: String,
     pub mtime: u64,
-    pub mp3_mtime: u64,
+    #[serde(default = "get_default_pub_mtime")]
+    pub pub_mtime: u64,
     pub size: u64,
     pub length: u64,
     pub excerpt: String,
     //pub comment: String,
     // more
     pub slug: String,
+}
+
+fn get_default_pub_mtime() -> u64{
+    0
 }
 
 fn string_or_seq_string<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
@@ -86,6 +91,11 @@ pub struct Episode{
 impl Episode{
     pub fn get_post(&self) -> Post{
         let content = markdown_to_html(&self.content, &ComrakOptions::default());
+        let pub_mtime = if self.metadata.pub_mtime == 0 {
+            self.metadata.mtime
+        }else{
+            self.metadata.pub_mtime
+        };
         Post{
             layout: Layout::PODCAST,
             slug: self.metadata.slug.clone(),
@@ -93,6 +103,7 @@ impl Episode{
             title: self.metadata.title.clone(),
             content,
             subject: self.metadata.subject.clone(),
+            pub_date: pub_mtime,
             date: self.metadata.mtime.clone(),
             identifier: self.metadata.identifier.clone(),
             filename: self.metadata.filename.clone(),
@@ -101,6 +112,12 @@ impl Episode{
             number: self.metadata.number,
             downloads: self.metadata.downloads,
         }
+    }
+    pub fn get_pub_mtime(&self) -> u64{
+        self.metadata.pub_mtime
+    }
+    pub fn set_pub_mtime(&mut self){
+        self.metadata.pub_mtime = self.metadata.mtime;
     }
 
     pub async fn new(filename: &str) -> Result<Self, serde_json::Error>{
@@ -202,8 +219,8 @@ impl Episode{
             title: title.to_string(),
             excerpt: comment.to_owned(),
             filename: mp3.filename.to_string(),
-            mtime: timestamp,
-            mp3_mtime: mp3.mtime,
+            mtime: mp3.mtime,
+            pub_mtime: timestamp,
             size: mp3.size,
             length: mp3.length,
             slug: get_slug(title),

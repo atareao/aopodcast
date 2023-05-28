@@ -335,7 +335,11 @@ async fn update(configuration: &Configuration){
             //BUG: Esto hay que revisar
             match Episode::new(&filename).await{
                 Ok(ref mut episode) => {
-                    if episode.get_downloads() != doc.get_downloads(){
+                    if episode.get_downloads() != doc.get_downloads() || 
+                            episode.get_pub_mtime() == 0{
+                        if episode.get_pub_mtime() == 0{
+                            episode.set_pub_mtime();
+                        }
                         episode.set_downloads(doc.get_downloads());
                         match episode.save().await{
                             Ok(_) => info!("Episode {} saved", episode.get_slug()),
@@ -345,7 +349,6 @@ async fn update(configuration: &Configuration){
                 },
                 Err(e) => {
                     error!("Cant create episode. {}", e);
-                    new_docs.push(doc);
                 }
             }
         }else{

@@ -39,6 +39,7 @@ impl Page{
         Post{
             title: self.metadata.title.clone(),
             date,
+            pub_date: date,
             excerpt: self.metadata.excerpt.clone(),
             layout: Layout::PAGE,
             slug: self.metadata.slug.clone(),

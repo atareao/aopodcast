@@ -39,6 +39,7 @@ pub struct Post{
     pub content: String,
     pub subject: Vec<String>,
     pub date: u64,
+    pub pub_date: u64,
     pub identifier: String,
     pub filename: String,
     pub size: u64,
