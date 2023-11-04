@@ -9,3 +9,5 @@ episodes/
 pages/
 posts/
 templates/
+.sessions/
+public/

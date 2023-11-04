@@ -1,14 +1,14 @@
 ###############################################################################
 ## Builder
 ###############################################################################
-FROM rust:1.69 AS builder
+FROM rust:1.73 AS builder
 
 LABEL maintainer="Lorenzo Carbonell <a.k.a. atareao> lorenzo.carbonell.cerezo@gmail.com"
 
 ARG TARGET=x86_64-unknown-linux-musl
-ENV RUST_MUSL_CROSS_TARGET=$TARGET
-ENV OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu"
-ENV OPENSSL_INCLUDE_DIR="/usr/include/openssl"
+ENV RUST_MUSL_CROSS_TARGET=$TARGET \
+    OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu" \
+    OPENSSL_INCLUDE_DIR="/usr/include/openssl"
 
 RUN rustup target add $TARGET && \
     apt-get update && \
@@ -35,7 +35,7 @@ RUN cargo build --release --target $TARGET && \
 ###############################################################################
 ## Final image
 ###############################################################################
-FROM alpine:3.17
+FROM alpine:3.18
 
 RUN apk add --update --no-cache \
             su-exec~=0.2 \
