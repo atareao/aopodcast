@@ -1,5 +1,6 @@
 use reqwest::Client;
 use serde_json::json;
+use regex::Regex;
 use log::{info, error};
 
 pub struct Telegram{
@@ -57,23 +58,34 @@ impl Telegram{
         let message = json!({
             "chat_id": self.chat_id,
             "audio": audio,
-            "caption": caption,
+            "caption": Self::prepare(caption),
             "parse_mode": "HTML",
         });
         match Client::new()
             .post(url)
             .json(&message)
             .send()
-            .await{
+            .await {
                 Ok(response) => {
-                    info!("Mensaje envíado a Telegram: {}",
-                        response.status().to_string());
+                    match response.text().await{
+                        Ok(content) => info!(
+                            "Mensaje envíado a Telegram. Response: {}",
+                            content),
+                        Err(error) => error!(
+                            "No he podido enviar el mensaje a Telegram: {}",
+                            error.to_string())
+                    }
                 },
                 Err(error) => {
                     error!("No he podido enviar el mensaje a Telegram: {}",
                         error.to_string());
                 },
             }
+    }
+
+    fn prepare(text: &str) -> String{
+        let re = Regex::new(r#""([^"]*)""#).unwrap();
+        re.replace_all(text, "<i>$1</i>").to_string()
     }
 }
 
@@ -90,7 +102,7 @@ mod tests {
         let token = env::var("TOKEN").unwrap();
         let chat_id = env::var("CHAT_ID").unwrap();
         let audio = env::var("AUDIO").unwrap();
-        let caption = "Este es un título de prueba";
+        let caption = r#"Este es un "título" de prueba"#;
         println!("{}, {}, {}, {}", token, chat_id, audio, caption);
         
         let telegram = Telegram::new(&token, &chat_id);

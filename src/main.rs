@@ -164,7 +164,6 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }
-    
 }
 
 async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
