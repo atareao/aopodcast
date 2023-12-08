@@ -42,7 +42,7 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
         <title>{{ post.title }}</title>
         <link>{{ site.url | safe }}/{{ post.slug }}/</link>
         <comments>{{ site.url | safe }}/{{ post.slug }}/#comments</comments>
-        <pubDate>{{ post.pub_date | date(format="%a, %d %b %Y %H:%M:%S",timezone="Europe/Madrid")}}</pubDate>
+        <pubDate>{{ post.date | date(format="%a, %d %b %Y %H:%M:%S",timezone="Europe/Madrid")}}</pubDate>
         {% for category in post.subject %}
         <category><![CDATA[{{ category | safe }}]]></category>
         {% endfor %}
