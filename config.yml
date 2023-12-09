@@ -14,7 +14,7 @@ site:
   description: Batallitas del día a día de un Papá Friki
   baseurl: podcast
   url: https://atareao.gitlab.io
-  avatar: https://assets.gitlab-static.net/uploads/-/system/project/avatar/5685462/avatar.png
+  avatar: https://gitlab.com/uploads/-/system/user/avatar/2074936/avatar.png
   category: Technology
   subcategory: Podcasting
   explicit: true
