@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
-use log::{debug, info, error};
+use tracing::{debug, info, error};
 use gray_matter::{Matter, engine::YAML};
 use comrak::{markdown_to_html, ComrakOptions};
 
 use super::{
-    site::{Post, Layout},
+    Post,
+    Layout,
     utils::{
         get_slug,
         get_unix_time,
@@ -19,6 +20,7 @@ struct Metadata{
     pub date: String,
     pub excerpt: String,
     pub slug: String,
+    pub version: usize,
 }
 
 impl Metadata{
@@ -41,9 +43,9 @@ impl Article{
         Post{
             title: self.metadata.title.clone(),
             date,
-            pub_date: date,
+            version: self.metadata.version,
             excerpt: self.metadata.excerpt.clone(),
-            layout: Layout::POST,
+            layout: Layout::Post,
             slug: self.metadata.slug.clone(),
             subject: Vec::new(),
             content,
@@ -120,18 +122,26 @@ impl Article{
 
 #[cfg(test)]
 mod tests {
-    use simplelog::{LevelFilter, SimpleLogger, Config};
+    use tracing_subscriber::{
+        EnvFilter,
+        layer::SubscriberExt,
+        util::SubscriberInitExt
+    };
+    use std::str::FromStr;
+    use tracing::debug;
     use crate::models::article::Article;
-    use log::debug;
 
     #[tokio::test]
     async fn test_article(){
-        let level_filter = LevelFilter::Debug;
-        let _ = SimpleLogger::init(level_filter, Config::default());
+        tracing_subscriber::registry()
+            .with(EnvFilter::from_str("debug").unwrap())
+            .with(tracing_subscriber::fmt::layer())
+            .init();
+
         let article = Article::new("pihole.md").await.unwrap();
         debug!("=========================");
         debug!("{:?}", article);
         debug!("=========================");
-        assert_eq!(article.metadata.title.is_empty(), false);
+        assert!(!article.metadata.title.is_empty());
     }
 }

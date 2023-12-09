@@ -1,4 +1,4 @@
-use log::debug;
+use tracing::debug;
 use regex::Regex;
 
 #[derive(Debug)]
@@ -37,7 +37,7 @@ impl Mp3Metadata {
         let mtime = Self::get_value("mtime", &text).parse().unwrap();
         let size = Self::get_value("size", &text).parse().unwrap();
         let length = Self::get_value("length", &text);
-        let length = match length.find("."){
+        let length = match length.find('.'){
             Some(pos) => length.get(0..pos).unwrap().parse().unwrap(),
             None => length.parse().unwrap(),
         };
@@ -68,7 +68,7 @@ impl Mp3Metadata {
     }
     fn get_value(tag: &str, xml: &str) -> String{
         let value = Self::get(tag, xml);
-        if value.len() > 0{
+        if !value.is_empty(){
             match value.get(0) {
                 Some(value) => value.to_string(),
                 None => "".to_string()

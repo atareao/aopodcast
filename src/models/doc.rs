@@ -1,13 +1,17 @@
 use serde::{Serialize, Deserialize, Deserializer, de};
-use log::debug;
+use chrono::{DateTime, Utc};
+use tracing::debug;
 use tokio::fs;
 use std::{fmt, marker::PhantomData};
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, PartialOrd)]
 pub struct Doc{
     #[serde(default = "default_number")]
     number: usize,
     identifier: String,
+    #[serde(default = "default_number")]
+    version: usize,
+    publicdate:DateTime<Utc>,
     #[serde(deserialize_with = "string_or_seq_string")]
     subject: Vec<String>,
     description: String,
@@ -53,14 +57,26 @@ impl Doc{
     pub fn set_number(&mut self, number: usize) {
         self.number = number;
     }
+    pub fn get_version(&self) -> usize{
+        self.version
+    }
 
-    pub fn get_identifier<'a>(&'a self) -> &'a str{
+    pub fn set_version(&mut self, version: usize) {
+        self.version = version;
+    }
+
+    pub fn get_datetime(&self) ->DateTime<Utc>{
+        self.publicdate
+    }
+
+    pub fn get_identifier(&self) -> &str{
         &self.identifier
     }
+
     pub fn get_subject(&self) -> Vec<String>{
         self.subject.clone()
     }
-    pub fn get_description<'a>(&'a self) -> &'a str{
+    pub fn get_description(&self) -> &str{
         &self.description
     }
     pub fn get_filename(&self) -> String{

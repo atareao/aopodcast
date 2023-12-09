@@ -5,8 +5,12 @@ use models::{
     mastodon::{get_mastodon_client, Mastodon},
     telegram::{get_telegram_client, Telegram}
 };
-use simplelog::{SimpleLogger, Config, LevelFilter};
-use log::{debug, info, error};
+use tracing_subscriber::{
+    EnvFilter,
+    layer::SubscriberExt,
+    util::SubscriberInitExt
+};
+use tracing::{debug, info, error};
 use tera::{Context, Tera};
 use std::str::FromStr;
 use crate::models::{
@@ -16,13 +20,18 @@ use crate::models::{
     site::{Post, Layout},
     episode::Episode,
 };
+const VERSION: usize = 1;
 
 #[tokio::main]
 async fn main(){
     let configuration = Configuration::read_configuration().await;
-    let level_filter = LevelFilter::from_str(configuration.get_log_level())
-        .unwrap_or(LevelFilter::Info);
-    let _ = SimpleLogger::init(level_filter, Config::default());
+    let log_level = configuration.get_log_level();
+
+    tracing_subscriber::registry()
+        .with(EnvFilter::from_str(log_level).unwrap())
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     debug!("Configuration: {:?}", configuration);
 
     update(&configuration).await;
@@ -111,12 +120,10 @@ async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
     let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
+    }else if configuration.get_site().baseurl.starts_with('/'){
+        configuration.get_site().baseurl.to_owned()
     }else{
-        if configuration.get_site().baseurl.starts_with("/"){
-            configuration.get_site().baseurl.to_owned()
-        }else{
-            format!("/{}", configuration.get_site().baseurl)
-        }
+        format!("/{}", configuration.get_site().baseurl)
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
@@ -143,12 +150,10 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
     let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
+    }else if configuration.get_site().baseurl.starts_with('/'){
+        configuration.get_site().baseurl.to_owned()
     }else{
-        if configuration.get_site().baseurl.starts_with("/"){
-            configuration.get_site().baseurl.to_owned()
-        }else{
-            format!("/{}", configuration.get_site().baseurl)
-        }
+        format!("/{}", configuration.get_site().baseurl)
     };
     let post = episode.get_post();
     let audio = format!("https://archive.org/download/{}/{}",
@@ -166,7 +171,8 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
     }
 }
 
-async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
+async fn generate_feed(configuration: &Configuration, posts: &[Post]){
+    info!("generate_feed");
     let tera = match Tera::new("templates/*.xml") {
         Ok(t) => t,
         Err(e) => {
@@ -182,29 +188,28 @@ async fn generate_feed(configuration: &Configuration, posts: &Vec<Post>){
     let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
+    }else if configuration.get_site().baseurl.starts_with('/'){
+        configuration.get_site().baseurl.to_owned()
     }else{
-        if configuration.get_site().baseurl.starts_with("/"){
-            configuration.get_site().baseurl.to_owned()
-        }else{
-            format!("/{}", configuration.get_site().baseurl)
-        }
+        format!("/{}", configuration.get_site().baseurl)
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
     let filter_posts: Vec<&Post> = posts
         .iter()
-        .filter(|post| post.layout == Layout::PODCAST).collect();
+        .filter(|post| post.layout == Layout::Podcast).collect();
     context.insert("posts", &filter_posts);
     match tera.render("feed.xml", &context){
         Ok(content) => {
-            debug!("{}", content);
             write_post(&public, "", Some(&configuration.get_site().podcast_feed), &content).await;
+            debug!("write feed");
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }
 }
 
 async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
+    info!("generate_stats");
     let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -220,12 +225,10 @@ async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages:
     let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
+    }else if configuration.get_site().baseurl.starts_with('/'){
+        configuration.get_site().baseurl.to_owned()
     }else{
-        if configuration.get_site().baseurl.starts_with("/"){
-            configuration.get_site().baseurl.to_owned()
-        }else{
-            format!("/{}", configuration.get_site().baseurl)
-        }
+        format!("/{}", configuration.get_site().baseurl)
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
@@ -242,6 +245,7 @@ async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages:
 }
 
 async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
+    info!("generate_index");
     let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -257,12 +261,10 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
     let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
+    }else if configuration.get_site().baseurl.starts_with('/'){
+        configuration.get_site().baseurl.to_owned()
     }else{
-        if configuration.get_site().baseurl.starts_with("/"){
-            configuration.get_site().baseurl.to_owned()
-        }else{
-            format!("/{}", configuration.get_site().baseurl)
-        }
+        format!("/{}", configuration.get_site().baseurl)
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
@@ -277,7 +279,8 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
     }
 }
 
-async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
+async fn generate_html(configuration: &Configuration, posts: &[Post], pages: &Vec<Post>){
+    info!("generate_html");
     let tera = match Tera::new("templates/*.html") {
         Ok(t) => t,
         Err(e) => {
@@ -293,12 +296,10 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: 
     let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
+    }else if configuration.get_site().baseurl.starts_with('/'){
+        configuration.get_site().baseurl.to_owned()
     }else{
-        if configuration.get_site().baseurl.starts_with("/"){
-            configuration.get_site().baseurl.to_owned()
-        }else{
-            format!("/{}", configuration.get_site().baseurl)
-        }
+        format!("/{}", configuration.get_site().baseurl)
     };
     context.insert("url", &url);
     context.insert("site", configuration.get_site());
@@ -322,6 +323,7 @@ async fn generate_html(configuration: &Configuration, posts: &Vec<Post>, pages: 
 
 
 async fn update(configuration: &Configuration){
+    info!("update");
     let mastodon_client = get_mastodon_client();
     let telegram_client = get_telegram_client();
     let mut new_docs = Vec::new();
@@ -330,15 +332,18 @@ async fn update(configuration: &Configuration){
     for doc in docs{
         if doc.exists().await{
             info!("Doc {} exists", doc.get_identifier());
+            debug!("Doc: {:?}", &doc);
             let filename = doc.get_filename();
             //BUG: Esto hay que revisar
             match Episode::new(&filename).await{
                 Ok(ref mut episode) => {
                     if episode.get_downloads() != doc.get_downloads() || 
-                            episode.get_pub_mtime() == 0{
-                        if episode.get_pub_mtime() == 0{
-                            episode.set_pub_mtime();
+                            episode.get_datetime().is_none() ||
+                            episode.get_version() != VERSION{
+                        if episode.get_datetime().is_none(){
+                            episode.set_datetime(Some(doc.get_datetime()));
                         }
+                        episode.set_version(VERSION);
                         episode.set_downloads(doc.get_downloads());
                         match episode.save().await{
                             Ok(_) => info!("Episode {} saved", episode.get_slug()),
@@ -359,10 +364,7 @@ async fn update(configuration: &Configuration){
             Some(metadata) => {
                 match ArchiveOrg::get_mp3_metadata(doc.get_identifier()).await{
                     Some(mp3) => {
-                        let timestamp: u64 = chrono::offset::Utc::now().timestamp()
-                            .try_into()
-                            .unwrap();
-                        let episode = Episode::combine(&doc, &metadata, &mp3, timestamp);
+                        let episode = Episode::combine(&doc, &metadata, &mp3);
                         match episode.save().await{
                             Ok(_) => {
                                 match &telegram_client{
@@ -393,13 +395,13 @@ async fn update(configuration: &Configuration){
 }
 
 fn clean_path(path: &str) -> &str{
-    let path = if path.starts_with("/"){
+    let path = if path.starts_with('/'){
         path.to_string().remove(0);
         path
     }else{
         path
     };
-    if path.ends_with("/"){
+    if path.ends_with('/'){
         path.to_string().pop();
         path
     }else{
@@ -408,6 +410,8 @@ fn clean_path(path: &str) -> &str{
 }
 
 async fn write_post(base: &str, endpoint: &str, filename: Option<&str>, content: &str){
+    debug!("write_post. Base: {base}. Endpoint {endpoint}. Filename: {:?}",
+        filename);
     let base = clean_path(base);
     let endpoint = clean_path(endpoint);
     let filename =filename.unwrap_or("index.html");
@@ -479,6 +483,7 @@ pub async fn copy_file(from: &str, to: &str){
 }
 
 pub async fn create_public(configuration: &Configuration){
+    info!("create_public");
     let output = configuration.get_public();
     info!("Output dir: {}", &output);
     let exists = match tokio::fs::metadata(output).await{

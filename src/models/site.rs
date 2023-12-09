@@ -1,4 +1,5 @@
 use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Site{
@@ -24,9 +25,9 @@ pub struct Site{
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum Layout{
-    POST,
-    PODCAST,
-    PAGE,
+    Post,
+    Podcast,
+    Page,
 }
 
 
@@ -38,8 +39,8 @@ pub struct Post{
     pub title: String,
     pub content: String,
     pub subject: Vec<String>,
-    pub date: u64,
-    pub pub_date: u64,
+    pub date: Option<DateTime<Utc>>,
+    pub version: usize,
     pub identifier: String,
     pub filename: String,
     pub size: u64,

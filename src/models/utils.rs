@@ -1,10 +1,10 @@
 use regex::Regex;
-use chrono::{DateTime, Utc, NaiveDate, NaiveTime, NaiveDateTime};
-use log::debug;
+use chrono::{offset::TimeZone, DateTime, NaiveDate, NaiveTime, NaiveDateTime, Local, Utc};
+use tracing::debug;
 
 const EXCERPT_LENGTH: usize = 55;
 
-pub fn get_excerpt<'a>(content: &'a str) -> &'a str{
+pub fn get_excerpt(content: &str) -> &str{
     get_first_words(content, EXCERPT_LENGTH)
 }
 
@@ -28,14 +28,14 @@ pub fn get_slug(title: &str) -> String{
     let re = Regex::new(r"\-{2,}").unwrap();
     let mut title = re.replace_all(&title, "-").to_string();
     debug!("Slug step 2: '{}'", title);
-    let mut title = if title.starts_with("-"){
+    let mut title = if title.starts_with('-'){
         title.remove(0).to_string();
         title
     }else{
         title
     };
     debug!("Slug step 3: '{}'", title);
-    if title.ends_with("-"){
+    if title.ends_with('-'){
         title.pop();
         title
     }else{
@@ -43,13 +43,13 @@ pub fn get_slug(title: &str) -> String{
     }
 }
 
-pub fn get_first_words<'a>(content: &'a str, number: usize) -> &'a str{
+pub fn get_first_words(content: &str, number: usize) -> &str{
     debug!("get_first_words");
     debug!("Content: {}", &content);
     let re1 = Regex::new(r"[ ]{2,}").unwrap();
     let re2 = Regex::new(r"[\n]{2,}").unwrap();
     let re3 = Regex::new(r"[\t]{2,}").unwrap();
-    let clean_content = re1.replace_all(&content, " ").to_string();
+    let clean_content = re1.replace_all(content, " ").to_string();
     let clean_content = re2.replace_all(&clean_content, "\n").to_string();
     let clean_content = re3.replace_all(&clean_content, "\t").to_string();
     let positions = clean_content.chars()
@@ -59,7 +59,7 @@ pub fn get_first_words<'a>(content: &'a str, number: usize) -> &'a str{
         .collect::<Vec<_>>();
     if positions.len() > number{
         let position = positions[number];
-        &content[..position].trim()
+        content[..position].trim()
     }else{
         content.trim()
     }
@@ -67,28 +67,19 @@ pub fn get_first_words<'a>(content: &'a str, number: usize) -> &'a str{
 
 #[allow(dead_code)]
 pub fn get_date(mtime: &str) -> String{
+    let dt = Local::now();
+    let offset = dt.offset().to_owned();
     let timestamp = mtime.parse::<i64>().unwrap();
     let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-    let date = DateTime::<Utc>::from_utc(naive_date_time, Utc);
+    let date = DateTime::<Local>::from_naive_utc_and_offset(naive_date_time, offset);
     date.format("%Y-%m-%d").to_string()
 }
 
-pub fn get_unix_time(ymd: &str) -> u64{
-    let pattern = Regex::new("[^0-9-]").unwrap();
-    let clean_ymd = pattern.replace_all(ymd, "");
-    let nd = clean_ymd.trim().parse::<NaiveDate>().unwrap();
+pub fn get_unix_time(ymd: &str) -> Option<DateTime<Utc>>{
+    let nd = NaiveDate::parse_from_str(ymd, "%Y-%m-%d").unwrap();
     let nt = NaiveTime::from_hms_opt(0, 0, 0).unwrap();
     let ndt = nd.and_time(nt);
-    ndt.timestamp().try_into().unwrap()
-}
-
-#[test]
-fn test_get_unix_time(){
-    let date = "\"2022-12-10\"";
-    println!("{}", date);
-    let ut = get_unix_time(date);
-    println!("ut: {}", ut);
-    assert_ne!(ut, 1);
+    Some(TimeZone::from_utc_datetime(&Utc, &ndt))
 }
 
 #[test]

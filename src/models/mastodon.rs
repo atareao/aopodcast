@@ -1,6 +1,6 @@
 use reqwest::Client;
 use serde_json::json;
-use log::{info, error};
+use tracing::{info, error};
 
 pub fn get_mastodon_client() -> Option<Mastodon>{
     match std::env::var("MASTODON_TOKEN"){

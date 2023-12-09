@@ -1,4 +1,4 @@
-use log::{info, warn, error};
+use tracing::{info, warn, error};
 use serde::{Serialize, Deserialize, Deserializer};
 use serde_json::Value;
 use crate::models::{
@@ -7,9 +7,9 @@ use crate::models::{
     doc::Doc,
 };
 use async_recursion::async_recursion;
-use log::debug;
+use tracing::debug;
 
-const BASE_URL: &'static str = "https://archive.org";
+const BASE_URL: &str = "https://archive.org";
 const PAGESIZE: usize = 200;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -45,7 +45,7 @@ impl ArchiveOrg{
     async fn get_docs(&self, since: &str, page: usize) -> Vec<Doc>{
         let mut items = Vec::new();
         let optional = match &self.subject{
-            Some(value) => format!("AND subject:({})", value.to_string()),
+            Some(value) => format!("AND subject:({})", value),
             None => "".to_string(),
         };
         let fields: String = vec!["description", "downloads", "identifier",
@@ -97,10 +97,18 @@ impl ArchiveOrg{
                             items.append(&mut more_items)
                         }
                         for (i, doc) in response["docs"].as_array().unwrap().iter().enumerate(){
-                            //debug!("Doc: {:?}", doc);
-                            let mut doc: Doc = serde_json::from_value(doc.clone()).unwrap();
+                            debug!("Doc: {:?}", doc);
+                            debug!("=============");
+                            let mut doc: Doc = match serde_json::from_value(doc.clone()){
+                                Ok(doc) => doc,
+                                Err(e) => {
+                                    error!("Error: {e}");
+                                    continue
+                                },
+                            };
                             let number = i + 1 + (page - 1) * PAGESIZE;
                             debug!("Doc {}. Number: {} => {}", doc.get_identifier(), i, number);
+                            //debug!("Doc {:?}", &doc);
                             doc.set_number(number);
                             items.push(doc);
                         }
@@ -114,6 +122,7 @@ impl ArchiveOrg{
                 warn!("Nothing found?");
             }
         }
+        items.sort_by_key(|b| std::cmp::Reverse(b.get_datetime()));
         items
     }
 
@@ -166,22 +175,31 @@ impl ArchiveOrg{
 
 #[cfg(test)]
 mod tests {
-    use simplelog::{LevelFilter, SimpleLogger, Config};
+    use tracing_subscriber::{
+        EnvFilter,
+        layer::SubscriberExt,
+        util::SubscriberInitExt
+    };
+    use std::str::FromStr;
+    use tracing::debug;
+
     use crate::models::archive::ArchiveOrg;
-    use log::debug;
 
     #[tokio::test]
     async fn test_get_docs(){
-        let _ = SimpleLogger::init(LevelFilter::Debug, Config::default());
+        tracing_subscriber::registry()
+            .with(EnvFilter::from_str("debug").unwrap())
+            .with(tracing_subscriber::fmt::layer())
+            .init();
 
         let aoclient = ArchiveOrg::new(
             "Papá Friki",
             "papafiki",
             None);
         let docs = aoclient.get_docs("1970-01-01", 1).await;
-        if docs.len() > 0{
+        if !docs.is_empty(){
             debug!("{:?}", docs.get(0).unwrap());
         }
-        assert!(docs.len() > 0)
+        assert!(!docs.is_empty())
     }
 }

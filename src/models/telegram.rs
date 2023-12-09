@@ -1,7 +1,7 @@
 use reqwest::Client;
 use serde_json::json;
 use regex::Regex;
-use log::{info, error};
+use tracing::{info, error};
 
 pub struct Telegram{
     access_token: String,
@@ -28,6 +28,7 @@ impl Telegram{
         }
     }
 
+    #[allow(dead_code)]
     pub async fn post(&self, message: &str){
         let url = format!("https://api.telegram.org/bot{}/sendMessage",
             self.access_token);
@@ -108,7 +109,6 @@ mod tests {
         let telegram = Telegram::new(&token, &chat_id);
         let answer = telegram.send_audio(&audio, caption).await;
         println!("{:?}", answer);
-        assert!(true);
     }
 }
 

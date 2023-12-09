@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use log::{debug, info, error};
+use tracing::{debug, info, error};
 use gray_matter::{Matter, engine::YAML};
 use comrak::{markdown_to_html, ComrakOptions};
 
@@ -18,6 +18,7 @@ struct Metadata{
     pub date: String,
     pub excerpt: String,
     pub slug: String,
+    pub version: usize,
 }
 
 impl Metadata{
@@ -39,9 +40,9 @@ impl Page{
         Post{
             title: self.metadata.title.clone(),
             date,
-            pub_date: date,
+            version: self.metadata.version,
             excerpt: self.metadata.excerpt.clone(),
-            layout: Layout::PAGE,
+            layout: Layout::Page,
             slug: self.metadata.slug.clone(),
             content,
             subject: Vec::new(),
@@ -118,20 +119,28 @@ impl Page{
 
 #[cfg(test)]
 mod tests {
-    use simplelog::{LevelFilter, SimpleLogger, Config};
+    use tracing_subscriber::{
+        EnvFilter,
+        layer::SubscriberExt,
+        util::SubscriberInitExt
+    };
+    use std::str::FromStr;
+    use tracing::debug;
     use crate::models::page::Page;
-    use log::debug;
 
     #[tokio::test]
     async fn test_page(){
-        let level_filter = LevelFilter::Trace;
-        let _ = SimpleLogger::init(level_filter, Config::default());
+        tracing_subscriber::registry()
+            .with(EnvFilter::from_str("debug").unwrap())
+            .with(tracing_subscriber::fmt::layer())
+            .init();
+
         let page = Page::new("about.md").await.unwrap();
         debug!("Title: {}", page.metadata.title);
         debug!("=========================");
         debug!("{:?}", page);
         debug!("=========================");
-        assert_eq!(page.metadata.title.is_empty(), false);
+        assert!(!page.metadata.title.is_empty());
     }
 }
 

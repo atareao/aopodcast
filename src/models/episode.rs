@@ -1,5 +1,6 @@
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize, Deserializer, de};
-use log::{debug, info, error};
+use tracing::{debug, info, error};
 use gray_matter::{Matter, engine::YAML};
 use comrak::{markdown_to_html, ComrakOptions};
 use std::{fmt, marker::PhantomData};
@@ -28,9 +29,10 @@ pub struct Metadata{
     pub downloads: u64,
     // from mp3 metadata
     pub filename: String,
-    pub mtime: u64,
-    #[serde(default = "get_default_pub_mtime")]
-    pub pub_mtime: u64,
+    #[serde(default = "get_default_datetime")]
+    pub datetime: Option<DateTime<Utc>>,
+    #[serde(default = "get_default_version")]
+    pub version: usize,
     pub size: u64,
     pub length: u64,
     pub excerpt: String,
@@ -38,9 +40,12 @@ pub struct Metadata{
     // more
     pub slug: String,
 }
-
-fn get_default_pub_mtime() -> u64{
+fn get_default_version() -> usize{
     0
+}
+
+fn get_default_datetime() -> Option<DateTime<Utc>>{
+    None
 }
 
 fn string_or_seq_string<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
@@ -91,20 +96,15 @@ pub struct Episode{
 impl Episode{
     pub fn get_post(&self) -> Post{
         let content = markdown_to_html(&self.content, &ComrakOptions::default());
-        let pub_mtime = if self.metadata.pub_mtime == 0 {
-            self.metadata.mtime
-        }else{
-            self.metadata.pub_mtime
-        };
         Post{
-            layout: Layout::PODCAST,
+            layout: Layout::Podcast,
             slug: self.metadata.slug.clone(),
             excerpt: self.metadata.excerpt.clone(),
             title: self.metadata.title.clone(),
             content,
             subject: self.metadata.subject.clone(),
-            pub_date: pub_mtime,
-            date: self.metadata.mtime.clone(),
+            date: self.metadata.datetime,
+            version: self.metadata.version,
             identifier: self.metadata.identifier.clone(),
             filename: self.metadata.filename.clone(),
             length: self.metadata.length,
@@ -113,12 +113,23 @@ impl Episode{
             downloads: self.metadata.downloads,
         }
     }
-    pub fn get_pub_mtime(&self) -> u64{
-        self.metadata.pub_mtime
+
+    pub fn set_version(&mut self, version: usize){
+        self.metadata.version = version
     }
-    pub fn set_pub_mtime(&mut self){
-        self.metadata.pub_mtime = self.metadata.mtime;
+
+    pub fn get_version(&self) -> usize{
+        self.metadata.version
     }
+
+    pub fn set_datetime(&mut self, datetime: Option<DateTime<Utc>>){
+        self.metadata.datetime = datetime;
+    }
+
+    pub fn get_datetime(&self) -> Option<DateTime<Utc>>{
+        self.metadata.datetime
+    }
+
 
     pub async fn new(filename: &str) -> Result<Self, serde_json::Error>{
         let mut save = false;
@@ -167,6 +178,7 @@ impl Episode{
         Ok(episode)
     }
 
+    #[allow(dead_code)]
     pub fn get_title(&self) -> &str{
         &self.metadata.title
     }
@@ -198,7 +210,7 @@ impl Episode{
         tokio::fs::write(self.get_filename(), content).await
     }
 
-    pub fn combine(doc: &Doc, aometadata: &AOMetadata, mp3: &Mp3Metadata, timestamp: u64) -> Episode{
+    pub fn combine(doc: &Doc, aometadata: &AOMetadata, mp3: &Mp3Metadata) -> Episode{
         let title = if mp3.title.is_empty(){
             doc.get_identifier()
         }else{
@@ -216,11 +228,11 @@ impl Episode{
             identifier: doc.get_identifier().to_string(),
             subject: doc.get_subject(),
             downloads: doc.get_downloads(),
+            datetime: Some(doc.get_datetime()),
+            version: doc.get_version(),
             title: title.to_string(),
             excerpt: comment.to_owned(),
             filename: mp3.filename.to_string(),
-            mtime: mp3.mtime,
-            pub_mtime: timestamp,
             size: mp3.size,
             length: mp3.length,
             slug: get_slug(title),
@@ -234,19 +246,27 @@ impl Episode{
 
 #[cfg(test)]
 mod tests {
-    use simplelog::{LevelFilter, SimpleLogger, Config};
+    use tracing_subscriber::{
+        EnvFilter,
+        layer::SubscriberExt,
+        util::SubscriberInitExt
+    };
+    use std::str::FromStr;
+    use tracing::debug;
     use crate::models::episode::Episode;
-    use log::debug;
 
     #[tokio::test]
     async fn test2(){
-        let level_filter = LevelFilter::Trace;
-        let _ = SimpleLogger::init(level_filter, Config::default());
+        tracing_subscriber::registry()
+            .with(EnvFilter::from_str("debug").unwrap())
+            .with(tracing_subscriber::fmt::layer())
+            .init();
+
         let episode = Episode::new("pihole.md").await.unwrap();
         debug!("Title: {}", episode.metadata.title);
         debug!("=========================");
         debug!("{:?}", episode);
         debug!("=========================");
-        assert_eq!(episode.metadata.title.is_empty(), false);
+        assert!(!episode.metadata.title.is_empty());
     }
 }
