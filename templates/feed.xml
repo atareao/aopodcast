@@ -37,15 +37,15 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
     <itunes:category text="{{ site.category }}">
     <itunes:category text="{{ site.subcategory }}" />
     </itunes:category>
-    {% for post in posts %}
+    {% for post in posts -%}
     <item>
         <title>{{ post.title }}</title>
         <link>{{ site.url | safe }}/{{ post.slug }}/</link>
         <comments>{{ site.url | safe }}/{{ post.slug }}/#comments</comments>
         <pubDate>{{ post.date | date(format="%a, %d %b %Y %H:%M:%S")}}</pubDate>
-        {% for category in post.subject %}
+        {% for category in post.subject -%}
         <category><![CDATA[{{ category | safe }}]]></category>
-        {% endfor %}
+        {% endfor -%}
         <category><![CDATA[{{ site.category | safe }}]]></category>
         <guid isPermaLink="false">/{{ post.slug }}/</guid>
         <description>
@@ -64,6 +64,6 @@ xmlns:rawvoice="http://www.rawvoice.com/rawvoiceRssModule/"
         <dc:creator>{{ site.email | safe }}({{ site.author | safe }})></dc:creator>
         <itunes:keywords>{{ post.subject | join(sep=",") }}</itunes:keywords>
     </item>
-    {% endfor %}
+    {% endfor -%}
 </channel>
 </rss>
