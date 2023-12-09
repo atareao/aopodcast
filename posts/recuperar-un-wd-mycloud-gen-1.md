@@ -1,6 +1,7 @@
 ---
 title: Recuperar un wd mycloud gen 1
 date: 2022-08-17
+version: 1
 excerpt: Si tienes un wd my cloud generación 1 (el que tiene el frontal mas redondito) ya sabrás que ha fecha 15 de abril del 2022 la empresa Western Digital dejó de dar soporte a tu disco de red y ha inhabilitado el acceso remoto, actualizaciones de seguridad y asistencia técnica.
 slug: recuperar-un-wd-mycloud-gen-1
 ---

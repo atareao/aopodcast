@@ -1,6 +1,7 @@
 ---
 title: Acerca de
 date: 2018-01-01
+version: 1
 slug: acerca-de
 excerpt: Acerca de
 ---
