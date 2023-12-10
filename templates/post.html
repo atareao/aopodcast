@@ -5,6 +5,7 @@
     <h1>{{ post.title }}</h1>
     <div class="date">
         <p>Escrito el {{ post.date | date(format="%d/%m/%Y") | safe }}</p>
+        <p>Escrito el {{ post.date | date(format="[day]/[month]/[year]") | safe }}</p>
     </div>
     <div class="entry">
         {{ post.content | safe }}

@@ -2,6 +2,7 @@ mod models;
 
 use models::{
     config::Configuration,
+    ENV,
     mastodon::{get_mastodon_client, Mastodon},
     telegram::{get_telegram_client, Telegram}
 };
@@ -11,7 +12,7 @@ use tracing_subscriber::{
     util::SubscriberInitExt
 };
 use tracing::{debug, info, error};
-use tera::{Context, Tera};
+use minijinja::context;
 use std::str::FromStr;
 use crate::models::{
     archive::ArchiveOrg,
@@ -45,7 +46,6 @@ async fn main(){
     generate_index(&configuration, &posts, &pages).await;
     generate_feed(&configuration, &posts).await;
     generate_stats(&configuration, &posts, &pages).await;
-    //let style_css = configuration.get_style_css();
     let public = if configuration.get_site().baseurl.is_empty(){
         configuration.get_public().to_owned()
     }else{
@@ -110,14 +110,6 @@ async fn read_episodes_and_posts() -> Vec<Post>{
 
 async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
         mastodon: &Mastodon){
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
-    let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
     }else if configuration.get_site().baseurl.starts_with('/'){
@@ -125,29 +117,23 @@ async fn post_with_mastodon(configuration: &Configuration, episode: &Episode,
     }else{
         format!("/{}", configuration.get_site().baseurl)
     };
-    context.insert("url", &url);
-    context.insert("site", configuration.get_site());
-    context.insert("post", &episode.get_post());
-    match tera.render("mastodon.html", &context){
+    let ctx = context! {
+        url => url,
+        site => configuration.get_site(),
+        post => episode.get_post(),
+    };
+    let template = ENV.get_template("mastodon.html").unwrap();
+    match template.render(ctx) {
         Ok(content) => {
             debug!("{}", content);
             mastodon.post(&content).await;
         },
         Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
     }
-    
 }
 
 async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
         telegram: &Telegram){
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
-    let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
     }else if configuration.get_site().baseurl.starts_with('/'){
@@ -159,10 +145,14 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
     let audio = format!("https://archive.org/download/{}/{}",
         &post.identifier,
         &post.filename);
-    context.insert("url", &url);
-    context.insert("site", configuration.get_site());
-    context.insert("post", &post);
-    match tera.render("telegram.html", &context){
+    let ctx = context! {
+        url => url,
+        site => configuration.get_site(),
+        audio => audio,
+        post => episode.get_post(),
+    };
+    let template = ENV.get_template("telegram.html").unwrap();
+    match template.render(ctx) {
         Ok(caption) => {
             debug!("{}", caption);
             telegram.send_audio(&audio, &caption).await;
@@ -173,19 +163,11 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode,
 
 async fn generate_feed(configuration: &Configuration, posts: &[Post]){
     info!("generate_feed");
-    let tera = match Tera::new("templates/*.xml") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
     let public = if configuration.get_site().baseurl.is_empty(){
         configuration.get_public().to_owned()
     }else{
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
-    let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
     }else if configuration.get_site().baseurl.starts_with('/'){
@@ -193,36 +175,40 @@ async fn generate_feed(configuration: &Configuration, posts: &[Post]){
     }else{
         format!("/{}", configuration.get_site().baseurl)
     };
-    context.insert("url", &url);
-    context.insert("site", configuration.get_site());
     let filter_posts: Vec<&Post> = posts
         .iter()
         .filter(|post| post.layout == Layout::Podcast).collect();
-    context.insert("posts", &filter_posts);
-    match tera.render("feed.xml", &context){
+    let ctx = context! {
+        url => url,
+        site => configuration.get_site(),
+        posts => filter_posts,
+    };
+    let template = ENV.get_template("feed.xml").unwrap();
+    match template.render(ctx) {
         Ok(content) => {
             write_post(&public, "", Some(&configuration.get_site().podcast_feed), &content).await;
             debug!("write feed");
         },
-        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+        Err(err) => {
+            eprintln!("Could not render template: {:#}", err);
+            // render causes as well
+            let mut err = &err as &dyn std::error::Error;
+            while let Some(next_err) = err.source() {
+                eprintln!();
+                eprintln!("caused by: {:#}", next_err);
+                err = next_err;
+            }
+        }
     }
 }
 
 async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
     info!("generate_stats");
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
     let public = if configuration.get_site().baseurl.is_empty(){
         configuration.get_public().to_owned()
     }else{
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
-    let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
     }else if configuration.get_site().baseurl.starts_with('/'){
@@ -230,35 +216,39 @@ async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages:
     }else{
         format!("/{}", configuration.get_site().baseurl)
     };
-    context.insert("url", &url);
-    context.insert("site", configuration.get_site());
-    context.insert("pages", pages);
-    context.insert("posts", posts);
-    match tera.render("statistics.html", &context){
+    let ctx = context! {
+        url => url,
+        site => configuration.get_site(),
+        pages => pages,
+        posts => posts,
+    };
+    let template = ENV.get_template("statistics.html").unwrap();
+    match template.render(ctx) {
         Ok(content) => {
             debug!("{}", content);
             create_dir(&format!("{}/{}", public, "statistics")).await;
             write_post(&public, "statistics", None, &content).await;
         },
-        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+        Err(err) => {
+            eprintln!("Could not render template: {:#}", err);
+            // render causes as well
+            let mut err = &err as &dyn std::error::Error;
+            while let Some(next_err) = err.source() {
+                eprintln!();
+                eprintln!("caused by: {:#}", next_err);
+                err = next_err;
+            }
+        }
     }
 }
 
 async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>){
     info!("generate_index");
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
     let public = if configuration.get_site().baseurl.is_empty(){
         configuration.get_public().to_owned()
     }else{
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
-    let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
     }else if configuration.get_site().baseurl.starts_with('/'){
@@ -266,34 +256,38 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
     }else{
         format!("/{}", configuration.get_site().baseurl)
     };
-    context.insert("url", &url);
-    context.insert("site", configuration.get_site());
-    context.insert("pages", pages);
-    context.insert("posts", &posts);
-    match tera.render("index.html", &context){
+    let ctx = context! {
+        url => url,
+        site => configuration.get_site(),
+        pages => pages,
+        posts => posts,
+    };
+    let template = ENV.get_template("index.html").unwrap();
+    match template.render(ctx) {
         Ok(content) => {
             debug!("{}", content);
             write_post(&public, "", None, &content).await;
         },
-        Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+        Err(err) => {
+            eprintln!("Could not render template: {:#}", err);
+            // render causes as well
+            let mut err = &err as &dyn std::error::Error;
+            while let Some(next_err) = err.source() {
+                eprintln!();
+                eprintln!("caused by: {:#}", next_err);
+                err = next_err;
+            }
+        }
     }
 }
 
 async fn generate_html(configuration: &Configuration, posts: &[Post], pages: &Vec<Post>){
     info!("generate_html");
-    let tera = match Tera::new("templates/*.html") {
-        Ok(t) => t,
-        Err(e) => {
-            error!("Parsing error(s): {}", e);
-            std::process::exit(1);
-        }
-    };
     let public = if configuration.get_site().baseurl.is_empty(){
         configuration.get_public().to_owned()
     }else{
         format!("{}/{}", configuration.get_public(), configuration.get_site().baseurl)
     };
-    let mut context = Context::new();
     let url = if configuration.get_site().baseurl.is_empty(){
         "".to_string()
     }else if configuration.get_site().baseurl.starts_with('/'){
@@ -301,22 +295,34 @@ async fn generate_html(configuration: &Configuration, posts: &[Post], pages: &Ve
     }else{
         format!("/{}", configuration.get_site().baseurl)
     };
-    context.insert("url", &url);
-    context.insert("site", configuration.get_site());
-    context.insert("pages", pages);
     let mut post_and_pages = Vec::new();
     post_and_pages.extend_from_slice(posts);
     post_and_pages.extend_from_slice(pages);
     for post in post_and_pages.as_slice(){
-        context.insert("post", post);
-        match tera.render("post.html", &context){
+        let ctx = context!(
+            url => url,
+            site => configuration.get_site(),
+            pages => pages,
+            post => post,
+        );
+        let template = ENV.get_template("post.html").unwrap();
+        match template.render(ctx) {
             Ok(content) => {
                 debug!("{}", &content);
                 debug!("Post: {:?}", &post);
                 create_dir(&format!("{}/{}",public, &post.slug)).await;
                 write_post(&public, &post.slug, None, &content).await
             },
-            Err(e) => error!("Algo no ha funcionado correctamente, {}", e),
+            Err(err) => {
+                eprintln!("Could not render template: {:#}", err);
+                // render causes as well
+                let mut err = &err as &dyn std::error::Error;
+                while let Some(next_err) = err.source() {
+                    eprintln!();
+                    eprintln!("caused by: {:#}", next_err);
+                    err = next_err;
+                }
+            }
         }
     }
 }
@@ -338,10 +344,10 @@ async fn update(configuration: &Configuration){
             match Episode::new(&filename).await{
                 Ok(ref mut episode) => {
                     if episode.get_downloads() != doc.get_downloads() || 
-                            episode.get_datetime().is_none() ||
-                            episode.get_version() != VERSION{
-                        if episode.get_datetime().is_none(){
-                            episode.set_datetime(Some(doc.get_datetime()));
+                            episode.get_version() == 0 ||
+                            episode.get_version() != VERSION {
+                        if episode.get_version() == 0 {
+                            episode.set_datetime(doc.get_datetime());
                         }
                         episode.set_version(VERSION);
                         episode.set_downloads(doc.get_downloads());

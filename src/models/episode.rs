@@ -29,8 +29,7 @@ pub struct Metadata{
     pub downloads: u64,
     // from mp3 metadata
     pub filename: String,
-    #[serde(default = "get_default_datetime")]
-    pub datetime: Option<DateTime<Utc>>,
+    pub datetime: DateTime<Utc>,
     #[serde(default = "get_default_version")]
     pub version: usize,
     pub size: u64,
@@ -44,9 +43,6 @@ fn get_default_version() -> usize{
     0
 }
 
-fn get_default_datetime() -> Option<DateTime<Utc>>{
-    None
-}
 
 fn string_or_seq_string<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
     where D: Deserializer<'de>
@@ -122,11 +118,11 @@ impl Episode{
         self.metadata.version
     }
 
-    pub fn set_datetime(&mut self, datetime: Option<DateTime<Utc>>){
+    pub fn set_datetime(&mut self, datetime: DateTime<Utc>){
         self.metadata.datetime = datetime;
     }
 
-    pub fn get_datetime(&self) -> Option<DateTime<Utc>>{
+    pub fn get_datetime(&self) -> DateTime<Utc>{
         self.metadata.datetime
     }
 
@@ -228,7 +224,7 @@ impl Episode{
             identifier: doc.get_identifier().to_string(),
             subject: doc.get_subject(),
             downloads: doc.get_downloads(),
-            datetime: Some(doc.get_datetime()),
+            datetime: doc.get_datetime(),
             version: doc.get_version(),
             title: title.to_string(),
             excerpt: comment.to_owned(),

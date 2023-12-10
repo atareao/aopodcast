@@ -75,11 +75,11 @@ pub fn get_date(mtime: &str) -> String{
     date.format("%Y-%m-%d").to_string()
 }
 
-pub fn get_unix_time(ymd: &str) -> Option<DateTime<Utc>>{
+pub fn get_unix_time(ymd: &str) -> DateTime<Utc>{
     let nd = NaiveDate::parse_from_str(ymd, "%Y-%m-%d").unwrap();
     let nt = NaiveTime::from_hms_opt(0, 0, 0).unwrap();
     let ndt = nd.and_time(nt);
-    Some(TimeZone::from_utc_datetime(&Utc, &ndt))
+    TimeZone::from_utc_datetime(&Utc, &ndt)
 }
 
 #[test]

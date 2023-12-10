@@ -39,7 +39,7 @@ pub struct Post{
     pub title: String,
     pub content: String,
     pub subject: Vec<String>,
-    pub date: Option<DateTime<Utc>>,
+    pub date: DateTime<Utc>,
     pub version: usize,
     pub identifier: String,
     pub filename: String,
