@@ -5,8 +5,10 @@ title: PF001Bienvenidos
 subject:
 - Bienvenidos
 - PapaFriki
-downloads: 2836
+downloads: 2860
 filename: 001.Bienvenidos.mp3
+datetime: 2018-03-10T23:15:59Z
+version: 1
 size: 2503157
 length: 156
 excerpt: |-

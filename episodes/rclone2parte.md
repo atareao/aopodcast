@@ -5,8 +5,10 @@ title: Rclone segunda parte
 subject:
 - Rclone
 - Papá Friki
-downloads: 2980
+downloads: 3001
 filename: Rclone2parte.mp3
+datetime: 2019-07-05T07:03:09Z
+version: 1
 size: 13004131
 length: 750
 excerpt: "Buenas muchachada hoy os traigo una segunda parte sobre el programa rclone y rclone browser.\n\nEl programa original de Rclone Browser lo tenéis en la siguiente dirección\n\n[https://martins.ninja/RcloneBrowser/](https://martins.ninja/RcloneBrowser/)\n\nEl fork que muestra la subida con barra de progreso\n\n[https://github.com/noabody/RcloneBrowser](https://github.com/noabody/RcloneBrowser)  \n\nUn par de videos que explican el uso de Rclone en windows\n\n[https://www.youtube.com/watch?v=uI7OdUXhREI](https://www.youtube.com/watch?v=uI7OdUXhREI)  \n\n[https://www.youtube.com/watch?v=uXBlqEOE\\_lo](https://www.youtube.com/watch?v=uXB"
