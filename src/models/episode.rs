@@ -29,7 +29,8 @@ pub struct Metadata{
     pub downloads: u64,
     // from mp3 metadata
     pub filename: String,
-    pub datetime: DateTime<Utc>,
+    #[serde(default = "get_default_datetime")]
+    pub datetime: Option<DateTime<Utc>>,
     #[serde(default = "get_default_version")]
     pub version: usize,
     pub size: u64,
@@ -39,6 +40,11 @@ pub struct Metadata{
     // more
     pub slug: String,
 }
+
+fn get_default_datetime() -> Option<DateTime<Utc>>{
+    None
+}
+
 fn get_default_version() -> usize{
     0
 }
@@ -99,7 +105,7 @@ impl Episode{
             title: self.metadata.title.clone(),
             content,
             subject: self.metadata.subject.clone(),
-            date: self.metadata.datetime,
+            date: self.metadata.datetime.unwrap(),
             version: self.metadata.version,
             identifier: self.metadata.identifier.clone(),
             filename: self.metadata.filename.clone(),
@@ -119,11 +125,11 @@ impl Episode{
     }
 
     pub fn set_datetime(&mut self, datetime: DateTime<Utc>){
-        self.metadata.datetime = datetime;
+        self.metadata.datetime = Some(datetime);
     }
 
     pub fn get_datetime(&self) -> DateTime<Utc>{
-        self.metadata.datetime
+        self.metadata.datetime.unwrap()
     }
 
 
@@ -224,7 +230,7 @@ impl Episode{
             identifier: doc.get_identifier().to_string(),
             subject: doc.get_subject(),
             downloads: doc.get_downloads(),
-            datetime: doc.get_datetime(),
+            datetime: Some(doc.get_datetime()),
             version: doc.get_version(),
             title: title.to_string(),
             excerpt: comment.to_owned(),

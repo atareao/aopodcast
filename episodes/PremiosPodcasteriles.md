@@ -7,8 +7,6 @@ subject:
 - podcast
 downloads: 2368
 filename: PremiosPodcasteriles.mp3
-datetime: 2018-08-24T08:12:59Z
-version: 1
 size: 7703534
 length: 435
 excerpt: "Buenas muchachada hoy entrego mis premios \"podcasteriles\". Entender que son basados en los podcast que conozco y escucho, seguramente haya muchos mas y muy buenos que se merecen premio. Haz una lista y entrega tus premios y compártelos con los demás.  \n\nReferencias del episodio de hoy:\n\n[MarcoGeek](https://www.ivoox.com/podcast-marcogeek_sq_f1151977_1.html)\n\n[MazinguerAstur Podcast](http://feeds.feedburner.com/Mazingerastur)\n\n[A ratos podcast](http://www.ivoox.com/p_sq_f1463037_1.html)\n\n[Podcast Linux](http://www.ivoox.com/p_sq_f1297890_"

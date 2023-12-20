@@ -9,8 +9,6 @@ subject:
 - Papá Friki
 downloads: 2594
 filename: 011undiaconpapafriki.mp3
-datetime: 2018-04-12T17:26:34Z
-version: 1
 size: 7222627
 length: 451
 excerpt: "Buenas muchachada, hoy he querido compartir con vosotros un día que ha empezado con emociones fuertes. Ha continuado con la primera vez que dono sangre y comentaros la experiencia de compra en Hipercor y pequeños problemillas con el feed de iTunes.   \n\nReferencias que he hecho en el podcast de hoy:\n\n[EducandoGeek ](https://educandogeek.github.io/)de @jgurillo.\n\n[Los Joseles](https://www.losjoseles.com/Po"
