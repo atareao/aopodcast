@@ -535,17 +535,17 @@ async fn copy_all_files(from_dir: &str, to_dir: &str) {
 }
 
 async fn create_dir(output: &str) {
-    debug!("Going to create : {}", &output);
+    info!("Going to create : {}", &output);
     let exists = match tokio::fs::metadata(&output).await {
         Ok(metadata) => {
             debug!("Output dir {} exists", &output);
             metadata.is_dir()
         }
         Err(err) => {
-            error!("Output dir {}, {:#}", &output, err);
+            debug!("Can not get metadata for dir {}, {:#}", &output, err);
             let mut err = &err as &dyn std::error::Error;
             while let Some(next_err) = err.source() {
-                error!("caused by: {:#}", next_err);
+                debug!("caused by: {:#}", next_err);
                 err = next_err;
             }
             false
@@ -600,11 +600,11 @@ pub async fn create_public(configuration: &Configuration) {
     info!("Output dir: {}", &output);
     let exists = match tokio::fs::metadata(output).await {
         Ok(metadata) => {
-            info!("Output dir {} exists", &output);
+            debug!("Output dir {} exists", &output);
             metadata.is_dir()
         }
         Err(err) => {
-            error!("Output dir {}, {:#}", &output, err);
+            debug!("Output dir {}, {:#}", &output, err);
             let mut err = &err as &dyn std::error::Error;
             while let Some(next_err) = err.source() {
                 error!("caused by: {:#}", next_err);
