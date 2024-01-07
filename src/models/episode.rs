@@ -202,6 +202,7 @@ impl Episode{
     }
 
     pub async fn save(&self)-> tokio::io::Result<()>{
+        info!("save {}", &self.get_filename());
         let mut content = String::new();
         debug!("Metadata: {}", &serde_yaml::to_string(&self.metadata).unwrap());
         content.push_str("---\n");

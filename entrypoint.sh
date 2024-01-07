@@ -43,6 +43,9 @@ fi
 echo "=== Chown ownership ==="
 # comment next line if needs root
 chown -R dockerus:dockerus /app
+if [[ -d /public ]]; then
+    chown -R dockerus:dockerus /public
+fi
 echo "=== Execute $* ==="
 # comment next line if needs root
 set -- su-exec dockerus "$@"
