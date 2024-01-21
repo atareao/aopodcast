@@ -1,6 +1,6 @@
 log_level: info
 data: data/data.json
-public: public
+public: public/temporal
 style_css: assets/style.css
 timezone: Europe/Madrid
 archiveorg:
@@ -12,8 +12,8 @@ site:
   author: Papá Friki
   title: Batallitas del día a día de un Papá Friki
   description: Batallitas del día a día de un Papá Friki
-  baseurl: 
-  url: https://atareao.gitlab.io/podcast
+  baseurl: podcast
+  url: https://atareao.gitlab.io
   avatar: https://gitlab.com/uploads/-/system/user/avatar/2074936/avatar.png
   category: Technology
   subcategory: Podcasting

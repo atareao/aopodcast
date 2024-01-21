@@ -25,9 +25,9 @@ pub struct Site{
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum Layout{
-    Post,
-    Podcast,
-    Page,
+    POST,
+    PODCAST,
+    PAGE,
 }
 
 

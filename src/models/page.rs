@@ -42,7 +42,7 @@ impl Page{
             date,
             version: self.metadata.version,
             excerpt: self.metadata.excerpt.clone(),
-            layout: Layout::Page,
+            layout: Layout::PAGE,
             slug: self.metadata.slug.clone(),
             content,
             subject: Vec::new(),

@@ -45,7 +45,7 @@ impl Article{
             date,
             version: self.metadata.version,
             excerpt: self.metadata.excerpt.clone(),
-            layout: Layout::Post,
+            layout: Layout::POST,
             slug: self.metadata.slug.clone(),
             subject: Vec::new(),
             content,

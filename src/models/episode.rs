@@ -99,7 +99,7 @@ impl Episode{
     pub fn get_post(&self) -> Post{
         let content = markdown_to_html(&self.content, &ComrakOptions::default());
         Post{
-            layout: Layout::Podcast,
+            layout: Layout::PODCAST,
             slug: self.metadata.slug.clone(),
             excerpt: self.metadata.excerpt.clone(),
             title: self.metadata.title.clone(),

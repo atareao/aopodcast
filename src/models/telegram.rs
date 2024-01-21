@@ -30,6 +30,7 @@ impl Telegram{
 
     #[allow(dead_code)]
     pub async fn post(&self, message: &str){
+        info!("Message to publish in Telegram: {}", message);
         let url = format!("https://api.telegram.org/bot{}/sendMessage",
             self.access_token);
         let message = json!({

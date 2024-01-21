@@ -41,7 +41,7 @@ async fn main() {
     generate_html(&configuration, &posts, &pages).await;
     generate_index(&configuration, &posts, &pages).await;
     generate_feed(&configuration, &posts).await;
-    generate_stats(&configuration, &posts, &pages).await;
+    generate_stats(&configuration, &posts).await;
     let public = if configuration.get_site().baseurl.is_empty() {
         configuration.get_public().to_owned()
     } else {
@@ -91,7 +91,7 @@ async fn read_episodes_and_posts() -> Vec<Post> {
         if file.metadata().await.unwrap().is_file() {
             let filename = file.file_name().to_str().unwrap().to_string();
             if filename.ends_with(".md") {
-                debug!("Read episode: {}", filename);
+                info!("Read episode: {}", filename);
                 match Episode::new(&filename).await {
                     Ok(episode) => posts.push(episode.get_post()),
                     Err(err) => {
@@ -220,7 +220,7 @@ async fn generate_feed(configuration: &Configuration, posts: &[Post]) {
     };
     let filter_posts: Vec<&Post> = posts
         .iter()
-        .filter(|post| post.layout == Layout::Podcast)
+        .filter(|post| post.layout == Layout::PODCAST)
         .collect();
     let ctx = context! {
         url => url,
@@ -251,7 +251,7 @@ async fn generate_feed(configuration: &Configuration, posts: &[Post]) {
     }
 }
 
-async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>) {
+async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>) {
     info!("generate_stats");
     let public = if configuration.get_site().baseurl.is_empty() {
         configuration.get_public().to_owned()
@@ -272,7 +272,6 @@ async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>, pages:
     let ctx = context! {
         url => url,
         site => configuration.get_site(),
-        pages => pages,
         posts => posts,
     };
     let template = ENV.get_template("statistics.html").unwrap();
