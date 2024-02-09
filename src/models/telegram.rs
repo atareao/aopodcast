@@ -54,7 +54,7 @@ impl Telegram{
             }
     }
 
-    pub async fn send_audio(&self, audio: &str, caption: &str){
+    pub async fn send_audio(&self, audio: &str, caption: &str) -> Result<String, reqwest::Error>{
         let url = format!("https://api.telegram.org/bot{}/sendAudio",
             self.access_token);
         let message = json!({
@@ -63,26 +63,14 @@ impl Telegram{
             "caption": Self::prepare(caption),
             "parse_mode": "HTML",
         });
-        match Client::new()
+        Client::new()
             .post(url)
             .json(&message)
             .send()
-            .await {
-                Ok(response) => {
-                    match response.text().await{
-                        Ok(content) => info!(
-                            "Mensaje envíado a Telegram. Response: {}",
-                            content),
-                        Err(error) => error!(
-                            "No he podido enviar el mensaje a Telegram: {}",
-                            error.to_string())
-                    }
-                },
-                Err(error) => {
-                    error!("No he podido enviar el mensaje a Telegram: {}",
-                        error.to_string());
-                },
-            }
+            .await?
+            .error_for_status()?
+            .text()
+            .await
     }
 
     fn prepare(text: &str) -> String{

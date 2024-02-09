@@ -29,6 +29,7 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+
     debug!("Configuration: {:?}", configuration);
 
     update(&configuration).await;
@@ -36,7 +37,7 @@ async fn main() {
     let posts = read_episodes_and_posts().await;
     let pages = read_pages().await;
     debug!("{:?}", posts);
-    info!("=== Generation ===");
+    debug!("=== Generation ===");
     create_public(&configuration).await;
     generate_html(&configuration, &posts, &pages).await;
     generate_index(&configuration, &posts, &pages).await;
@@ -91,7 +92,7 @@ async fn read_episodes_and_posts() -> Vec<Post> {
         if file.metadata().await.unwrap().is_file() {
             let filename = file.file_name().to_str().unwrap().to_string();
             if filename.ends_with(".md") {
-                info!("Read episode: {}", filename);
+                debug!("Read episode: {}", filename);
                 match Episode::new(&filename).await {
                     Ok(episode) => posts.push(episode.get_post()),
                     Err(err) => {
@@ -185,8 +186,19 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode, te
     let template = ENV.get_template("telegram.html").unwrap();
     match template.render(ctx) {
         Ok(caption) => {
-            debug!("{}", caption);
-            telegram.send_audio(&audio, &caption).await;
+            info!("Caption: {caption}");
+            match telegram.send_audio(&audio, &caption).await{
+                Ok(result) => info!("Message send to Telegram: {result}"),
+                Err(err) => {
+                    error!("Can not sent message to Telegram. {:#}", err);
+                    // render causes as well
+                    let mut err = &err as &dyn std::error::Error;
+                    while let Some(next_err) = err.source() {
+                        error!("caused by: {:#}", next_err);
+                        err = next_err;
+                    }
+                }
+            }
         }
         Err(err) => {
             error!("Algo no ha funcionado correctamente. {:#}", err);
@@ -201,7 +213,7 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode, te
 }
 
 async fn generate_feed(configuration: &Configuration, posts: &[Post]) {
-    info!("generate_feed");
+    debug!("generate_feed");
     let public = if configuration.get_site().baseurl.is_empty() {
         configuration.get_public().to_owned()
     } else {
@@ -252,7 +264,7 @@ async fn generate_feed(configuration: &Configuration, posts: &[Post]) {
 }
 
 async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>) {
-    info!("generate_stats");
+    debug!("generate_stats");
     let public = if configuration.get_site().baseurl.is_empty() {
         configuration.get_public().to_owned()
     } else {
@@ -294,7 +306,7 @@ async fn generate_stats(configuration: &Configuration, posts: &Vec<Post>) {
 }
 
 async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages: &Vec<Post>) {
-    info!("generate_index");
+    debug!("generate_index");
     let public = if configuration.get_site().baseurl.is_empty() {
         configuration.get_public().to_owned()
     } else {
@@ -336,7 +348,7 @@ async fn generate_index(configuration: &Configuration, posts: &Vec<Post>, pages:
 }
 
 async fn generate_html(configuration: &Configuration, posts: &[Post], pages: &Vec<Post>) {
-    info!("generate_html");
+    debug!("generate_html");
     let public = if configuration.get_site().baseurl.is_empty() {
         configuration.get_public().to_owned()
     } else {
@@ -385,7 +397,7 @@ async fn generate_html(configuration: &Configuration, posts: &[Post], pages: &Ve
 }
 
 async fn update(configuration: &Configuration) {
-    info!("update");
+    debug!("update");
     let mastodon_client = get_mastodon_client();
     let telegram_client = get_telegram_client();
     let mut new_docs = Vec::new();
@@ -393,7 +405,7 @@ async fn update(configuration: &Configuration) {
     let docs = aoclient.get_all_docs().await;
     for doc in docs {
         if doc.exists().await {
-            info!("Doc {} exists", doc.get_identifier());
+            debug!("Doc {} exists", doc.get_identifier());
             debug!("Doc: {:?}", &doc);
             let filename = doc.get_filename();
             //BUG: Esto hay que revisar
@@ -534,7 +546,7 @@ async fn copy_all_files(from_dir: &str, to_dir: &str) {
 }
 
 async fn create_dir(output: &str) {
-    info!("Going to create : {}", &output);
+    debug!("Going to create : {}", &output);
     let exists = match tokio::fs::metadata(&output).await {
         Ok(metadata) => {
             debug!("Output dir {} exists", &output);
@@ -552,7 +564,7 @@ async fn create_dir(output: &str) {
     };
     if exists {
         match tokio::fs::remove_dir_all(&output).await {
-            Ok(_) => info!("Directory {} removed", output),
+            Ok(_) => debug!("Directory {} removed", output),
             Err(err) => {
                 error!("Cant delete directory {}, {:#}", &output, err);
                 let mut err = &err as &dyn std::error::Error;
@@ -565,7 +577,7 @@ async fn create_dir(output: &str) {
         }
     }
     match tokio::fs::create_dir_all(&output).await {
-        Ok(_) => info!("Directory {} created", output),
+        Ok(_) => debug!("Directory {} created", output),
         Err(err) => {
             error!("Cant create directory {}, {:#}", &output, err);
             let mut err = &err as &dyn std::error::Error;
@@ -580,7 +592,7 @@ async fn create_dir(output: &str) {
 
 pub async fn copy_file(from: &str, to: &str) {
     match tokio::fs::copy(from, to).await {
-        Ok(_) => info!("Copied from {} to {}", from, to),
+        Ok(_) => debug!("Copied from {} to {}", from, to),
         Err(err) => {
             error!("Cant copy from {} to {}. {:#}", from, to, err);
             let mut err = &err as &dyn std::error::Error;
@@ -594,9 +606,9 @@ pub async fn copy_file(from: &str, to: &str) {
 }
 
 pub async fn create_public(configuration: &Configuration) {
-    info!("create_public");
+    debug!("create_public");
     let output = configuration.get_public();
-    info!("Output dir: {}", &output);
+    debug!("Output dir: {}", &output);
     let exists = match tokio::fs::metadata(output).await {
         Ok(metadata) => {
             debug!("Output dir {} exists", &output);
@@ -614,7 +626,7 @@ pub async fn create_public(configuration: &Configuration) {
     };
     if exists {
         match tokio::fs::remove_dir_all(output).await {
-            Ok(_) => info!("Directory {} removed", output),
+            Ok(_) => debug!("Directory {} removed", output),
             Err(err) => {
                 error!("Cant delete directory {}, {}", output, err);
                 let mut err = &err as &dyn std::error::Error;
@@ -627,7 +639,7 @@ pub async fn create_public(configuration: &Configuration) {
         }
     }
     match tokio::fs::create_dir_all(output).await {
-        Ok(_) => info!("Directory {} created", output),
+        Ok(_) => debug!("Directory {} created", output),
         Err(err) => {
             error!("Cant create directory {}, {}", output, err);
             let mut err = &err as &dyn std::error::Error;
