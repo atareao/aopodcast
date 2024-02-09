@@ -190,7 +190,7 @@ async fn post_with_telegram(configuration: &Configuration, episode: &Episode, te
             match telegram.send_audio(&audio, &caption).await{
                 Ok(result) => info!("Message send to Telegram: {result}"),
                 Err(err) => {
-                    error!("Can not sent message to Telegram. {:#}", err);
+                    error!("Can not sent message to Telegram. Caption: {}. Error: {:#}", &caption, err);
                     // render causes as well
                     let mut err = &err as &dyn std::error::Error;
                     while let Some(next_err) = err.source() {
