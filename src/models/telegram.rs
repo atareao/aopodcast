@@ -1,6 +1,5 @@
 use reqwest::Client;
 use serde_json::json;
-use regex::Regex;
 use tracing::{info, error};
 
 pub struct Telegram{
@@ -33,6 +32,7 @@ impl Telegram{
         info!("Message to publish in Telegram: {}", message);
         let url = format!("https://api.telegram.org/bot{}/sendMessage",
             self.access_token);
+        info!("url  {}", url);
         let message = json!({
             "chat_id": self.chat_id,
             "text": message,
@@ -57,10 +57,13 @@ impl Telegram{
     pub async fn send_audio(&self, audio: &str, caption: &str) -> Result<String, reqwest::Error>{
         let url = format!("https://api.telegram.org/bot{}/sendAudio",
             self.access_token);
+        info!("url  {}", url);
+        let content = Self::prepare(caption);
+        info!("content  {}", content);
         let message = json!({
             "chat_id": self.chat_id,
             "audio": audio,
-            "caption": Self::prepare(caption),
+            "caption": content,
             "parse_mode": "HTML",
         });
         Client::new()
@@ -74,8 +77,12 @@ impl Telegram{
     }
 
     fn prepare(text: &str) -> String{
-        let re = Regex::new(r#""([^"]*)""#).unwrap();
-        re.replace_all(text, "<i>$1</i>").to_string()
+        text.chars()
+            .map(|c| match c {
+                '"' => '\'',
+                _   => c,
+            })
+            .collect()
     }
 }
 
@@ -92,8 +99,13 @@ mod tests {
         let token = env::var("TOKEN").unwrap();
         let chat_id = env::var("CHAT_ID").unwrap();
         let audio = env::var("AUDIO").unwrap();
-        let caption = r#"Este es un "título" de prueba"#;
+        let caption = r#"Buenas muchachada, he compartido un nuevo episodio <strong>Papá Friki 3 Wireguard2</strong>.
+<a href='https://feeds.feedburner.com/papafriki'>https://feeds.feedburner.com/papafriki</a> 
+<a href='/papa-friki-3-wireguard2'>Papá Friki 3 Wireguard2</a>
+Ya sabéis, poco a poco irá llegando a vuestro programa de podcast favorito, a la red de SOSPECHOSOS HABITUALES, a Telegram o a YouTube"#;
+        println!("==============================================");
         println!("{}, {}, {}, {}", token, chat_id, audio, caption);
+        println!("==============================================");
         
         let telegram = Telegram::new(&token, &chat_id);
         let answer = telegram.send_audio(&audio, caption).await;
