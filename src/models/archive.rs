@@ -198,7 +198,7 @@ mod tests {
             None);
         let docs = aoclient.get_docs("1970-01-01", 1).await;
         if !docs.is_empty(){
-            debug!("{:?}", docs.get(0).unwrap());
+            debug!("{:?}", docs.first().unwrap());
         }
         assert!(!docs.is_empty())
     }

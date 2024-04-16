@@ -9,11 +9,11 @@ pub struct AOMetadata{
 
 impl AOMetadata {
     pub fn new(content: &str) -> Self{
-        let identifier = Self::get("identifier", content).get(0).unwrap().to_string();
+        let identifier = Self::get("identifier", content).first().unwrap().to_string();
         let description = html2md::parse_html(
             decode_html_entities(
                 &Self::get("description", content)
-                .get(0)
+                .first()
                 .unwrap()
                 .to_owned()).trim());
         Self{

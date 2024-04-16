@@ -69,7 +69,7 @@ impl Mp3Metadata {
     fn get_value(tag: &str, xml: &str) -> String{
         let value = Self::get(tag, xml);
         if !value.is_empty(){
-            match value.get(0) {
+            match value.first() {
                 Some(value) => value.to_string(),
                 None => "".to_string()
             }
