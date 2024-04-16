@@ -1,13 +1,15 @@
-target/
-.git
-Dockerfile
-README.md
-.gitignore
-.justfile
-assets/
-episodes/
-pages/
-posts/
-templates/
-.sessions/
-public/
+# Ignore everything
+*
+
+# Allow files and directories
+!/src
+!Cargo.toml
+!Cargo.lock
+!entrypoint.sh
+
+# Ignore unnecessary files inside allowed directories
+# This should go after the allowed directories
+**/*~
+**/*.log
+**/.DS_Store
+**/Thumbs.db

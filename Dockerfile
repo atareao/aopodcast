@@ -1,36 +1,29 @@
 ###############################################################################
-## Builder
+## Backend builder
 ###############################################################################
-FROM rust:1.74 AS builder
+FROM rust:alpine3.19 AS builder
 
 LABEL maintainer="Lorenzo Carbonell <a.k.a. atareao> lorenzo.carbonell.cerezo@gmail.com"
 
-ARG TARGET=x86_64-unknown-linux-musl
-ENV RUST_MUSL_CROSS_TARGET=$TARGET \
-    OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu" \
-    OPENSSL_INCLUDE_DIR="/usr/include/openssl"
-
-RUN rustup target add $TARGET && \
-    apt-get update && \
-    apt-get install -y \
-        --no-install-recommends\
-        pkg-config \
-        musl-tools \
-        build-essential \
-        cmake \
-        musl-dev \
-        pkg-config \
-        libssl-dev \
-        && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apk add --update --no-cache \
+            autoconf \
+            gcc \
+            gdb \
+            git \
+            libdrm-dev \
+            libepoxy-dev \
+            make \
+            mesa-dev \
+            strace \
+            musl-dev
 
 WORKDIR /app
 
 COPY Cargo.toml Cargo.lock ./
 COPY src src
 
-RUN cargo build --release --target $TARGET && \
-    cp /app/target/$TARGET/release/aopodcast /app/aopodcast
+RUN cargo build --release && \
+    cp /app/target/release/aopodcast /app/aopodcast
 
 ###############################################################################
 ## Final image
