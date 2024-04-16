@@ -100,8 +100,8 @@ mod tests {
         let chat_id = env::var("CHAT_ID").unwrap();
         let audio = env::var("AUDIO").unwrap();
         let caption = r#"Buenas muchachada, he compartido un nuevo episodio <strong>Papá Friki 3 Wireguard2</strong>.
-<a href='https://feeds.feedburner.com/papafriki'>https://feeds.feedburner.com/papafriki</a> 
-<a href='/papa-friki-3-wireguard2'>Papá Friki 3 Wireguard2</a>
+<a href="https://feeds.feedburner.com/papafriki">https://feeds.feedburner.com/papafriki</a> 
+<a href="/papa-friki-3-wireguard2">Papá Friki 3 Wireguard2</a>
 Ya sabéis, poco a poco irá llegando a vuestro programa de podcast favorito, a la red de SOSPECHOSOS HABITUALES, a Telegram o a YouTube"#;
         println!("==============================================");
         println!("{}, {}, {}, {}", token, chat_id, audio, caption);
