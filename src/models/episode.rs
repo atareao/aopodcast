@@ -128,11 +128,6 @@ impl Episode{
         self.metadata.datetime = Some(datetime);
     }
 
-    pub fn get_datetime(&self) -> DateTime<Utc>{
-        self.metadata.datetime.unwrap()
-    }
-
-
     pub async fn new(filename: &str) -> Result<Self, serde_json::Error>{
         let mut save = false;
         let filename = format!("episodes/{}", filename);

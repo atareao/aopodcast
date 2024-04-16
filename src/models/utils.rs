@@ -1,5 +1,5 @@
 use regex::Regex;
-use chrono::{offset::TimeZone, DateTime, NaiveDate, NaiveTime, NaiveDateTime, Local, Utc};
+use chrono::{offset::TimeZone, DateTime, NaiveDate, NaiveTime, Utc};
 use tracing::debug;
 
 const EXCERPT_LENGTH: usize = 55;
@@ -63,16 +63,6 @@ pub fn get_first_words(content: &str, number: usize) -> &str{
     }else{
         content.trim()
     }
-}
-
-#[allow(dead_code)]
-pub fn get_date(mtime: &str) -> String{
-    let dt = Local::now();
-    let offset = dt.offset().to_owned();
-    let timestamp = mtime.parse::<i64>().unwrap();
-    let naive_date_time = NaiveDateTime::from_timestamp_opt(timestamp, 0).unwrap();
-    let date = DateTime::<Local>::from_naive_utc_and_offset(naive_date_time, offset);
-    date.format("%Y-%m-%d").to_string()
 }
 
 pub fn get_unix_time(ymd: &str) -> DateTime<Utc>{
